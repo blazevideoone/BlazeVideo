@@ -2,7 +2,7 @@
   "name": "cryptovideos",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "truffle.js",
   "directories": {
     "test": "test"
   },
