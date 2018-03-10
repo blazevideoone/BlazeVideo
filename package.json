@@ -10,5 +10,8 @@
     "test": "truffle test"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "zeppelin-solidity": "^1.7.0"
+  }
 }
