@@ -71,6 +71,53 @@ contract('VideoAccessControl', async (accounts) => {
     }
   });
 
+  it("should allow board members to pause and all accounts to check isPaused", async () => {
+    var account_two = accounts[1];
+    var account_four = accounts[3];
+
+    let videoAccessControlInstance = await VideoAccessControl.deployed();
+
+    await videoAccessControlInstance.pause({from: account_two});
+
+    let paused = await videoAccessControlInstance.isPaused.call({from: account_four});
+
+    assert.equal(true, paused);
+  });
+
+  it("should disallow board members to unpause except owner", async () => {
+    var account_two = accounts[1];
+    var account_four = accounts[3];
+
+    let videoAccessControlInstance = await VideoAccessControl.deployed();
+
+    try {
+      await videoAccessControlInstance.unpause({from: account_two});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      assert.isNotNull(error);
+    }
+
+    // From owner
+    await videoAccessControlInstance.unpause();
+
+    let paused = await videoAccessControlInstance.isPaused.call({from: account_four});
+
+    assert.equal(false, paused);
+  });
+
+  it("should disallow non board members to get all board members", async () => {
+    var account_four = accounts[3];
+
+    let videoAccessControlInstance = await VideoAccessControl.deployed();
+
+    try {
+      let boardMembers = await videoAccessControlInstance.getBoardMembers.call({from: account_four});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      assert.isNotNull(error);
+    }
+  });
+
   it("should disallow non owner to remove board members", async () => {
     var account_two = accounts[1];
 

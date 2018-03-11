@@ -1,8 +1,16 @@
 pragma solidity ^0.4.4;
 
+import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
+import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
+import 'zeppelin-solidity/contracts/ownership/HasNoEther.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 
-contract VideoAccessControl is Ownable {
+contract VideoAccessControl is
+    Ownable,
+    Pausable,
+    Destructible,
+    HasNoEther
+  {
 
   /// @dev Array of board members' addresses.
   address[] public boardMembers;
@@ -58,5 +66,14 @@ contract VideoAccessControl is Ownable {
   /// @dev Return a list of current board members.
   function getBoardMembers() public view onlyBoardMembers returns (address[]) {
     return boardMembers;
+  }
+
+  function pause() public onlyBoardMembers whenNotPaused {
+    paused = true;
+    Pause();
+  }
+
+  function isPaused() public view returns (bool){
+    return paused;
   }
 }
