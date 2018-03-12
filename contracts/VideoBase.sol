@@ -49,7 +49,7 @@ contract VideoBase
   mapping (bytes32 => uint256) public videoIdToTokenId;
 
   /// @dev Initialize with tokenId 0 video.
-  function VideoCore() public {
+  function VideoBase() public {
     Video memory _invalidVideo = Video({
         tokenId: 0,
         videoId: "INVALID",
@@ -116,8 +116,8 @@ contract VideoBase
 
     _updateVideo(videoId, viewCount);
 
-    // Mint the video token and send to sender, aka the owner.
-    _mint(msg.sender, newTokenId);
+    // Mint the video token and send to the owner.
+    _mint(owner, newTokenId);
   }
 
   /// @dev update the view count and viewCountUpdateTime for a video.
@@ -142,7 +142,8 @@ contract VideoBase
 
   // @dev helper function in order to do mapping, obtained from
   // https://ethereum.stackexchange.com/questions/9142/how-to-convert-a-string-to-bytes32
-  function _stringToBytes32(string memory source) internal pure returns (bytes32 result) {
+  function _stringToBytes32(string memory source)
+      internal pure returns (bytes32 result) {
     bytes memory tempEmptyStringTest = bytes(source);
     if (tempEmptyStringTest.length == 0) {
       return 0x0;
@@ -160,7 +161,7 @@ contract VideoBase
   /// and a positive numbe if `_b` is smaller.
   /// From https://github.com/ethereum/dapp-bin/blob/master/library/stringUtils.sol
   function _stringCompare(string memory _a, string memory _b)
-        internal pure returns (int) {
+      internal pure returns (int) {
     bytes memory a = bytes(_a);
     bytes memory b = bytes(_b);
     uint minLength = a.length;
@@ -183,8 +184,9 @@ contract VideoBase
   /// @param _a string one.
   /// @param _b string two.
   /// From https://github.com/ethereum/dapp-bin/blob/master/library/stringUtils.sol
-  function _stringEqual(string _a, string _b) internal pure returns (bool) {
-      return _stringCompare(_a, _b) == 0;
+  function _stringEqual(string memory _a, string memory _b)
+      internal pure returns (bool) {
+    return _stringCompare(_a, _b) == 0;
   }
 
 }
