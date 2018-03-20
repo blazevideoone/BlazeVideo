@@ -12,7 +12,7 @@ contract VideoBase
   /*** EVENTS ***/
 
   /// @dev Emitted when a new video is proposed to added. To be captured by
-  ///   an oracle which imports the video and sends it for auction.
+  ///   an oracle which imports the video.
   /// @param videoId new video id proposed.
   event NewVideoProposed(string videoId);
 
@@ -102,6 +102,16 @@ contract VideoBase
   /// @param viewCount fetched from the video platform.
   function addNewVideo(string videoId, uint256 viewCount)
       public onlySystemAccounts whenNotPaused {
+    _addNewVideo(owner, videoId, viewCount);
+  }
+
+  /// @dev internal function to add a new video and return the new token id.
+  /// @param videoOwner owner of the new video.
+  /// @param videoId to be proposed as a new video.
+  /// @param viewCount fetched from the video platform.
+  function _addNewVideo(address videoOwner, string videoId, uint256 viewCount)
+      internal
+      returns (uint256) {
     _requireNewVideo(videoId);
     Video memory _newVideo = Video({
         tokenId: 0,
@@ -114,19 +124,18 @@ contract VideoBase
     videos[newTokenId].tokenId = newTokenId;
     videoIdToTokenId[_stringToBytes32(videoId)] = newTokenId;
 
-    _updateVideo(videoId, viewCount);
-
     // Mint the video token and send to the owner.
-    _mint(owner, newTokenId);
+    _mint(videoOwner, newTokenId);
+
+    _initVideo(newTokenId, viewCount);
+
+    return newTokenId;
   }
 
-  /// @dev update the view count and viewCountUpdateTime for a video.
-  /// @param videoId whose view count is being updated.
-  function _updateVideo(string videoId, uint256 viewCount) internal {
-    _requireExistingVideo(videoId);
-
-    uint256 tokenId = videoIdToTokenId[_stringToBytes32(videoId)];
-
+  /// @dev initialize the view count and viewCountUpdateTime for a video.
+  /// @param tokenId whose video id is associated to.
+  /// @param viewCount to updated.
+  function _initVideo(uint256 tokenId, uint256 viewCount) internal {
     videos[tokenId].viewCount = viewCount;
     videos[tokenId].viewCountUpdateTime = uint64(now);
   }
