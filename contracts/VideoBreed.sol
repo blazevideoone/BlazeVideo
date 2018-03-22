@@ -92,8 +92,9 @@ contract VideoBreed
   function _startBreeding(uint256 tokenId) internal {
     Video storage video = videos[tokenId];
     Breeding storage breeding = tokenIdToBreeding[tokenId];
-    breeding.cooldownIndex = breeding.cooldownIndex >= 10 ?
-        10 : breeding.cooldownIndex + 1;
+    require(block.number > breeding.cooldownEndBlock);
+    breeding.cooldownIndex = breeding.cooldownIndex >= 9 ?
+        9 : breeding.cooldownIndex + 1;
     breeding.cooldownEndBlock =
         uint64((cooldowns[breeding.cooldownIndex]/secondsPerBlock) +
             block.number);
@@ -123,12 +124,36 @@ contract VideoBreed
   ///   observed.
   /// @param secs new seconds per block to be set.
   function setSecondsPerBlock(uint256 secs) public onlyBoardMembers {
-    require(secs < cooldowns[0]);
+    require(secs <= cooldowns[0]);
     secondsPerBlock = secs;
   }
 
   /// @dev Any board member can get seconds per blocks.
   function getSecondsPerBlock() public view onlyBoardMembers returns (uint256) {
     return secondsPerBlock;
+  }
+
+  /// @dev For test only, only owner can get cooldowns.
+  function getCooldowns() public view onlyOwner returns (uint32[10]) {
+    return cooldowns;
+  }
+
+  /// @dev For test only, only owner can set cooldown end block.
+  function setCooldownEndBlock(uint256 tokenId, uint64 blockNumber)
+      public onlyOwner {
+    require(0x0 != ownerOf(tokenId));
+    Breeding storage breeding = tokenIdToBreeding[tokenId];
+    breeding.cooldownEndBlock = blockNumber;
+  }
+
+  /// @dev Any board member can get breeding info.
+  function getBreeding(uint256 tokenId)
+      public view onlyBoardMembers
+      returns (uint64, uint16, uint16) {
+    require(0x0 != ownerOf(tokenId));
+    Breeding storage breeding = tokenIdToBreeding[tokenId];
+    return (breeding.cooldownEndBlock,
+            breeding.cooldownIndex,
+            breeding.generation);
   }
 }
