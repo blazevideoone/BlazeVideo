@@ -1,31 +1,36 @@
+const VideoBase = artifacts.require("./VideoBase.sol");
 const VideoBreed = artifacts.require("./VideoBreed.sol");
 
 contract('VideoBreed', async (accounts) => {
 
   const SECONDS_PER_BLOCK = 10 * 30;
   const YOUTUBE_PREFIX = "YUTB_";
-  const YOUTUBE_VIDEO_ID = YOUTUBE_PREFIX + "HPPj6viIBmU";
+  const YOUTUBE_VIDEO_ID = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmU");
   const YOUTUBE_VIEW_COUNT = 12345678;
   // VIDEO ID 2 similar to VIDEO ID
-  const YOUTUBE_VIDEO_ID2 = YOUTUBE_PREFIX + "HPPj6viIBmV";
+  const YOUTUBE_VIDEO_ID2 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmV");
   const YOUTUBE_VIEW_COUNT2 = 87654321;
-  const YOUTUBE_VIDEO_ID3 = YOUTUBE_PREFIX + "HPPj6v123mV";
+  const YOUTUBE_VIDEO_ID3 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6v123mV");
   const YOUTUBE_VIEW_COUNT3 = 8765;
 
   const TOKEN_ID_NOT_EXIST = 1000;
 
   it("should add video breeding info correctly", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
+    await videoBreed.setVideoBase(videoBase.address);
+    await videoBase.addListener(videoBreed.address);
+
     let cooldowns = await videoBreed.getCooldowns.call();
     assert.equal(10, cooldowns.length);
 
     await videoBreed.setSecondsPerBlock(SECONDS_PER_BLOCK);
 
-    await videoBreed.proposeNewVideo(YOUTUBE_VIDEO_ID);
-    await videoBreed.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
+    await videoBase.proposeNewVideo(YOUTUBE_VIDEO_ID);
+    await videoBase.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
 
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
     let breeding = await videoBreed.getBreeding.call(tokenId);
 
     assert.equal(SECONDS_PER_BLOCK, secondsPerBlock);
@@ -39,11 +44,12 @@ contract('VideoBreed', async (accounts) => {
   });
 
   it("should breed video correctly", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
     let cooldowns = await videoBreed.getCooldowns.call();
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
 
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
     await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
     await videoBreed.startBreeding(tokenId);
     let breeding = await videoBreed.getBreeding(tokenId);
@@ -59,10 +65,10 @@ contract('VideoBreed', async (accounts) => {
                                 YOUTUBE_VIDEO_ID,
                                 YOUTUBE_VIDEO_ID2,
                                 YOUTUBE_VIEW_COUNT2);
-    let childTokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID2);
+    let childTokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID2);
     let childBreeding = await videoBreed.getBreeding.call(childTokenId);
-    let childViewCount = await videoBreed.getVideoViewCount.call(YOUTUBE_VIDEO_ID2);
-    let childOwner = await videoBreed.ownerOf.call(childTokenId);
+    let childViewCount = await videoBase.getVideoViewCount.call(YOUTUBE_VIDEO_ID2);
+    let childOwner = await videoBase.ownerOf.call(childTokenId);
 
     // cooldownEndBlock
     assert.equal(web3.eth.blockNumber + cooldowns[0] / secondsPerBlock,
@@ -77,11 +83,12 @@ contract('VideoBreed', async (accounts) => {
   });
 
   it("should set cooldown info correctly", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
     let cooldowns = await videoBreed.getCooldowns.call();
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
 
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
     for (var i = 1; i < cooldowns.length - 1; i++) {
       await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
       await videoBreed.startBreeding(tokenId);
@@ -138,10 +145,11 @@ contract('VideoBreed', async (accounts) => {
   });
 
   it("should enforce pause", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
 
-    await videoBreed.pause();
+    await videoBase.pause();
 
     await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
     try {
@@ -160,20 +168,21 @@ contract('VideoBreed', async (accounts) => {
       assert.isNotNull(error);
     }
 
-    await videoBreed.unpause();
+    await videoBase.unpause();
   });
 
   it("should enforce permissions", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
     var accountOwner = accounts[0];
     var accountSystem = accounts[1];
     var accountBoardMember = accounts[2];
     var accountNothing = accounts[3];
 
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
 
-    await videoBreed.addSystemAccount(accountSystem);
-    await videoBreed.addBoardMember(accountBoardMember);
+    await videoBase.addSystemAccount(accountSystem);
+    await videoBase.addBoardMember(accountBoardMember);
 
     await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
     try {
@@ -234,6 +243,7 @@ contract('VideoBreed', async (accounts) => {
   });
 
   it("should breed video for another account correctly", async () => {
+    let videoBase = await VideoBase.deployed();
     let videoBreed = await VideoBreed.deployed();
     var accountOwner = accounts[0];
     var accountSystem = accounts[1];
@@ -242,8 +252,8 @@ contract('VideoBreed', async (accounts) => {
     let cooldowns = await videoBreed.getCooldowns.call();
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
 
-    let tokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID);
-    await videoBreed.transfer(accountNothing, tokenId);
+    let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+    await videoBase.transfer(accountNothing, tokenId);
 
     await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
     await videoBreed.startBreeding(tokenId, {from: accountNothing});
@@ -253,10 +263,10 @@ contract('VideoBreed', async (accounts) => {
                                 YOUTUBE_VIDEO_ID3,
                                 YOUTUBE_VIEW_COUNT3,
                                 {from: accountSystem});
-    let childTokenId = await videoBreed.getTokenId.call(YOUTUBE_VIDEO_ID3);
+    let childTokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID3);
     let childBreeding = await videoBreed.getBreeding.call(childTokenId);
-    let childViewCount = await videoBreed.getVideoViewCount.call(YOUTUBE_VIDEO_ID3);
-    let childOwner = await videoBreed.ownerOf.call(childTokenId);
+    let childViewCount = await videoBase.getVideoViewCount.call(YOUTUBE_VIDEO_ID3);
+    let childOwner = await videoBase.ownerOf.call(childTokenId);
 
     // cooldownEndBlock
     assert.equal(Math.floor(web3.eth.blockNumber + cooldowns[0] / secondsPerBlock),
@@ -269,5 +279,4 @@ contract('VideoBreed', async (accounts) => {
 
     assert.equal(YOUTUBE_VIEW_COUNT3, childViewCount);
   });
-
 });

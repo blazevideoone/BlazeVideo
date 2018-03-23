@@ -27,13 +27,13 @@ contract VideoAccessControl is
   ///   is also a board member.
   modifier onlyBoardMembers() {
     require(msg.sender == owner ||
-            _findBoardMember(msg.sender) >= 0);
+            findBoardMember(msg.sender) >= 0);
     _;
   }
 
   /// @dev find the board member index for an address, or -1 if not found.
   /// @param _address the address to be searched for.
-  function _findBoardMember(address _address) internal view returns (int) {
+  function findBoardMember(address _address) public view returns (int) {
     for (uint i = 0; i < boardMembers.length; i++) {
       if (_address == boardMembers[i]) {
         return int(i);
@@ -46,7 +46,7 @@ contract VideoAccessControl is
   /// @param _newBoardMember the new address to be added. If it is already a
   //    board member, do nothing.
   function addBoardMember(address _newBoardMember) public onlyOwner {
-    if (_findBoardMember(_newBoardMember) < 0) {
+    if (findBoardMember(_newBoardMember) < 0) {
       boardMembers.push(_newBoardMember);
       BoardMemberAdded(_newBoardMember);
     }
@@ -56,7 +56,7 @@ contract VideoAccessControl is
   /// @param _oldBoardMember the address to be removed. If it is not a
   //    board member, do nothing.
   function removeBoardMember(address _oldBoardMember) public onlyOwner {
-    int i = _findBoardMember(_oldBoardMember);
+    int i = findBoardMember(_oldBoardMember);
     if (i >= 0) {
       delete boardMembers[uint(i)];
       BoardMemberAdded(_oldBoardMember);

@@ -4,7 +4,8 @@ import './VideoBase.sol';
 
 contract VideoBreed
     is
-    VideoBase
+    IVideoListener,
+    IVideoBaseAccessor
   {
 
   /*** EVENTS ***/
@@ -13,7 +14,7 @@ contract VideoBreed
   ///   an oracle which breeds a new video.
   /// @param videoOwner of the video, and the newly bred video.
   /// @param videoId to start breeding
-  event VideoStartBreeding(address videoOwner, string videoId);
+  event VideoStartBreeding(address videoOwner, bytes32 videoId);
 
   /*** DATA TYPES ***/
 
@@ -62,12 +63,9 @@ contract VideoBreed
   /// @dev An approximation of currently how many seconds are in between blocks.
   uint256 public secondsPerBlock = 15;
 
-  /// @dev override VideoBase._initVideo, initiialize gen0 video.
+  /// @dev listen to onVideoAdded, initiialize gen0 video.
   /// @param tokenId whose video id is associated to.
-  /// @param viewCount to updated.
-  function _initVideo(uint256 tokenId, uint256 viewCount) internal {
-    VideoBase._initVideo(tokenId, viewCount);
-
+  function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {
     Breeding memory _newBreeding = Breeding({
       // Initial cooldown index is 0.
       cooldownEndBlock: uint64((cooldowns[0]/secondsPerBlock) + block.number),
@@ -82,15 +80,16 @@ contract VideoBreed
   /// @param tokenId whose video id is associated to.
   function startBreeding(uint256 tokenId)
       public
-      onlyOwnerOf(tokenId)
-      whenNotPaused {
+      onlyVideoBaseTokenOwnerOf(tokenId)
+      whenVideoBaseNotPaused
+      {
     _startBreeding(tokenId);
   }
 
   /// @dev internal function to start breeding.
   /// @param tokenId whose video id is associated to.
   function _startBreeding(uint256 tokenId) internal {
-    Video storage video = videos[tokenId];
+    bytes32 videoId = videoBase.getVideoId(tokenId);
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     require(block.number > breeding.cooldownEndBlock);
     breeding.cooldownIndex = breeding.cooldownIndex >= 9 ?
@@ -98,7 +97,7 @@ contract VideoBreed
     breeding.cooldownEndBlock =
         uint64((cooldowns[breeding.cooldownIndex]/secondsPerBlock) +
             block.number);
-    VideoStartBreeding(msg.sender, video.videoId);
+    VideoStartBreeding(msg.sender, videoId);
   }
 
   /// @dev actually breed a new video added by a system account.
@@ -107,14 +106,15 @@ contract VideoBreed
   /// @param videoId to be bred.
   /// @param viewCount of the bred video fetched from the video platform.
   function breedVideo(address videoOwner,
-                      string parentVideoId,
-                      string videoId,
+                      bytes32 parentVideoId,
+                      bytes32 videoId,
                       uint256 viewCount)
-      public onlySystemAccounts whenNotPaused {
-    uint256 parentTokenId = getTokenId(parentVideoId);
-    require(videoOwner == ownerOf(parentTokenId));
+      public onlyVideoBaseSystemAccounts whenVideoBaseNotPaused {
+    uint256 parentTokenId = videoBase.getTokenId(parentVideoId);
+    require(videoOwner == videoBase.ownerOf(parentTokenId));
 
-    uint256 tokenId = _addNewVideo(videoOwner, videoId, viewCount);
+    uint256 tokenId = videoBase.addNewVideoTrusted(
+        videoOwner, videoId, viewCount);
     Breeding storage parentBreeding = tokenIdToBreeding[parentTokenId];
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     breeding.generation = parentBreeding.generation + 1;
@@ -123,34 +123,33 @@ contract VideoBreed
   /// @dev Any board member can fix how many seconds per blocks are currently
   ///   observed.
   /// @param secs new seconds per block to be set.
-  function setSecondsPerBlock(uint256 secs) public onlyBoardMembers {
+  function setSecondsPerBlock(uint256 secs) public onlyVideoBaseBoardMembers {
     require(secs <= cooldowns[0]);
     secondsPerBlock = secs;
   }
 
   /// @dev Any board member can get seconds per blocks.
-  function getSecondsPerBlock() public view onlyBoardMembers returns (uint256) {
+  function getSecondsPerBlock() public view onlyVideoBaseBoardMembers
+      returns (uint256) {
     return secondsPerBlock;
   }
 
   /// @dev For test only, only owner can get cooldowns.
-  function getCooldowns() public view onlyOwner returns (uint32[10]) {
+  function getCooldowns() public view onlyVideoBaseOwner returns (uint32[10]) {
     return cooldowns;
   }
 
   /// @dev For test only, only owner can set cooldown end block.
   function setCooldownEndBlock(uint256 tokenId, uint64 blockNumber)
-      public onlyOwner {
-    require(0x0 != ownerOf(tokenId));
+      public onlyVideoBaseOwner whenVideoBaseTokenExists(tokenId) {
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     breeding.cooldownEndBlock = blockNumber;
   }
 
   /// @dev Any board member can get breeding info.
   function getBreeding(uint256 tokenId)
-      public view onlyBoardMembers
+      public view onlyVideoBaseBoardMembers whenVideoBaseTokenExists(tokenId)
       returns (uint64, uint16, uint16) {
-    require(0x0 != ownerOf(tokenId));
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     return (breeding.cooldownEndBlock,
             breeding.cooldownIndex,

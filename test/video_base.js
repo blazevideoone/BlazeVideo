@@ -3,12 +3,12 @@ const VideoBase = artifacts.require("./VideoBase.sol");
 contract('VideoBase', async (accounts) => {
 
   const YOUTUBE_PREFIX = "YUTB_";
-  const YOUTUBE_VIDEO_ID = YOUTUBE_PREFIX + "HPPj6viIBmU";
+  const YOUTUBE_VIDEO_ID = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmU");
   const YOUTUBE_VIEW_COUNT = 12345678;
   // VIDEO ID 2 similar to VIDEO ID
-  const YOUTUBE_VIDEO_ID2 = YOUTUBE_PREFIX + "HPPj6viIBmV";
+  const YOUTUBE_VIDEO_ID2 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmV");
   const YOUTUBE_VIEW_COUNT2 = 87654321;
-  const YOUTUBE_VIDEO_ID3 = YOUTUBE_PREFIX + "HPPj6v123mV";
+  const YOUTUBE_VIDEO_ID3 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6v123mV");
   const YOUTUBE_VIEW_COUNT3 = 8765;
 
   it("should add video correctly", async () => {
