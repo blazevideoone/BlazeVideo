@@ -63,6 +63,12 @@ contract VideoBreed
   /// @dev An approximation of currently how many seconds are in between blocks.
   uint256 public secondsPerBlock = 15;
 
+
+  /// @dev whether it supports this interface, for sanity check.
+  function supportsVideoListener() public pure returns (bool) {
+    return true;
+  }
+
   /// @dev listen to onVideoAdded, initiialize gen0 video.
   /// @param tokenId whose video id is associated to.
   function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {

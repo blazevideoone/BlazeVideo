@@ -4,6 +4,11 @@ import 'zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 import './VideoSystemAccess.sol';
 
 interface IVideoListener {
+  /// @dev whether it supports this interface, for sanity check.
+  function supportsVideoListener() public pure returns (bool);
+
+  /// @dev listener when a new video is added.
+  /// @param tokenId whose the new video is associated to.
   function onVideoAdded(uint256 tokenId) public;
 }
 
@@ -59,7 +64,16 @@ contract IVideoBase
   /// @dev add a listener
   /// @param listener to be added
   function addListener(address listener) public onlyOwner {
-    listeners.push(IVideoListener(listener));
+    for (uint i = 0; i < listeners.length; i++) {
+      if (address(listeners[i]) == listener) {
+        // Do nothing if it is already a listener.
+        return;
+      }
+    }
+
+    IVideoListener _listener = IVideoListener(listener);
+    require(_listener.supportsVideoListener());
+    listeners.push(_listener);
   }
 
   /// @dev remove a listener
@@ -71,6 +85,11 @@ contract IVideoBase
         break;
       }
     }
+  }
+
+  /// @dev whether it supports this contract, for sanity check.
+  function supportsVideoBase() public pure returns (bool) {
+    return true;
   }
 
   /// @dev retrieve tokenId from videoId for convenience.
@@ -154,8 +173,9 @@ contract IVideoBaseAccessor {
   function setVideoBase(address _videoBase)
       public
       onlyVideoBaseOwnerOf(_videoBase) {
-    resetVideoBase();
-    videoBase = IVideoBase(_videoBase);
+    IVideoBase myVideoBase = IVideoBase(_videoBase);
+    require(myVideoBase.supportsVideoBase());
+    videoBase = myVideoBase;
   }
 
   function resetVideoBase()
