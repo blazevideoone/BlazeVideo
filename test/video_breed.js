@@ -20,6 +20,7 @@ contract('VideoBreed', async (accounts) => {
     let videoBreed = await VideoBreed.deployed();
     await videoBreed.setVideoBase(videoBase.address);
     await videoBase.addListener(videoBreed.address);
+    await videoBase.addTrustedContract(videoBreed.address);
 
     let cooldowns = await videoBreed.getCooldowns.call();
     assert.equal(10, cooldowns.length);

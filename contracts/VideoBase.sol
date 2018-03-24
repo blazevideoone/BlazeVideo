@@ -1,10 +1,11 @@
 pragma solidity ^0.4.4;
 
-import 'zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
+import './VideoTrusted.sol';
 import './IVideoBase.sol';
 
 contract VideoBase
     is
+    VideoTrusted,
     IVideoBase
   {
 
@@ -88,6 +89,7 @@ contract VideoBase
       bytes32 videoId,
       uint256 viewCount)
       public
+      onlyTrustedContracts
       returns (uint256) {
     _requireNewVideo(videoId);
     Video memory _newVideo = Video({
