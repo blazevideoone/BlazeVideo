@@ -1,4 +1,6 @@
 const VideoAccessControl = artifacts.require("./VideoAccessControl.sol");
+const AssertJump = require("./assert_jump.js");
+
 
 contract('VideoAccessControl', async (accounts) => {
 
@@ -39,7 +41,7 @@ contract('VideoAccessControl', async (accounts) => {
       await videoAccessControlInstance.addBoardMember(account_four, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let boardMembers = await videoAccessControlInstance.getBoardMembers.call();
@@ -67,7 +69,7 @@ contract('VideoAccessControl', async (accounts) => {
       let boardMembers = await videoAccessControlInstance.getBoardMembers.call({from: account_four});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -94,7 +96,7 @@ contract('VideoAccessControl', async (accounts) => {
       await videoAccessControlInstance.unpause({from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     // From owner
@@ -114,7 +116,7 @@ contract('VideoAccessControl', async (accounts) => {
       let boardMembers = await videoAccessControlInstance.getBoardMembers.call({from: account_four});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -127,7 +129,7 @@ contract('VideoAccessControl', async (accounts) => {
       await videoAccessControlInstance.removeBoardMember(account_two, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let boardMembers = await videoAccessControlInstance.getBoardMembers.call();

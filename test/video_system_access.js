@@ -1,4 +1,5 @@
 const VideoSystemAccess = artifacts.require("./VideoSystemAccess.sol");
+const AssertJump = require("./assert_jump.js");
 
 contract('VideoSystemAccess', async (accounts) => {
 
@@ -39,7 +40,7 @@ contract('VideoSystemAccess', async (accounts) => {
       await videoSystemAccessInstance.addSystemAccount(account_four, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let systemAccounts = await videoSystemAccessInstance.getSystemAccounts.call();
@@ -67,7 +68,7 @@ contract('VideoSystemAccess', async (accounts) => {
       let systemAccounts = await videoSystemAccessInstance.getSystemAccounts.call({from: account_four});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -80,7 +81,7 @@ contract('VideoSystemAccess', async (accounts) => {
       await videoSystemAccessInstance.removeSystemAccount(account_two, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let systemAccounts = await videoSystemAccessInstance.getSystemAccounts.call();

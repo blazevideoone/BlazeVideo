@@ -21,7 +21,8 @@ contract VideoCreator
       public
       onlyVideoBaseOwner
       whenVideoBaseNotPaused
-      onlyVideoBaseNewVideo(videoId) {
+      onlyVideoBaseNewVideo(videoId)
+      {
     NewVideoProposed(videoId);
   }
 

@@ -1,4 +1,5 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
+const AssertJump = require("./assert_jump.js");
 
 contract('VideoBase', async (accounts) => {
 
@@ -52,7 +53,7 @@ contract('VideoBase', async (accounts) => {
       await videoBase.addNewVideoTrusted(
           accounts[0], YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -63,20 +64,20 @@ contract('VideoBase', async (accounts) => {
       await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID3);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoBase.getVideoViewCount.call(YOUTUBE_VIDEO_ID3);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     try {
       await videoBase.getVideoId.call(TOKEN_ID_NOT_EXIST);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -90,7 +91,7 @@ contract('VideoBase', async (accounts) => {
           accounts[0], YOUTUBE_VIDEO_ID3, YOUTUBE_VIEW_COUNT3);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     await videoBase.unpause();
@@ -114,14 +115,14 @@ contract('VideoBase', async (accounts) => {
           {from: accountNothing});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoBase.getVideoViewCount.call(
           YOUTUBE_VIDEO_ID, {from: accountNothing});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     await videoBase.addNewVideoTrusted(

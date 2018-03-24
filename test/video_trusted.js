@@ -1,4 +1,5 @@
 const VideoTrusted = artifacts.require("./VideoTrusted.sol");
+const AssertJump = require("./assert_jump.js");
 
 contract('VideoTrusted', async (accounts) => {
 
@@ -39,7 +40,7 @@ contract('VideoTrusted', async (accounts) => {
       await videoTrustedInstance.addTrustedContract(account_four, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
@@ -67,7 +68,7 @@ contract('VideoTrusted', async (accounts) => {
       let trustedContracts = await videoTrustedInstance.getTrustedContracts.call({from: account_four});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -80,7 +81,7 @@ contract('VideoTrusted', async (accounts) => {
       let trustedContracts = await videoTrustedInstance.getTrustedContracts.call({from: account_four});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -93,7 +94,7 @@ contract('VideoTrusted', async (accounts) => {
       await videoTrustedInstance.removeTrustedContract(account_two, {from: account_two});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
