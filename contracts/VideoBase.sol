@@ -9,10 +9,19 @@ contract VideoBase
     IVideoBase
   {
 
-  modifier whenTokenExists(uint256 tokenId) {
-    require(ownerOf(tokenId) != address(0));
-    _;
-  }
+  /*** STORAGE ***/
+
+  /// @dev An array containing the Video struct for all videos in existence.
+  ///   The tokenId of each video is actually an index into this array. The
+  ///   tokenId 0 is invalid.
+  Video[] public videos;
+
+  /// @dev The video id mapping to token id.
+  mapping (bytes32 => uint256) public videoIdToTokenId;
+
+  /// @dev An array of listener contracts.
+  IVideoListener[] public listeners;
+
 
   /// @dev Initialize with tokenId 0 video.
   function VideoBase() public {
@@ -31,52 +40,83 @@ contract VideoBase
 
   /// @dev throws if the video is not new.
   /// @param videoId to be checked.
-  function _requireNewVideo(bytes32 videoId) internal view {
-    require(videoIdToTokenId[videoId] == 0);
+  modifier onlyNewVideo(bytes32 videoId) {
+    require(!videoExists(videoId));
+    _;
   }
 
   /// @dev throws if the video does not exist.
   /// @param videoId to be checked.
-  function _requireExistingVideo(bytes32 videoId) internal view {
-    uint256 tokenId = videoIdToTokenId[videoId];
-    require(tokenId > 0);
+  modifier onlyExistingVideo(bytes32 videoId) {
+    require(videoExists(videoId));
+    _;
+  }
 
-    // Hopefully does not happen. Assert that the retrieved tokenId is indeed
-    // mapped to videoId, since videoId is converted to bytes32.
-    require(videos[tokenId].videoId == videoId);
+  /// @dev throws if the token does not exist.
+  /// @param tokenId to be checked.
+  modifier onlyExistingToken(uint256 tokenId) {
+    require(tokenExists(tokenId));
+    _;
+  }
+
+  /// @dev whether it supports this contract, for sanity check.
+  function supportsVideoBase() public pure returns (bool) {
+    return true;
+  }
+
+  /// @dev add a listener
+  /// @param listener to be added
+  function addListener(address listener) public onlyOwner {
+    for (uint i = 0; i < listeners.length; i++) {
+      if (address(listeners[i]) == listener) {
+        // Do nothing if it is already a listener.
+        return;
+      }
+    }
+
+    IVideoListener _listener = IVideoListener(listener);
+    require(_listener.supportsVideoListener());
+    listeners.push(_listener);
+  }
+
+  /// @dev remove a listener
+  /// @param listener to be remove
+  function removeListener(address listener) public onlyOwner {
+    for (uint i = 0; i < listeners.length; i++) {
+      if (address(listeners[i]) == listener) {
+        delete listeners[i];
+        break;
+      }
+    }
   }
 
   /// @dev retrieve tokenId from videoId for convenience.
   /// @param videoId whose tokenId is being retrieved.
-  function getTokenId(bytes32 videoId) public view returns (uint256) {
-    _requireExistingVideo(videoId);
-
+  function getTokenId(bytes32 videoId)
+      public view onlyExistingVideo(videoId)
+      returns (uint256) {
     return videoIdToTokenId[videoId];
   }
 
   /// @dev retrieve videoId from tokenId.
   /// @param tokenId whose videoId is being retrieved.
   function getVideoId(uint256 tokenId)
-      public view whenTokenExists(tokenId)
+      public view onlyExistingToken(tokenId)
       returns (bytes32) {
     return videos[tokenId].videoId;
   }
 
-  /// @dev propose to add a video, must be a new video. Emitting NewVideoProposed event
-  ///   for the oracle to add a new video. Only the owner is allowed to propose.
-  /// @param videoId to be proposed as a new video.
-  function proposeNewVideo(bytes32 videoId) public onlyOwner whenNotPaused {
-    _requireNewVideo(videoId);
-    NewVideoProposed(videoId);
+  /// @dev whether videoId exists.
+  /// @param videoId to be checked.
+  function videoExists(bytes32 videoId) public view returns (bool) {
+    // Note that we don't treat a burned token can be treated as non-existing.
+    return videoIdToTokenId[videoId] != 0;
   }
 
-  /// @dev actually add a new video, usually proposed by the owner and added by
-  ///   a system account.
-  /// @param videoId to be proposed as a new video.
-  /// @param viewCount fetched from the video platform.
-  function addNewVideo(bytes32 videoId, uint256 viewCount)
-      public onlySystemAccounts whenNotPaused {
-    addNewVideoTrusted(owner, videoId, viewCount);
+  /// @dev whether tokenId exists.
+  /// @param tokenId to be checked.
+  function tokenExists(uint256 tokenId) public view returns (bool) {
+    return ownerOf(tokenId) != address(0);
   }
 
   /// @dev internal function to add a new video and return the new token id.
@@ -89,9 +129,10 @@ contract VideoBase
       bytes32 videoId,
       uint256 viewCount)
       public
+      whenNotPaused
       onlyTrustedContracts
+      onlyNewVideo(videoId)
       returns (uint256) {
-    _requireNewVideo(videoId);
     Video memory _newVideo = Video({
         tokenId: 0,
         videoId: videoId,
@@ -128,9 +169,8 @@ contract VideoBase
   /// @dev get the view count for a video.
   /// @param videoId whose view count is being retrieved.
   function getVideoViewCount(bytes32 videoId)
-      public view onlyBoardMembers
+      public view onlyBoardMembers onlyExistingVideo(videoId)
       returns (uint256) {
-    _requireExistingVideo(videoId);
     return videos[getTokenId(videoId)].viewCount;
   }
 

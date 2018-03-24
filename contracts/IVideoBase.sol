@@ -2,6 +2,7 @@ pragma solidity ^0.4.4;
 
 import 'zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 import './VideoSystemAccess.sol';
+import './VideoTrusted.sol';
 
 interface IVideoListener {
   /// @dev whether it supports this interface, for sanity check.
@@ -15,15 +16,9 @@ interface IVideoListener {
 contract IVideoBase
     is
     VideoSystemAccess,
+    VideoTrusted,
     ERC721Token
   {
-
-  /*** EVENTS ***/
-
-  /// @dev Emitted when a new video is proposed to added. To be captured by
-  ///   an oracle which imports the video.
-  /// @param videoId new video id proposed.
-  event NewVideoProposed(bytes32 videoId);
 
   /*** DATA TYPES ***/
 
@@ -47,50 +42,8 @@ contract IVideoBase
   }
 
 
-  /*** STORAGE ***/
-
-  /// @dev An array containing the Video struct for all videos in existence.
-  ///   The tokenId of each video is actually an index into this array. The
-  ///   tokenId 0 is invalid.
-  Video[] public videos;
-
-  /// @dev The video id mapping to token id.
-  mapping (bytes32 => uint256) public videoIdToTokenId;
-
-  /// @dev An array of listener contracts.
-  IVideoListener[] public listeners;
-
-
-  /// @dev add a listener
-  /// @param listener to be added
-  function addListener(address listener) public onlyOwner {
-    for (uint i = 0; i < listeners.length; i++) {
-      if (address(listeners[i]) == listener) {
-        // Do nothing if it is already a listener.
-        return;
-      }
-    }
-
-    IVideoListener _listener = IVideoListener(listener);
-    require(_listener.supportsVideoListener());
-    listeners.push(_listener);
-  }
-
-  /// @dev remove a listener
-  /// @param listener to be remove
-  function removeListener(address listener) public onlyOwner {
-    for (uint i = 0; i < listeners.length; i++) {
-      if (address(listeners[i]) == listener) {
-        delete listeners[i];
-        break;
-      }
-    }
-  }
-
   /// @dev whether it supports this contract, for sanity check.
-  function supportsVideoBase() public pure returns (bool) {
-    return true;
-  }
+  function supportsVideoBase() public pure returns (bool);
 
   /// @dev retrieve tokenId from videoId for convenience.
   /// @param videoId whose tokenId is being retrieved.
@@ -99,6 +52,14 @@ contract IVideoBase
   /// @dev retrieve videoId from tokenId.
   /// @param tokenId whose videoId is being retrieved.
   function getVideoId(uint256 tokenId) public view returns (bytes32);
+
+  /// @dev whether videoId exists.
+  /// @param videoId to be checked.
+  function videoExists(bytes32 videoId) public view returns (bool);
+
+  /// @dev whether tokenId exists.
+  /// @param tokenId to be checked.
+  function tokenExists(uint256 tokenId) public view returns (bool);
 
   /// @dev helper function to add a new video and return the new token id.
   ///   Only accessible to trusted contracts.
@@ -119,12 +80,6 @@ contract IVideoBaseAccessor {
 
   /// @dev VideoBase contract.
   IVideoBase videoBase;
-
-  modifier whenVideoBaseTokenExists(uint256 tokenId) {
-    require(address(videoBase) != address(0) &&
-            videoBase.ownerOf(tokenId) != address(0));
-    _;
-  }
 
   modifier onlyVideoBaseTokenOwnerOf(uint256 tokenId) {
     require(address(videoBase) != address(0) &&
@@ -160,6 +115,30 @@ contract IVideoBaseAccessor {
   modifier onlyVideoBaseOwnerOf(address _videoBase) {
     require(_videoBase != address(0) &&
             msg.sender == IVideoBase(_videoBase).owner());
+    _;
+  }
+
+  /// @dev throws if the video is not new.
+  /// @param videoId to be checked.
+  modifier onlyVideoBaseNewVideo(bytes32 videoId) {
+    require(address(videoBase) != address(0) &&
+            !videoBase.videoExists(videoId));
+    _;
+  }
+
+  /// @dev throws if the video does not exist.
+  /// @param videoId to be checked.
+  modifier onlyVideoBaseExistingVideo(bytes32 videoId) {
+    require(address(videoBase) != address(0) &&
+            videoBase.videoExists(videoId));
+    _;
+  }
+
+  /// @dev throws if the token does not exist.
+  /// @param tokenId to be checked.
+  modifier onlyVideoBaseExistingToken(uint256 tokenId) {
+    require(address(videoBase) != address(0) &&
+            videoBase.tokenExists(tokenId));
     _;
   }
 

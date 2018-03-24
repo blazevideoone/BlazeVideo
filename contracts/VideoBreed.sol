@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-import './VideoBase.sol';
+import './IVideoBase.sol';
 
 contract VideoBreed
     is
@@ -147,14 +147,14 @@ contract VideoBreed
 
   /// @dev For test only, only owner can set cooldown end block.
   function setCooldownEndBlock(uint256 tokenId, uint64 blockNumber)
-      public onlyVideoBaseOwner whenVideoBaseTokenExists(tokenId) {
+      public onlyVideoBaseOwner onlyVideoBaseExistingToken(tokenId) {
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     breeding.cooldownEndBlock = blockNumber;
   }
 
   /// @dev Any board member can get breeding info.
   function getBreeding(uint256 tokenId)
-      public view onlyVideoBaseBoardMembers whenVideoBaseTokenExists(tokenId)
+      public view onlyVideoBaseBoardMembers onlyVideoBaseExistingToken(tokenId)
       returns (uint64, uint16, uint16) {
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     return (breeding.cooldownEndBlock,

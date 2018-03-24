@@ -1,4 +1,5 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
+const VideoCreator = artifacts.require("./VideoCreator.sol");
 const VideoBreed = artifacts.require("./VideoBreed.sol");
 
 contract('VideoBreed', async (accounts) => {
@@ -17,9 +18,12 @@ contract('VideoBreed', async (accounts) => {
 
   it("should add video breeding info correctly", async () => {
     let videoBase = await VideoBase.deployed();
+    let videoCreator = await VideoCreator.deployed();
     let videoBreed = await VideoBreed.deployed();
+    await videoCreator.setVideoBase(videoBase.address);
     await videoBreed.setVideoBase(videoBase.address);
     await videoBase.addListener(videoBreed.address);
+    await videoBase.addTrustedContract(videoCreator.address);
     await videoBase.addTrustedContract(videoBreed.address);
 
     let cooldowns = await videoBreed.getCooldowns.call();
@@ -27,8 +31,8 @@ contract('VideoBreed', async (accounts) => {
 
     await videoBreed.setSecondsPerBlock(SECONDS_PER_BLOCK);
 
-    await videoBase.proposeNewVideo(YOUTUBE_VIDEO_ID);
-    await videoBase.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
+    await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID);
+    await videoCreator.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
 
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
     let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
