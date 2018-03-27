@@ -1,6 +1,7 @@
 pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
+import './IVideoBaseAccessor.sol';
 
 contract VideoBreed
     is
