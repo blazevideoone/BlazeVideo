@@ -1,11 +1,22 @@
-import React from 'react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { loginUser } from './LoginButtonActions';
 
-const LoginButton = ({ onLoginUserClick }) => {
-  return(
-    <li className="pure-menu-item">
-      <a href="#" className="pure-menu-link" onClick={(event) => onLoginUserClick(event)}>Login</a>
-    </li>
-  )
+@connect(
+    state => ({}),
+    {
+        loginUser
+    })
+export default class LoginButton extends Component {
+  onLoginUserClick: Function = (event) => {
+    event.preventDefault();
+    this.props.loginUser();
+  }
+  render() {
+    return(
+      <li className="pure-menu-item">
+        <a href="#" className="pure-menu-link" onClick={this.onLoginUserClick}>Login</a>
+      </li>
+    )
+  }
 }
-
-export default LoginButton
