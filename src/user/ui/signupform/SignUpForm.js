@@ -1,35 +1,41 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { signUpUser } from './SignUpFormActions';
 
-class SignUpForm extends Component {
+@connect(
+    state => ({}),
+    {
+        signUpUser
+    })
+export default class SignUpForm extends Component {
   constructor(props) {
-    super(props)
-
+    super(props);
     this.state = {
       name: ''
     }
   }
 
-  onInputChange(event) {
-    this.setState({ name: event.target.value })
+  onInputChange: Function = (event) => {
+    this.setState({ name: event.target.value });
   }
 
-  handleSubmit(event) {
-    event.preventDefault()
+  handleSubmit: Function = (event) => {
+    event.preventDefault();
 
     if (this.state.name.length < 2)
     {
-      return alert('Please fill in your name.')
+      return alert('Please fill in your name.');
     }
 
-    this.props.onSignUpFormSubmit(this.state.name)
+    this.props.signUpUser(this.state.name);
   }
 
   render() {
     return(
-      <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit.bind(this)}>
+      <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit}>
         <fieldset>
           <label htmlFor="name">Name</label>
-          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange.bind(this)} placeholder="Name" />
+          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="Name" />
           <span className="pure-form-message">This is a required field.</span>
 
           <br />
@@ -40,5 +46,3 @@ class SignUpForm extends Component {
     )
   }
 }
-
-export default SignUpForm

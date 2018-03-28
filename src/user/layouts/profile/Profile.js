@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import ProfileFormContainer from '../../ui/profileform/ProfileFormContainer'
+import React, { Component } from 'react';
+import ProfileForm from '../../ui/profileform/ProfileForm';
 
-class Profile extends Component {
+export default class Profile extends Component {
   render() {
     return(
       <main className="container">
@@ -9,12 +9,10 @@ class Profile extends Component {
           <div className="pure-u-1-1">
             <h1>Profile</h1>
             <p>Edit your account details here.</p>
-            <ProfileFormContainer />
+            <ProfileForm />
           </div>
         </div>
       </main>
     )
   }
 }
-
-export default Profile

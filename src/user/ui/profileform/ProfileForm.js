@@ -1,35 +1,42 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { updateUser } from './ProfileFormActions';
 
-class ProfileForm extends Component {
+@connect(
+    state => ({
+      name: state.user.data.name
+    }),
+    {
+        updateUser
+    })
+export default class ProfileForm extends Component {
   constructor(props) {
     super(props)
-
     this.state = {
       name: this.props.name
     }
   }
 
-  onInputChange(event) {
+  onInputChange: Function = (event) => {
     this.setState({ name: event.target.value })
   }
 
-  handleSubmit(event) {
+  handleSubmit: Function = (event) => {
     event.preventDefault()
 
     if (this.state.name.length < 2)
     {
       return alert('Please fill in your name.')
     }
-
-    this.props.onProfileFormSubmit(this.state.name)
+    this.props.updateUser(this.state.name)
   }
 
   render() {
     return(
-      <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit.bind(this)}>
+      <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit}>
         <fieldset>
           <label htmlFor="name">Name</label>
-          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange.bind(this)} placeholder="Name" />
+          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="Name" />
           <span className="pure-form-message">This is a required field.</span>
 
           <br />
@@ -40,5 +47,3 @@ class ProfileForm extends Component {
     )
   }
 }
-
-export default ProfileForm

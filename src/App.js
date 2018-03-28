@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import { Link } from 'react-router'
-import { HiddenOnlyAuth, VisibleOnlyAuth } from './util/wrappers.js'
+import React, { Component } from 'react';
+import { Link } from 'react-router';
+import { HiddenOnlyAuth, VisibleOnlyAuth } from './util/wrappers.js';
 
 // UI Components
-import LoginButtonContainer from './user/ui/loginbutton/LoginButtonContainer'
-import LogoutButtonContainer from './user/ui/logoutbutton/LogoutButtonContainer'
+import LoginButton from './user/ui/loginbutton/LoginButton';
+import LogoutButton from './user/ui/logoutbutton/LogoutButton';
 
 // Styles
-import './css/oswald.css'
-import './css/open-sans.css'
-import './css/pure-min.css'
-import './App.css'
+import './css/oswald.css';
+import './css/open-sans.css';
+import './css/pure-min.css';
+import './App.css';
 
 class App extends Component {
   render() {
@@ -22,7 +22,7 @@ class App extends Component {
         <li className="pure-menu-item">
           <Link to="/profile" className="pure-menu-link">Profile</Link>
         </li>
-        <LogoutButtonContainer />
+        <LogoutButton />
       </span>
     )
 
@@ -31,7 +31,7 @@ class App extends Component {
         <li className="pure-menu-item">
           <Link to="/signup" className="pure-menu-link">Sign Up</Link>
         </li>
-        <LoginButtonContainer />
+        <LoginButton />
       </span>
     )
 
@@ -44,7 +44,6 @@ class App extends Component {
           </ul>
           <Link to="/" className="pure-menu-heading pure-menu-link">Blaze Video</Link>
         </nav>
-
         {this.props.children}
       </div>
     );
