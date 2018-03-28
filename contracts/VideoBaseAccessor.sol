@@ -2,7 +2,7 @@ pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
 
-contract IVideoBaseAccessor {
+contract VideoBaseAccessor {
 
   /*** STORAGE ***/
 

@@ -1,12 +1,12 @@
 pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
-import './IVideoBaseAccessor.sol';
+import './VideoBaseAccessor.sol';
 
 contract VideoBreed
     is
     IVideoListener,
-    IVideoBaseAccessor
+    VideoBaseAccessor
   {
 
   /*** EVENTS ***/

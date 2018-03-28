@@ -1,11 +1,11 @@
 pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
-import './IVideoBaseAccessor.sol';
+import './VideoBaseAccessor.sol';
 
 contract VideoCreator
     is
-    IVideoBaseAccessor
+    VideoBaseAccessor
   {
 
   /*** EVENTS ***/
