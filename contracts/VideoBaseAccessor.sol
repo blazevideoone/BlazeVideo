@@ -9,18 +9,23 @@ contract VideoBaseAccessor {
   /// @dev VideoBase contract.
   IVideoBase videoBase;
 
+
+  /// @dev check if the owner of the given token in videoBase is the sender.
+  /// @param tokenId to be checked
   modifier onlyVideoBaseTokenOwnerOf(uint256 tokenId) {
     require(address(videoBase) != address(0) &&
             msg.sender == videoBase.ownerOf(tokenId));
     _;
   }
 
+  /// @dev check if videoBase is not paused.
   modifier whenVideoBaseNotPaused() {
     require(address(videoBase) != address(0) &&
             !videoBase.paused());
     _;
   }
 
+  /// @dev check if the sender is one of the board members of videoBase.
   modifier onlyVideoBaseBoardMembers() {
     require(address(videoBase) != address(0) && (
             msg.sender == videoBase.owner() ||
@@ -28,6 +33,7 @@ contract VideoBaseAccessor {
     _;
   }
 
+  /// @dev check if the sender is one of the system accounts of videoBase.
   modifier onlyVideoBaseSystemAccounts() {
     require(address(videoBase) != address(0) && (
             msg.sender == videoBase.owner() ||
@@ -35,18 +41,21 @@ contract VideoBaseAccessor {
     _;
   }
 
+  /// @dev check if the sender is the owner of videoBase.
   modifier onlyVideoBaseOwner() {
     require(address(videoBase) == address(0) || msg.sender == videoBase.owner());
     _;
   }
 
+  /// @dev check if the sender is the owner of the given videoBase.
+  /// @param _videoBase whose owner is to be checked.
   modifier onlyVideoBaseOwnerOf(address _videoBase) {
     require(_videoBase != address(0) &&
             msg.sender == IVideoBase(_videoBase).owner());
     _;
   }
 
-  /// @dev throws if the video is not new.
+  /// @dev check if the video is new.
   /// @param videoId to be checked.
   modifier onlyVideoBaseNewVideo(bytes32 videoId) {
     require(address(videoBase) != address(0) &&
@@ -54,7 +63,7 @@ contract VideoBaseAccessor {
     _;
   }
 
-  /// @dev throws if the video does not exist.
+  /// @dev check if the video does exist.
   /// @param videoId to be checked.
   modifier onlyVideoBaseExistingVideo(bytes32 videoId) {
     require(address(videoBase) != address(0) &&
@@ -62,7 +71,7 @@ contract VideoBaseAccessor {
     _;
   }
 
-  /// @dev throws if the token does not exist.
+  /// @dev check if the token does exist.
   /// @param tokenId to be checked.
   modifier onlyVideoBaseExistingToken(uint256 tokenId) {
     require(address(videoBase) != address(0) &&
@@ -70,8 +79,10 @@ contract VideoBaseAccessor {
     _;
   }
 
+  /// @dev check if the sender is from videoBase contract.
   modifier onlyFromVideoBase() {
-    require(address(videoBase) == address(0) || msg.sender == address(videoBase));
+    require(address(videoBase) != address(0) &&
+            msg.sender == address(videoBase));
     _;
   }
 
@@ -85,15 +96,15 @@ contract VideoBaseAccessor {
     videoBase = myVideoBase;
   }
 
+  /// @dev reset IVideoBase contract.
   function resetVideoBase()
       public
       onlyVideoBaseOwner {
-    if (address(videoBase) == address(0)) {
-      return;
-    }
+    require(address(videoBase) != address(0));
     delete videoBase;
   }
 
+  /// @dev get the address of the current IVideoBase contract.
   function getVideoBase()
       public
       view

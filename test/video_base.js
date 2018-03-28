@@ -1,4 +1,5 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
+const MockVideoListener = artifacts.require("./MockVideoListener.sol");
 const AssertJump = require("./assert_jump.js");
 
 contract('VideoBase', async (accounts) => {
@@ -14,21 +15,59 @@ contract('VideoBase', async (accounts) => {
 
   const TOKEN_ID_NOT_EXIST = 12345;
 
-  it("should add video correctly", async () => {
+  it("should add video and set video listener correctly", async () => {
     let videoBase = await VideoBase.deployed();
+    let mockVideoListener1 = await MockVideoListener.new();
+    let mockVideoListener2 = await MockVideoListener.new();
+
+    await mockVideoListener1.mockSetSupportsVideoListener(false);
+    try {
+      await videoBase.addListener(mockVideoListener1.address);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    await mockVideoListener1.mockSetSupportsVideoListener(true);
+    await videoBase.addListener(mockVideoListener1.address);
+    try {
+      await videoBase.addListener(mockVideoListener1.address);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    await mockVideoListener2.mockSetSupportsVideoListener(true);
+    await videoBase.addListener(mockVideoListener2.address);
 
     await videoBase.addNewVideoTrusted(
         accounts[0], YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+    assert.equal(_tokenId.toNumber(),
+                 await mockVideoListener1.mockGetLastAddedTokenId.call());
+    assert.equal(_tokenId.toNumber(),
+                await mockVideoListener2.mockGetLastAddedTokenId.call());
+
+    await mockVideoListener1.mockResetOnVideoAddedCalled();
+    await mockVideoListener2.mockResetOnVideoAddedCalled();
+    await videoBase.removeListener(mockVideoListener2.address);
+    try {
+      await videoBase.removeListener(mockVideoListener2.address);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
     await videoBase.addNewVideoTrusted(
         accounts[1], YOUTUBE_VIDEO_ID2, YOUTUBE_VIEW_COUNT2);
+    let _tokenId2 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID2);
+    assert.equal(_tokenId2.toNumber(),
+                 await mockVideoListener1.mockGetLastAddedTokenId.call());
+    assert.equal(0x0, await mockVideoListener2.mockGetLastAddedTokenId.call());
 
     let _totalSupply = await videoBase.totalSupply.call();
     let totalSupply = _totalSupply.toNumber();
 
     assert.equal(2, totalSupply);
-
-    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
-    let _tokenId2 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID2);
 
     assert.equal(1, _tokenId.toNumber());
     assert.equal(2, _tokenId2.toNumber());
@@ -52,6 +91,7 @@ contract('VideoBase', async (accounts) => {
     try {
       await videoBase.addNewVideoTrusted(
           accounts[0], YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
+          assert.fail("should have thrown before");
     } catch(error) {
       AssertJump(error);
     }

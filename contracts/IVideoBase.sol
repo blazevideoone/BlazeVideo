@@ -6,7 +6,7 @@ import './VideoTrusted.sol';
 
 interface IVideoListener {
   /// @dev whether it supports this interface, for sanity check.
-  function supportsVideoListener() public pure returns (bool);
+  function supportsVideoListener() public view returns (bool);
 
   /// @dev listener when a new video is added.
   /// @param tokenId whose the new video is associated to.
@@ -43,7 +43,7 @@ contract IVideoBase
 
 
   /// @dev whether it supports this contract, for sanity check.
-  function supportsVideoBase() public pure returns (bool);
+  function supportsVideoBase() public view returns (bool);
 
   /// @dev retrieve tokenId from videoId for convenience.
   /// @param videoId whose tokenId is being retrieved.

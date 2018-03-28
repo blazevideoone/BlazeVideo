@@ -60,7 +60,7 @@ contract VideoBase
   }
 
   /// @dev whether it supports this contract, for sanity check.
-  function supportsVideoBase() public pure returns (bool) {
+  function supportsVideoBase() public view returns (bool) {
     return true;
   }
 
@@ -69,8 +69,8 @@ contract VideoBase
   function addListener(address listener) public onlyOwner {
     for (uint i = 0; i < listeners.length; i++) {
       if (address(listeners[i]) == listener) {
-        // Do nothing if it is already a listener.
-        return;
+        // Throws if it is already a listener.
+        require(false);
       }
     }
 
@@ -85,9 +85,10 @@ contract VideoBase
     for (uint i = 0; i < listeners.length; i++) {
       if (address(listeners[i]) == listener) {
         delete listeners[i];
-        break;
+        return;
       }
     }
+    require(false);
   }
 
   /// @dev retrieve tokenId from videoId for convenience.

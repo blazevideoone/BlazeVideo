@@ -66,7 +66,7 @@ contract VideoBreed
 
 
   /// @dev whether it supports this interface, for sanity check.
-  function supportsVideoListener() public pure returns (bool) {
+  function supportsVideoListener() public view returns (bool) {
     return true;
   }
 
