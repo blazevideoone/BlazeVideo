@@ -1,5 +1,6 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
 const VideoCreator = artifacts.require("./VideoCreator.sol");
+const AssertJump = require("./assert_jump.js");
 
 contract('VideoCreator', async (accounts) => {
 
@@ -56,30 +57,13 @@ contract('VideoCreator', async (accounts) => {
       await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoCreator.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
-    }
-  });
-
-  it("should disallow get non-existing videos", async () => {
-    let videoCreator = await VideoCreator.deployed();
-
-    try {
-      await videoCreator.getTokenId.call(YOUTUBE_VIDEO_ID3);
-      assert.fail("should have thrown before");
-    } catch(error) {
-      assert.isNotNull(error);
-    }
-    try {
-      await videoCreator.getVideoViewCount.call(YOUTUBE_VIDEO_ID3);
-      assert.fail("should have thrown before");
-    } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -93,13 +77,13 @@ contract('VideoCreator', async (accounts) => {
       await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID3);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoCreator.addNewVideo(YOUTUBE_VIDEO_ID3, YOUTUBE_VIEW_COUNT3);
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     await videoBase.unpause();
@@ -121,14 +105,14 @@ contract('VideoCreator', async (accounts) => {
           YOUTUBE_VIDEO_ID3, {from: accountNothing});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoCreator.addNewVideo(
           YOUTUBE_VIDEO_ID3, YOUTUBE_VIEW_COUNT3, {from: accountNothing});
       assert.fail("should have thrown before");
     } catch(error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID3);

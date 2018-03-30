@@ -1,6 +1,7 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
 const VideoCreator = artifacts.require("./VideoCreator.sol");
 const VideoBreed = artifacts.require("./VideoBreed.sol");
+const AssertJump = require("./assert_jump.js");
 
 contract('VideoBreed', async (accounts) => {
 
@@ -132,7 +133,7 @@ contract('VideoBreed', async (accounts) => {
       await videoBreed.startBreeding(TOKEN_ID_NOT_EXIST);
       assert.fail("should not breed non-existing video");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -145,7 +146,7 @@ contract('VideoBreed', async (accounts) => {
                                   YOUTUBE_VIEW_COUNT);
       assert.fail("should not breed existing video");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
   });
 
@@ -161,7 +162,7 @@ contract('VideoBreed', async (accounts) => {
       await videoBreed.startBreeding(tokenId);
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoBreed.breedVideo(accounts[0],
@@ -170,7 +171,7 @@ contract('VideoBreed', async (accounts) => {
                                   YOUTUBE_VIEW_COUNT3);
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     await videoBase.unpause();
@@ -195,7 +196,7 @@ contract('VideoBreed', async (accounts) => {
       await videoBreed.startBreeding(tokenId, {from: accountBoardMember});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     try {
       await videoBreed.breedVideo(accounts[0],
@@ -205,14 +206,14 @@ contract('VideoBreed', async (accounts) => {
                                   {from: accountNothing});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     try {
       await videoBreed.setSecondsPerBlock(11, {from: accountNothing});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     await videoBreed.setSecondsPerBlock(11, {from: accountBoardMember});
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call(
@@ -223,7 +224,7 @@ contract('VideoBreed', async (accounts) => {
       await videoBreed.getCooldowns.call({from: accountNothing});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     let cooldowns = await videoBreed.getCooldowns.call({from: accountOwner});
     try {
@@ -232,14 +233,14 @@ contract('VideoBreed', async (accounts) => {
                                                 {from: accountNothing});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
 
     try {
       await videoBreed.getBreeding.call(tokenId, {from: accountNothing});
       assert.fail("should have failed here");
     } catch (error) {
-      assert.isNotNull(error);
+      AssertJump(error);
     }
     let breeding = await videoBreed.getBreeding.call(
         tokenId, {from: accountBoardMember});

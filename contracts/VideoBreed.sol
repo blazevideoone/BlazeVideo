@@ -1,11 +1,12 @@
 pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
+import './VideoBaseAccessor.sol';
 
 contract VideoBreed
     is
     IVideoListener,
-    IVideoBaseAccessor
+    VideoBaseAccessor
   {
 
   /*** EVENTS ***/
@@ -65,7 +66,7 @@ contract VideoBreed
 
 
   /// @dev whether it supports this interface, for sanity check.
-  function supportsVideoListener() public pure returns (bool) {
+  function supportsVideoListener() public view returns (bool) {
     return true;
   }
 

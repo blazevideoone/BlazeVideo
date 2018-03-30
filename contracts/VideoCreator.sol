@@ -1,10 +1,11 @@
 pragma solidity ^0.4.4;
 
 import './IVideoBase.sol';
+import './VideoBaseAccessor.sol';
 
 contract VideoCreator
     is
-    IVideoBaseAccessor
+    VideoBaseAccessor
   {
 
   /*** EVENTS ***/
@@ -21,7 +22,8 @@ contract VideoCreator
       public
       onlyVideoBaseOwner
       whenVideoBaseNotPaused
-      onlyVideoBaseNewVideo(videoId) {
+      onlyVideoBaseNewVideo(videoId)
+      {
     NewVideoProposed(videoId);
   }
 
