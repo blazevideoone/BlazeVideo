@@ -83,6 +83,9 @@ contract('VideoBase', async (accounts) => {
 
     assert.equal(accounts[0], _tokenOwner);
     assert.equal(accounts[1], _tokenOwner2);
+
+    // Remove all listeners to test the case when listeners are empty.
+    await videoBase.removeListener(mockVideoListener1.address);
   });
 
   it("should disallow adding existing videos", async () => {
