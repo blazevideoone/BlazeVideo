@@ -70,7 +70,7 @@ contract VideoBase
     for (uint i = 0; i < listeners.length; i++) {
       if (address(listeners[i]) == listener) {
         // Throws if it is already a listener.
-        require(false);
+        revert();
       }
     }
 
@@ -88,7 +88,7 @@ contract VideoBase
         return;
       }
     }
-    require(false);
+    revert();
   }
 
   /// @dev retrieve tokenId from videoId for convenience.
