@@ -17,6 +17,8 @@ contract('VideoAuction', async (accounts) => {
 
   const OWNER_CUT = 0.2;
 
+  const BALANCE_ROUND_TO = 1000000000;
+
   it("should do auction correctly", async () => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
@@ -51,14 +53,22 @@ contract('VideoAuction', async (accounts) => {
     let buyerBalance = web3.eth.getBalance(buyer);
 
     assert.equal(buyer, await videoBase.ownerOf(_tokenId));
-    assert.equal(sellPrice * OWNER_CUT,
-                 ownerBalance.toNumber() - ownerInitialBalance.toNumber());
-    assert.equal(sellPrice - sellPrice * OWNER_CUT,
-                 sellerBalance.toNumber() - sellerInitialBalance.toNumber());
+    assert.equal(Math.round(sellPrice * OWNER_CUT / BALANCE_ROUND_TO),
+                 Math.round((ownerBalance.toNumber() -
+                             ownerInitialBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
+    assert.equal(Math.round((sellPrice - sellPrice * OWNER_CUT) /
+                             BALANCE_ROUND_TO),
+                 Math.round((sellerBalance.toNumber() -
+                             sellerInitialBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
     // Note to calculate total gas used.
-    assert.equal(sellPrice * 1 + _txReceipt.receipt.gasUsed * _tx.gasPrice,
-                 buyerInitialBalance.toNumber() - buyerBalance.toNumber());
-
+    assert.equal(Math.round((sellPrice * 1 +
+                             _txReceipt.receipt.gasUsed * _tx.gasPrice) /
+                             BALANCE_ROUND_TO),
+                 Math.round((buyerInitialBalance.toNumber() -
+                             buyerBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
     try {
       await videoAuction.getAuctionPrice.call(_tokenId);
       assert.fail("should have thrown before");
@@ -206,7 +216,7 @@ contract('VideoAuction', async (accounts) => {
 
     let notContractOwner = accounts[2];
     try {
-      videoAuction.setOwnerCut(5, {from: notContractOwner});
+      await videoAuction.setOwnerCut(5, {from: notContractOwner});
       assert.fail("should have thrown before");
     } catch(error) {
       AssertJump(error);
@@ -214,7 +224,7 @@ contract('VideoAuction', async (accounts) => {
 
     try {
       // Invalid owner cut.
-      videoAuction.setOwnerCut(10001, {from: notContractOwner});
+      await videoAuction.setOwnerCut(10001);
       assert.fail("should have thrown before");
     } catch(error) {
       AssertJump(error);
