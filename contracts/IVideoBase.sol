@@ -72,4 +72,15 @@ contract IVideoBase
       uint256 viewCount)
       public
       returns (uint256);
+
+  /// @dev helper function to transfer the ownership of a video's tokenId.
+  ///   Only accessible to trusted contracts.
+  /// @param _from address which you want to send the token from.
+  /// @param _to address which you want to transfer the token to.
+  /// @param _tokenId uint256 ID of the token of the video to be transferred.
+  function transferVideoTrusted(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public;
 }

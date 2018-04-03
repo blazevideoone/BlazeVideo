@@ -159,6 +159,22 @@ contract VideoBase
     return newTokenId;
   }
 
+  /// @dev helper function to transfer the ownership of a video's tokenId.
+  ///   Only accessible to trusted contracts.
+  /// @param _from address which you want to send the token from.
+  /// @param _to address which you want to transfer the token to.
+  /// @param _tokenId uint256 ID of the token of the video to be transferred.
+  function transferVideoTrusted(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public
+      whenNotPaused
+      onlyTrustedContracts
+      {
+    clearApprovalAndTransfer(_from, _to, _tokenId);
+  }
+
   /// @dev initialize the view count and viewCountUpdateTime for a video.
   /// @param tokenId whose video id is associated to.
   /// @param viewCount to updated.
