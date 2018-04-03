@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './DashBoardActions';
+import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './MarketPlaceActions';
 
 @connect(
     state => ({
@@ -11,7 +11,7 @@ import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './DashBoardActions'
         asyncLoadVideoList,
         asyncAddNewVideoTrusted
     })
-export default class Dashboard extends Component {
+export default class MarketPlace extends Component {
   constructor(props, { authData }) {
     super(props);
     authData = this.props;
@@ -41,7 +41,7 @@ export default class Dashboard extends Component {
       <main className="container">
         <div className="pure-g">
           <div className="pure-u-1-1">
-            <h1>Dashboard</h1>
+            <h1>Market Place</h1>
             <p><strong>Congratulations {this.props.authData.name}!</strong> If you're seeing this page, you've logged in with your own smart contract successfully.</p>
           </div>
           <div className="pure-u-1-1">
@@ -60,17 +60,6 @@ export default class Dashboard extends Component {
                 <button type="submit" className="pure-button pure-button-primary">Add Video</button>
               </fieldset>
             </form>
-          </div>
-          <div className="pure-u-1-1">
-            <h1>My Videos</h1>
-            <p><strong>Total Supply: </strong>{this.props.videos.totalSupply}</p>
-            <ul>
-              {
-                this.props.videos.myList.map( video => {
-                  return <div key={video}>{ this.props.web3.toAscii(video) }</div>;
-                })
-              }
-            </ul>
           </div>
         </div>
       </main>

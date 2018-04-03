@@ -1,0 +1,33 @@
+/*
+ * -- MENU STYLES --
+ * I want to customize how my .pure-menu looks at the top of the page
+ */
+
+.home-menu {
+    padding: 0.5em;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(0,0,0, 0.10);
+}
+.home-menu {
+    background: #FFF;
+}
+
+.home-menu .pure-menu-list {
+  padding: 12px 5px;
+}
+.home-menu .pure-menu-selected a {
+    color: #FF0000;
+}
+
+.home-menu .pure-menu-link {
+  color: #000;
+  font-weight: 400;
+  font-size: 120%;
+}
+
+.home-menu li a:hover,
+.home-menu li a:focus {
+    background: none;
+    border: none;
+    color: #FF0000;
+}
