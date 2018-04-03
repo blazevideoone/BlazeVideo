@@ -20,7 +20,6 @@ contract VideoAuction
   event AuctionCreated(uint256 tokenId, uint256 price);
   event AuctionSuccessful(uint256 tokenId, uint256 totalPrice, address winner);
   event AuctionCancelled(uint256 tokenId);
-  event Debug(uint256 tokenId, uint256 price, uint256 price2, uint256 price3, address addr1, address addr2);
 
   /*** DATA TYPES ***/
 
@@ -35,26 +34,33 @@ contract VideoAuction
 
   /*** STORAGE ***/
 
-  // Cut owner takes on each auction, measured in basis points (1/100 of a percent).
-  // Values 0-10,000 map to 0%-100%
-  // Default to 10%
+  /// @dev Cut owner takes on each auction, measured in basis points
+  ///   (1/100 of a percent).
+  /// Values 0-10,000 map to 0%-100%
+  /// Default to 10%
   uint256 public ownerCut = 1000;
 
-  // Map from token ID to their corresponding auction.
+  /// @dev Map from token ID to their corresponding auction.
   mapping (uint256 => Auction) tokenIdToAuction;
 
 
+  /// @dev Throws when the token is not in auction.
+  /// @param tokenId to be checked.
   modifier onlyTokenInAuction(uint256 tokenId) {
     require(tokenIdToAuction[tokenId].startedAt > 0);
     _;
   }
 
+  /// @dev Create an auction for a token with lowest bidding price.
+  /// @param tokenId to be sent for the auction.
+  /// @param price lowest bidding price.
   function createAuction(uint256 tokenId, uint256 price)
       public
       onlyVideoBaseTokenOwnerOf(tokenId)
       whenVideoBaseNotPaused
       {
     require(price > 0);
+    require(tokenIdToAuction[tokenId].startedAt == 0);
     Auction memory auction = Auction({
       price: price,
       startedAt: uint64(now)
@@ -64,6 +70,10 @@ contract VideoAuction
     AuctionCreated(tokenId, price);
   }
 
+  /// @dev Bid a token with ether. Only the bidding price except the owner cut
+  ///   is sent to the seller. The owner get the cut, while the rest is
+  ///   returned.
+  /// @param tokenId to bid for.
   function bid(uint256 tokenId)
       public
       payable
@@ -78,12 +88,11 @@ contract VideoAuction
     uint256 price = auction.price;
 
     require(bidAmount >= auction.price);
+    require(seller != buyer);
 
     uint256 auctioneerCut = price * ownerCut / 10000;
     uint256 sellerProceeds = price - auctioneerCut;
     uint256 bidExcess = bidAmount - price;
-
-    Debug(tokenId, price, sellerProceeds, bidExcess, seller, buyer);
 
     delete tokenIdToAuction[tokenId];
 
@@ -96,9 +105,10 @@ contract VideoAuction
     AuctionSuccessful(tokenId, price, buyer);
   }
 
+  /// @dev Cancel the auction for a token.
+  /// @param tokenId whose auction is being cancelled.
   function cancelAuction(uint256 tokenId)
       public
-      payable
       onlyVideoBaseTokenOwnerOf(tokenId)
       onlyTokenInAuction(tokenId)
       whenVideoBaseNotPaused
@@ -107,18 +117,19 @@ contract VideoAuction
     AuctionCancelled(tokenId);
   }
 
+  /// @dev set owner cut.
+  /// @param _ownerCut values 0-10,000 map to 0%-100%
   function setOwnerCut(uint256 _ownerCut)
       public onlyVideoBaseOwner {
     require(_ownerCut >= 0 && _ownerCut <= 10000);
     ownerCut = _ownerCut;
   }
 
-  /// @dev Escrows the NFT, assigning ownership to this contract.
-  /// Throws if the escrow fails.
-  /// @param _tokenId - ID of token whose approval to verify.
-  function _escrow(uint256 _tokenId) internal {
-      // it will throw if transfer fails
-      // videoBase.transfer(this, _tokenId);
+  /// @dev get auction price for a token.
+  /// @param tokenId whose auction price is being retrieved.
+  function getAuctionPrice(uint256 tokenId)
+      public view onlyTokenInAuction(tokenId)
+      returns (uint256) {
+    return tokenIdToAuction[tokenId].price;
   }
-
 }
