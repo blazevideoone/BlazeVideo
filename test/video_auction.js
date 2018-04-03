@@ -21,7 +21,7 @@ contract('VideoAuction', async (accounts) => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
 
-    let owner = accounts[0];
+    let contractOwner = accounts[0];
     let seller = accounts[1];
     let buyer = accounts[2];
     let sellPrice = web3.toWei(1, 'ether');
@@ -37,14 +37,16 @@ contract('VideoAuction', async (accounts) => {
 
     await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
 
-    let ownerInitialBalance = web3.eth.getBalance(owner);
+    assert.equal(sellPrice, await videoAuction.getAuctionPrice.call(_tokenId));
+
+    let ownerInitialBalance = web3.eth.getBalance(contractOwner);
     let sellerInitialBalance = web3.eth.getBalance(seller);
     let buyerInitialBalance = web3.eth.getBalance(buyer);
 
     let _txReceipt = await videoAuction.bid(_tokenId, {from: buyer, value: bidPrice});
     let _tx = web3.eth.getTransaction(_txReceipt.tx);
 
-    let ownerBalance = web3.eth.getBalance(owner);
+    let ownerBalance = web3.eth.getBalance(contractOwner);
     let sellerBalance = web3.eth.getBalance(seller);
     let buyerBalance = web3.eth.getBalance(buyer);
 
@@ -56,5 +58,166 @@ contract('VideoAuction', async (accounts) => {
     // Note to calculate total gas used.
     assert.equal(sellPrice * 1 + _txReceipt.receipt.gasUsed * _tx.gasPrice,
                  buyerInitialBalance.toNumber() - buyerBalance.toNumber());
+
+    try {
+      await videoAuction.getAuctionPrice.call(_tokenId);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+  });
+
+  it("should cancel auction correctly", async () => {
+    let videoBase = await VideoBase.deployed();
+    let videoAuction = await VideoAuction.deployed();
+
+    let seller = accounts[2];
+    let sellPrice = web3.toWei(1, 'ether');
+
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
+    assert.equal(sellPrice, await videoAuction.getAuctionPrice.call(_tokenId));
+
+    await videoAuction.cancelAuction(_tokenId, {from: seller});
+    try {
+      await videoAuction.getAuctionPrice.call(_tokenId);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+  });
+
+  it("should not bid on or cancel invalid auctions", async () => {
+    let videoBase = await VideoBase.deployed();
+    let videoAuction = await VideoAuction.deployed();
+
+    let seller = accounts[2];
+    let buyer = accounts[3];
+    let sellPrice = web3.toWei(1, 'ether');
+    let bidPrice = web3.toWei(2, 'ether');
+    let losingBidPrice = web3.toWei(0.9, 'ether');
+
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
+
+    // Paused
+    await videoBase.pause();
+    try {
+      await videoAuction.bid(_tokenId, {from: buyer, value: bidPrice});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    try {
+      await videoAuction.cancelAuction(_tokenId, {from: seller});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    await videoBase.unpause();
+
+    // Not enough bid price
+    try {
+      await videoAuction.bid(_tokenId, {from: buyer, value: losingBidPrice});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    // Cancel not by seller.
+    try {
+      await videoAuction.cancelAuction(_tokenId, {from: buyer});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    // Cleanup
+    await videoAuction.cancelAuction(_tokenId, {from: seller});
+
+    // Not existing auctions.
+    try {
+      await videoAuction.bid(_tokenId, {from: buyer, value: bidPrice});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    try {
+      await videoAuction.cancelAuction(_tokenId, {from: seller});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+  });
+
+  it("should not create invalid auctions", async () => {
+    let videoBase = await VideoBase.deployed();
+    let videoAuction = await VideoAuction.deployed();
+
+    let notOwner = accounts[0];
+    let seller = accounts[2];
+    let sellPrice = web3.toWei(1, 'ether');
+
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    try {
+      // Create auction from a non owner.
+      await videoAuction.createAuction(_tokenId, sellPrice, {from: notOwner});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    // Paused
+    await videoBase.pause();
+    try {
+      // Create auction when videoBase is paused.
+      await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    await videoBase.unpause();
+
+    try {
+      // Invalid price.
+      await videoAuction.createAuction(_tokenId, 0, {from: seller});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
+    try {
+      // Recreate auction on the same tokenId.
+      await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    // Clean up
+    await videoAuction.cancelAuction(_tokenId, {from: seller});
+  });
+
+  it("should not set invalid owner cut", async () => {
+    let videoAuction = await VideoAuction.deployed();
+
+    let notContractOwner = accounts[2];
+    try {
+      videoAuction.setOwnerCut(5, {from: notContractOwner});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    try {
+      // Invalid owner cut.
+      videoAuction.setOwnerCut(10001, {from: notContractOwner});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
   });
 });
