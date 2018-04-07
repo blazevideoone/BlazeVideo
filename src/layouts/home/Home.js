@@ -18,7 +18,7 @@ class Home extends Component {
     return(
       <div className="splash-container">
         <div className="splash">
-          <h1 className="splash-head">BitVideo.One</h1>
+          <h1 className="splash-head">Bit Video.One</h1>
           <p className="splash-subhead">
               Collects your faverate Youtube videos on a Blockchain.
           </p>

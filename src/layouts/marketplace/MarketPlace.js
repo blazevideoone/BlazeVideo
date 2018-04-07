@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './MarketPlaceActions';
 
+//UI component
+import VideoComponent from '../ui/videocomp/VideoComponent';
+
 @connect(
     state => ({
       videos: state.videos.data,
@@ -37,13 +40,61 @@ export default class MarketPlace extends Component {
     this.props.asyncAddNewVideoTrusted(YOUTUBE_VIDEO_ID, videoCount);
   }
   render() {
+    const testVideos = [
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      },
+      {
+        youtubeId: 'HPPj6viIBmU',
+        videoCount: 23451
+      }
+    ]
     return(
-      <main className="container">
+      <main className="container mp-container">
         <div className="pure-g">
           <div className="pure-u-1-1">
             <h1>Market Place</h1>
-            <p><strong>Congratulations {this.props.authData.name}!</strong> If you're seeing this page, you've logged in with your own smart contract successfully.</p>
           </div>
+          { testVideos.map((video, index) => {
+            return (
+              <div key={video.youtubeId + index } className="pure-u-1-3">
+                <VideoComponent videoData={video} />
+              </div>
+            )
+          })}
           <div className="pure-u-1-1">
             <form className="pure-form pure-form-stacked" onSubmit={this.submitNewVideo}>
               <fieldset>

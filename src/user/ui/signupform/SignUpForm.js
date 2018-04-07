@@ -34,8 +34,8 @@ export default class SignUpForm extends Component {
     return(
       <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit}>
         <fieldset>
-          <label htmlFor="name">Name</label>
-          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="Name" />
+          <label htmlFor="name">Nickname</label>
+          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="nickname" />
           <span className="pure-form-message">This is a required field.</span>
 
           <br />

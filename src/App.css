@@ -21,7 +21,7 @@ h4,
 h5,
 h6,
 label {
-    color: #34495e;
+    color: #444;
 }
 
 .pure-img-responsive {
@@ -71,15 +71,20 @@ label {
  * I want my pure-button elements to look a little different
  */
 .pure-button {
-    background-color: #1f8dd6;
+    background-color: #ff0000;
     color: white;
     padding: 0.5em 2em;
     border-radius: 5px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+a.pure-button:hover {
+  color: #d00;
 }
 
 a.pure-button-primary {
     background: white;
-    color: #1f8dd6;
+    color: #ff0000;
     border-radius: 5px;
     font-size: 120%;
 }
