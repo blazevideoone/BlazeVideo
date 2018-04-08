@@ -9,11 +9,7 @@ contract('VideoAuction', async (accounts) => {
   const YOUTUBE_VIEW_COUNT = 12345678;
   // VIDEO ID 2 similar to VIDEO ID
   const YOUTUBE_VIDEO_ID2 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmV");
-  const YOUTUBE_VIEW_COUNT2 = 87654321;
-  const YOUTUBE_VIDEO_ID3 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6v123mV");
-  const YOUTUBE_VIEW_COUNT3 = 8765;
-
-  const TOKEN_ID_NOT_EXIST = 1000;
+  const YOUTUBE_VIEW_COUNT2 = 87654;
 
   const OWNER_CUT = 0.2;
 
@@ -32,10 +28,19 @@ contract('VideoAuction', async (accounts) => {
     await videoAuction.setVideoBase(videoBase.address);
     await videoAuction.setOwnerCut(OWNER_CUT * 10000);
     await videoBase.addTrustedContract(videoAuction.address);
+    await videoBase.addListener(videoAuction.address);
 
     await videoBase.addNewVideoTrusted(
         seller, YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
     let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    // There should not be an auction for _tokenId.
+    try {
+      await videoAuction.getAuctionPrice.call(_tokenId);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     await videoAuction.createAuction(_tokenId, sellPrice, {from: seller});
 
@@ -71,6 +76,54 @@ contract('VideoAuction', async (accounts) => {
                              BALANCE_ROUND_TO));
     try {
       await videoAuction.getAuctionPrice.call(_tokenId);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+  });
+
+  it("should create auction for owner's new video", async () => {
+    let videoBase = await VideoBase.deployed();
+    let videoAuction = await VideoAuction.deployed();
+
+    let contractOwner = accounts[0];
+    let buyer = accounts[2];
+    let sellPrice = web3.toWei(YOUTUBE_VIEW_COUNT2, 'szabo');
+    let bidPrice = web3.toWei(YOUTUBE_VIEW_COUNT2 * 1.5, 'szabo');
+
+    await videoAuction.setVideoBase(videoBase.address);
+    await videoAuction.setOwnerCut(OWNER_CUT * 10000);
+    await videoBase.addTrustedContract(videoAuction.address);
+
+    await videoBase.addNewVideoTrusted(
+        contractOwner, YOUTUBE_VIDEO_ID2, YOUTUBE_VIEW_COUNT2);
+    let _tokenId2 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID2);
+
+    assert.equal(sellPrice, await videoAuction.getAuctionPrice.call(_tokenId2));
+
+    let ownerInitialBalance = web3.eth.getBalance(contractOwner);
+    let buyerInitialBalance = web3.eth.getBalance(buyer);
+
+    let _txReceipt = await videoAuction.bid(_tokenId2, {from: buyer, value: bidPrice});
+    let _tx = web3.eth.getTransaction(_txReceipt.tx);
+
+    let ownerBalance = web3.eth.getBalance(contractOwner);
+    let buyerBalance = web3.eth.getBalance(buyer);
+
+    assert.equal(buyer, await videoBase.ownerOf(_tokenId2));
+    assert.equal(Math.round(sellPrice / BALANCE_ROUND_TO),
+                 Math.round((ownerBalance.toNumber() -
+                             ownerInitialBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
+    // Note to calculate total gas used.
+    assert.equal(Math.round((sellPrice * 1 +
+                             _txReceipt.receipt.gasUsed * _tx.gasPrice) /
+                             BALANCE_ROUND_TO),
+                 Math.round((buyerInitialBalance.toNumber() -
+                             buyerBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
+    try {
+      await videoAuction.getAuctionPrice.call(_tokenId2);
       assert.fail("should have thrown before");
     } catch(error) {
       AssertJump(error);

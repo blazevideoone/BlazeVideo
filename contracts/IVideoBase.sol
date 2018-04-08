@@ -83,4 +83,10 @@ contract IVideoBase
       address _to,
       uint256 _tokenId)
       public;
+
+  /// @dev get a video info in (birthTime, viewCount, viewCountUpdateTime).
+  /// @param tokenId whose video info is being retrieved.
+  function getVideoTrusted(uint256 tokenId)
+      public view
+      returns (uint64, uint256, uint64);
 }

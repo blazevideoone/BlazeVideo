@@ -12,6 +12,7 @@ contract VideoAuction
     Ownable,
     Pausable,
     Destructible,
+    IVideoListener,
     VideoBaseAccessor
   {
 
@@ -51,6 +52,22 @@ contract VideoAuction
     _;
   }
 
+  /// @dev whether it supports this interface, for sanity check.
+  function supportsVideoListener() public view returns (bool) {
+    return true;
+  }
+
+  /// @dev listen to onVideoAdded, initiialize auction for video added by
+  ///   videoBase's owner.
+  /// @param tokenId whose video id is associated to.
+  function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {
+    if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
+      uint256 viewCount;
+      (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
+      _createAuction(tokenId, viewCount * 1 szabo);
+    }
+  }
+
   /// @dev Create an auction for a token with lowest bidding price.
   /// @param tokenId to be sent for the auction.
   /// @param price lowest bidding price.
@@ -59,6 +76,14 @@ contract VideoAuction
       onlyVideoBaseTokenOwnerOf(tokenId)
       whenVideoBaseNotPaused
       {
+    _createAuction(tokenId, price);
+  }
+
+  /// @dev Private function to create an auction for a token with lowest
+  ///   bidding price.
+  /// @param tokenId to be sent for the auction.
+  /// @param price lowest bidding price.
+  function _createAuction(uint256 tokenId, uint256 price) private {
     require(price > 0);
     require(tokenIdToAuction[tokenId].startedAt == 0);
     Auction memory auction = Auction({

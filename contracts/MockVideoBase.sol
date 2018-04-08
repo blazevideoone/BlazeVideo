@@ -86,7 +86,6 @@ contract MockVideoBase is IVideoBase {
     revert();
   }
 
-
   /// @dev helper function to transfer the ownership of a video's tokenId.
   ///   Only accessible to trusted contracts.
   /// @param _from address which you want to send the token from.
@@ -97,6 +96,15 @@ contract MockVideoBase is IVideoBase {
       address _to,
       uint256 _tokenId)
       public {
+    // Should not called.
+    revert();
+  }
+
+  /// @dev get a video info in (birthTime, viewCount, viewCountUpdateTime).
+  /// @param tokenId whose video info is being retrieved.
+  function getVideoTrusted(uint256 tokenId)
+      public view
+      returns (uint64, uint256, uint64) {
     // Should not called.
     revert();
   }
