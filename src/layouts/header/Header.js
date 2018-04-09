@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Navbar, Nav, NavItem, NavbarToggler, Collapse } from 'reactstrap';
 import { HiddenOnlyAuth, VisibleOnlyAuth } from '../../util/wrappers.js';
 import { Link } from 'react-router';
 
@@ -10,37 +11,48 @@ import LoginButton from '../../user/ui/loginbutton/LoginButton';
 import LogoutButton from '../../user/ui/logoutbutton/LogoutButton';
 
 export default class Header extends Component {
+  state: Object = {
+    isOpen: false
+  }
+  toggleNav: Function = () => {
+    this.setState({
+      isOpen: !this.state.isOpen
+    })
+  }
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() =>
-      <span>
-        <li className="pure-menu-item">
-          <Link to="/marketplace" className="pure-menu-link">Market Place</Link>
-        </li>
-        <li className="pure-menu-item">
-          <Link to="/profile" className="pure-menu-link">Profile</Link>
-        </li>
+      <Nav className="ml-auto" navbar>
+        <NavItem>
+          <Link className="nav-link" to="/marketplace">Marketplace</Link>
+        </NavItem>
+        <NavItem>
+          <Link className="nav-link" to="/profile">Profile</Link>
+        </NavItem>
         <LogoutButton />
-      </span>
+      </Nav>
     )
 
     const OnlyGuestLinks = HiddenOnlyAuth(() =>
-      <span>
-        <li className="pure-menu-item">
-          <Link to="/signup" className="pure-menu-link">Sign Up</Link>
-        </li>
-        <LoginButton />
-      </span>
+      <Nav className="ml-auto" navbar>
+        <NavItem>
+          <Link className="nav-link" to="/signup">Sign Up</Link>
+        </NavItem>
+          <LoginButton />
+      </Nav>
     )
 
     return (
       <div className="header">
-        <div className="home-menu pure-menu pure-menu-horizontal">
-          <Link className="pure-menu-heading" to="/"><img role="presentation" className="home-image" src="/img/logo.png" /></Link>
-          <ul className="pure-menu-list">
-            <OnlyAuthLinks />
-            <OnlyGuestLinks />
-          </ul>
-        </div>
+        <Navbar color="light" light expand="md">
+          <Link className="nav-brand" to="/">
+            <img role="presentation" className="home-image" src="/img/logo.png" />
+          </Link>
+          <NavbarToggler onClick={this.toggleNav} />
+            <Collapse isOpen={this.state.isOpen} navbar>
+              <OnlyAuthLinks />
+              <OnlyGuestLinks />
+            </Collapse>
+        </Navbar>
       </div>)
   }
 }

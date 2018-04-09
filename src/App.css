@@ -24,71 +24,19 @@ label {
     color: #444;
 }
 
-.pure-img-responsive {
-    max-width: 100%;
-    height: auto;
-}
-
 /*
- * -- LAYOUT STYLES --
- * These are some useful classes which I will need
+ * Change Primary Color
  */
-.l-box {
-    padding: 1em;
+
+.btn-primary {
+  background-color: #F00 !important;
+  border-color: #F00 !important;
 }
 
-.l-box-lrg {
-    padding: 2em;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+.btn-primary:hover {
+  background-color: #B00 !important;
+  border-color: #B00 !important;
 }
-
-.is-center {
-    text-align: center;
-}
-
-
-
-/*
- * -- PURE FORM STYLES --
- * Style the form inputs and labels
- */
-.pure-form label {
-    margin: 1em 0 0;
-    font-weight: bold;
-    font-size: 100%;
-}
-
-.pure-form input[type] {
-    border: 2px solid #ddd;
-    box-shadow: none;
-    font-size: 100%;
-    width: 100%;
-    margin-bottom: 1em;
-}
-
-/*
- * -- PURE BUTTON STYLES --
- * I want my pure-button elements to look a little different
- */
-.pure-button {
-    background-color: #ff0000;
-    color: white;
-    padding: 0.5em 2em;
-    border-radius: 5px;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-}
-
-a.pure-button:hover {
-  color: #d00;
-}
-
-a.pure-button-primary {
-    background: white;
-    color: #ff0000;
-    border-radius: 5px;
-    font-size: 120%;
-}
-
 /*
  * -- SPLASH STYLES --
  * This is the blue top section that appears on the page.
@@ -144,7 +92,9 @@ a.pure-button-primary {
 
 /* This is the class used for the footer */
 .footer {
-    background: #444;
+    background: #666;
+    padding: 20px 20px;
+    margin-top: 40px;
     color: #EEE;
     width: 100%;
 }

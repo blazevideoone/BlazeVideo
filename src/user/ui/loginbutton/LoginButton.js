@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { NavItem, NavLink } from 'reactstrap';
 import { loginUser } from './LoginButtonActions';
 
 @connect(
@@ -14,9 +15,9 @@ export default class LoginButton extends Component {
   }
   render() {
     return(
-      <li className="pure-menu-item">
-        <a href="#" className="pure-menu-link" onClick={this.onLoginUserClick}>Login</a>
-      </li>
+      <NavItem>
+        <NavLink href="#" onClick={this.onLoginUserClick}>Login</NavLink>
+      </NavItem>
     )
   }
 }

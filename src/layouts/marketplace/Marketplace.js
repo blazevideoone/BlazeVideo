@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './MarketPlaceActions';
+import { Container, Row, Col } from 'reactstrap';
+import { asyncLoadVideoList, asyncAddNewVideoTrusted } from './MarketplaceActions';
 
-//UI component
+// CSS
+import './Marketplace.css';
+// UI component
 import VideoComponent from '../ui/videocomp/VideoComponent';
+import BuyVideoDialog from '../ui/buyvideodialog/BuyVideoDialog';
 
 @connect(
     state => ({
@@ -14,7 +18,7 @@ import VideoComponent from '../ui/videocomp/VideoComponent';
         asyncLoadVideoList,
         asyncAddNewVideoTrusted
     })
-export default class MarketPlace extends Component {
+export default class Marketplace extends Component {
   constructor(props, { authData }) {
     super(props);
     authData = this.props;
@@ -83,18 +87,22 @@ export default class MarketPlace extends Component {
       }
     ]
     return(
-      <main className="container mp-container">
-        <div className="pure-g">
-          <div className="pure-u-1-1">
-            <h1>Market Place</h1>
-          </div>
+      <Container>
+        <Row>
+          <Col>
+            <h2>Marketplace</h2>
+          </Col>
+        </Row>
+        <Row>
           { testVideos.map((video, index) => {
             return (
-              <div key={video.youtubeId + index } className="pure-u-1-3">
+              <Col xs="12" md="6" lg="4" key={video.youtubeId + index }>
                 <VideoComponent videoData={video} />
-              </div>
+              </Col>
             )
           })}
+        </Row>
+        {/* <Row>
           <div className="pure-u-1-1">
             <form className="pure-form pure-form-stacked" onSubmit={this.submitNewVideo}>
               <fieldset>
@@ -112,8 +120,9 @@ export default class MarketPlace extends Component {
               </fieldset>
             </form>
           </div>
-        </div>
-      </main>
+        </Row> */}
+        <BuyVideoDialog className="buy-dialog" />
+      </Container>
     )
   }
 }

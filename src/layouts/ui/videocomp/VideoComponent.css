@@ -1,11 +1,32 @@
 .video-card {
-  border: 1px solid #999;
+  border: 1px solid #DDD;
+  border-radius: 3px;
   width: 340px;
-  height: 300px;
-  padding: 5px;
+  height: 330px;
+  padding: 9px;
   margin: 10px;
 }
 
+.video-card .title-box {
+  height: 30px;
+  color: #666;
+}
 .video-card .price-box {
-  
+  padding: 5px;
+  height: 50px;
+  line-height: 40px;
+}
+
+.video-card .price-box .price {
+  color: #666;
+}
+
+.video-card .price-box .buy-button {
+  float: right;
+}
+
+.video-card .video-box {
+  width: 320px;
+  height: 240px;
+  background-color: #DDD;
 }

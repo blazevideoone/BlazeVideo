@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
 import { Button } from 'reactstrap';
-import { showBuyVideoDialog } from '../buyvideodialog/BuyVideoDialogAction';
 import { connect } from 'react-redux';
 
 // Styles
@@ -10,7 +9,6 @@ import './VideoComponent.css';
 @connect(
     state => ({}),
     {
-      showBuyVideoDialog
     })
 export default class VideoComponent extends Component {
   render() {
@@ -34,8 +32,8 @@ export default class VideoComponent extends Component {
           />
         </div>
         <div className="price-box">
-          <span className="price">PRICE: { this.props.videoData.videoCount/1000000 } ETH</span>
-          <Button color='primary' className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>BUY</Button>
+          <span className="price">Estimate: { this.props.videoData.videoCount/1000000 } ETH</span>
+          <Button color='primary' className="buy-button">SELL</Button>
         </div>
       </div>
     );

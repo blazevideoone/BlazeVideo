@@ -6,13 +6,13 @@ class Home extends Component {
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() =>
       <p>
-        <Link to="/marketplace" className="pure-button pure-button-primary">Get Started</Link>
+        <Link to="/marketplace" className="btn btn-primary">Get Started</Link>
       </p>
     )
 
     const OnlyGuestLinks = HiddenOnlyAuth(() =>
       <p>
-        <Link to="/signup" className="pure-button pure-button-primary">Get Started</Link>
+        <Link to="/signup" className="btn btn-primary">Get Started</Link>
       </p>
     )
     return(

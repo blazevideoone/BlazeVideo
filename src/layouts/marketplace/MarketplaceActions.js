@@ -6,10 +6,26 @@ import store from '../../store';
 const contract = require('truffle-contract');
 
 export const LOAD_VIDEO_LIST = 'LOAD_VIDEO_LIST';
+export const BUY_VIDEO_DIA = 'BUY_VIDEO_DIA';
+
 function loadVideoList(videos) {
   return {
     type: LOAD_VIDEO_LIST,
     payload: videos
+  }
+}
+
+export function showBuyVideoDia() {
+  return {
+    type: BUY_VIDEO_DIA,
+    payload: true
+  }
+}
+
+export function hideBuyVideoDia() {
+  return {
+    type: BUY_VIDEO_DIA,
+    payload: false
   }
 }
 
