@@ -14,13 +14,13 @@ contract VideoBase
   /// @dev An array containing the Video struct for all videos in existence.
   ///   The tokenId of each video is actually an index into this array. The
   ///   tokenId 0 is invalid.
-  Video[] public videos;
+  Video[] internal videos;
 
   /// @dev The video id mapping to token id.
-  mapping (bytes32 => uint256) public videoIdToTokenId;
+  mapping (bytes32 => uint256) internal videoIdToTokenId;
 
   /// @dev An array of listener contracts.
-  IVideoListener[] public listeners;
+  IVideoListener[] internal listeners;
 
 
   /// @dev Initialize with tokenId 0 video.
@@ -70,7 +70,7 @@ contract VideoBase
     for (uint i = 0; i < listeners.length; i++) {
       if (address(listeners[i]) == listener) {
         // Throws if it is already a listener.
-        require(false);
+        revert();
       }
     }
 
@@ -88,7 +88,7 @@ contract VideoBase
         return;
       }
     }
-    require(false);
+    revert();
   }
 
   /// @dev retrieve tokenId from videoId for convenience.
@@ -159,12 +159,37 @@ contract VideoBase
     return newTokenId;
   }
 
+  /// @dev helper function to transfer the ownership of a video's tokenId.
+  ///   Only accessible to trusted contracts.
+  /// @param _from address which you want to send the token from.
+  /// @param _to address which you want to transfer the token to.
+  /// @param _tokenId uint256 ID of the token of the video to be transferred.
+  function transferVideoTrusted(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public
+      whenNotPaused
+      onlyTrustedContracts
+      {
+    clearApprovalAndTransfer(_from, _to, _tokenId);
+  }
+
   /// @dev initialize the view count and viewCountUpdateTime for a video.
   /// @param tokenId whose video id is associated to.
   /// @param viewCount to updated.
   function _initVideo(uint256 tokenId, uint256 viewCount) internal {
     videos[tokenId].viewCount = viewCount;
     videos[tokenId].viewCountUpdateTime = uint64(now);
+  }
+
+  /// @dev get a video info in (birthTime, viewCount, viewCountUpdateTime).
+  /// @param tokenId whose video info is being retrieved.
+  function getVideoTrusted(uint256 tokenId)
+      public view onlyTrustedContracts onlyExistingToken(tokenId)
+      returns (uint64, uint256, uint64) {
+    Video storage video = videos[tokenId];
+    return (video.birthTime, video.viewCount, video.viewCountUpdateTime);
   }
 
   /// @dev get the view count for a video.

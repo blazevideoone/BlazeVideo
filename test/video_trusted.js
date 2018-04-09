@@ -2,12 +2,14 @@ const VideoTrusted = artifacts.require("./VideoTrusted.sol");
 const AssertJump = require("./assert_jump.js");
 
 contract('VideoTrusted', async (accounts) => {
+  let videoTrustedInstance;
 
   it("should add trusted contracts correctly", async () => {
+    videoTrustedInstance = await VideoTrusted.new();
+
     var account_two = accounts[1];
     var account_three = accounts[2];
 
-    let videoTrustedInstance = await VideoTrusted.deployed();
     await videoTrustedInstance.addTrustedContract(account_two);
     await videoTrustedInstance.addTrustedContract(account_three);
 
@@ -21,7 +23,6 @@ contract('VideoTrusted', async (accounts) => {
   it("should not add an existing trusted contract", async () => {
     var account_two = accounts[1];
 
-    let videoTrustedInstance = await VideoTrusted.deployed();
     await videoTrustedInstance.addTrustedContract(account_two);
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
@@ -33,8 +34,6 @@ contract('VideoTrusted', async (accounts) => {
   it("should disallow non owner to add trusted contracts", async () => {
     var account_two = accounts[1];
     var account_four = accounts[3];
-
-    let videoTrustedInstance = await VideoTrusted.deployed();
 
     try {
       await videoTrustedInstance.addTrustedContract(account_four, {from: account_two});
@@ -51,8 +50,6 @@ contract('VideoTrusted', async (accounts) => {
   it("should allow trusted contracts to get all trusted contracts", async () => {
     var account_two = accounts[1];
 
-    let videoTrustedInstance = await VideoTrusted.deployed();
-
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call({from: account_two});
 
     assert.equal(account_two, trustedContracts[0]);
@@ -61,8 +58,6 @@ contract('VideoTrusted', async (accounts) => {
 
   it("should disallow non trusted contracts to get all trusted contracts", async () => {
     var account_four = accounts[3];
-
-    let videoTrustedInstance = await VideoTrusted.deployed();
 
     try {
       let trustedContracts = await videoTrustedInstance.getTrustedContracts.call({from: account_four});
@@ -74,8 +69,6 @@ contract('VideoTrusted', async (accounts) => {
 
   it("should disallow non trusted contracts to get all trusted contracts", async () => {
     var account_four = accounts[3];
-
-    let videoTrustedInstance = await VideoTrusted.deployed();
 
     try {
       let trustedContracts = await videoTrustedInstance.getTrustedContracts.call({from: account_four});
@@ -87,8 +80,6 @@ contract('VideoTrusted', async (accounts) => {
 
   it("should disallow non owner to remove trusted contracts", async () => {
     var account_two = accounts[1];
-
-    let videoTrustedInstance = await VideoTrusted.deployed();
 
     try {
       await videoTrustedInstance.removeTrustedContract(account_two, {from: account_two});
@@ -105,7 +96,6 @@ contract('VideoTrusted', async (accounts) => {
   it("should not remove a non-existing trusted contract", async () => {
     var account_four = accounts[3];
 
-    let videoTrustedInstance = await VideoTrusted.deployed();
     await videoTrustedInstance.removeTrustedContract(account_four);
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
@@ -117,7 +107,6 @@ contract('VideoTrusted', async (accounts) => {
     var account_two = accounts[1];
     var account_three = accounts[2];
 
-    let videoTrustedInstance = await VideoTrusted.deployed();
     await videoTrustedInstance.removeTrustedContract(account_two);
     await videoTrustedInstance.removeTrustedContract(account_three);
 
