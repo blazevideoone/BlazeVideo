@@ -19,16 +19,13 @@ contract('VideoAuction', async (accounts) => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
 
+    await videoAuction.setOwnerCut(OWNER_CUT * 10000);
+
     let contractOwner = accounts[0];
     let seller = accounts[1];
     let buyer = accounts[2];
     let sellPrice = web3.toWei(1, 'ether');
     let bidPrice = web3.toWei(1.5, 'ether');
-
-    await videoAuction.setVideoBase(videoBase.address);
-    await videoAuction.setOwnerCut(OWNER_CUT * 10000);
-    await videoBase.addTrustedContract(videoAuction.address);
-    await videoBase.addListener(videoAuction.address);
 
     await videoBase.addNewVideoTrusted(
         seller, YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
