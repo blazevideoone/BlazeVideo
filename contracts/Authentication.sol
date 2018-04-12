@@ -18,6 +18,13 @@ contract Authentication is Destructible {
     _;
   }
 
+  modifier onlyNonExistingUser {
+    // Check if user exists or terminate
+
+    require(users[msg.sender].name == 0x0);
+    _;
+  }
+
   modifier onlyValidName(bytes32 name) {
     // Only valid names allowed
 
@@ -35,6 +42,7 @@ contract Authentication is Destructible {
   function signup(bytes32 name)
   public
   payable
+  onlyNonExistingUser
   onlyValidName(name)
   returns (bytes32) {
     // Check if user exists.
