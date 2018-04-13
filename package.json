@@ -69,6 +69,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "scripts": {
+    "import-tests": "node test_videos.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom"
