@@ -13,8 +13,8 @@ import './VideoComponent.css';
 export default class VideoComponent extends Component {
   render() {
     const opts = {
-      height: '320',
-      width: '240',
+      height: '240',
+      width: '320',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 0
       }

@@ -47,43 +47,18 @@ export default class Marketplace extends Component {
     const testVideos = [
       {
         youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
+        videoCount: 2234,
+        price: 0.02
       },
       {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
+        youtubeId: 'J-dv_DcDD_A',
+        videoCount: 2323,
+        price: 0.07
       },
       {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
-      },
-      {
-        youtubeId: 'HPPj6viIBmU',
-        videoCount: 23451
+        youtubeId: 'EzuIduviKz8',
+        videoCount: 12345122,
+        price: 0.01
       }
     ]
     return(

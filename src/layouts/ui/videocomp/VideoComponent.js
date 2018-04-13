@@ -15,8 +15,8 @@ import './VideoComponent.css';
 export default class VideoComponent extends Component {
   render() {
     const opts = {
-      height: '320',
-      width: '240',
+      height: '240',
+      width: '320',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 0
       }
@@ -34,7 +34,7 @@ export default class VideoComponent extends Component {
           />
         </div>
         <div className="price-box">
-          <span className="price">PRICE: { this.props.videoData.videoCount/1000000 } ETH</span>
+          <span className="price">RESERVED PRICE: { this.props.videoData.price } ETH</span>
           <Button color='primary' className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>BUY</Button>
         </div>
       </div>
