@@ -254,7 +254,7 @@ contract('VideoBreed', async (accounts) => {
     let secondsPerBlock = await videoBreed.getSecondsPerBlock.call();
 
     let tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
-    await videoBase.transfer(accountNothing, tokenId);
+    await videoBase.safeTransferFrom(accountOwner, accountNothing, tokenId);
 
     await videoBreed.setCooldownEndBlock(tokenId, web3.eth.blockNumber);
     await videoBreed.startBreeding(tokenId, {from: accountNothing});
