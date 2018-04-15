@@ -2,7 +2,7 @@ import update from 'immutability-helper';
 const initialState = {
   data: {
     totalSupply: 0,
-    myList: []
+    auctionList: []
   }
 }
 
@@ -10,7 +10,7 @@ const videosReducer = (state = initialState, action) => {
   if (action.type === 'LOAD_VIDEO_LIST')
   {
     return update(state, {
-      data: { $set: action.payload }
+      data: { auctionList: { $set: action.payload } }
     })
   }
   return state

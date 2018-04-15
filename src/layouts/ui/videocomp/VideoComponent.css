@@ -1,8 +1,8 @@
 .video-card {
   border: 1px solid #DDD;
   border-radius: 3px;
-  width: 340px;
-  height: 330px;
+  width: 260px;
+  height: 270px;
   padding: 9px;
   margin: 10px;
 }
@@ -26,7 +26,7 @@
 }
 
 .video-card .video-box {
-  width: 320px;
-  height: 240px;
+  width: 240px;
+  height: 180px;
   background-color: #DDD;
 }

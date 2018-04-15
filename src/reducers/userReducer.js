@@ -1,6 +1,7 @@
 import update from 'immutability-helper';
 const initialState = {
-  data: null
+  data: null,
+  userVideos: []
 }
 
 const userReducer = (state = initialState, action) => {
@@ -15,6 +16,13 @@ const userReducer = (state = initialState, action) => {
   {
     return update(state, {
       data: { $set: null }
+    })
+  }
+
+  if (action.type === 'LOAD_USER_VIDEOS')
+  {
+    return update(state, {
+      userVideos: { $set: action.payload }
     })
   }
 

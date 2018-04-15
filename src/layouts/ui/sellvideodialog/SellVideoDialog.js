@@ -3,28 +3,28 @@ import React, { Component } from 'react';
 import YouTube from 'react-youtube';
 import { Modal, ModalBody, ModalHeader, ModalFooter, Row, Col, Button, Input, InputGroup, InputGroupAddon, Alert } from 'reactstrap';
 import { connect } from 'react-redux';
-import { hideBuyVideoDialog, asyncBuyVideo } from './BuyVideoDialogAction';
+import { hideSellVideoDialog, asyncSellVideo } from './SellVideoDialogAction';
 
 @connect(
   state => ({
-    data: state.dialog.buyVideo
+    data: state.dialog.sellVideo
   }),
   {
-    hideBuyVideoDialog,
-    asyncBuyVideo
+    hideSellVideoDialog,
+    asyncSellVideo
   })
-export default class BuyVideoDialog extends Component {
+export default class SellVideoDialog extends Component {
   state: Object = {
-    price: this.props.data.videoData ? this.props.data.videoData.price : 0.00,
+    price: this.props.data.videoData ? this.props.data.videoData.viewCount / 1000000000 : 0.00,
     showAlert: false,
     alertText: ''
   }
   toggle: Function = () => {
-    this.props.hideBuyVideoDialog();
+    this.props.hideSellVideoDialog();
   }
   componentWillReceiveProps(props) {
     this.setState({
-      price: props.data.videoData ? props.data.videoData.price : 0.00,
+      price: props.data.videoData ? props.data.videoData.viewCount / 1000000000 : 0.00,
     })
   }
   changePrice: Function = (event) => {
@@ -32,19 +32,8 @@ export default class BuyVideoDialog extends Component {
       price: event.target.value
     })
   }
-  bidNow: Function = () => {
-    if (this.state.price < this.props.data.videoData.price) {
-      this.setState({
-        showAlert: true,
-        alertText: `WARNING: Your price ${this.state.price} ETH is lower than the reserved price ${this.props.data.videoData.price} ETH of this video`
-      });
-      setTimeout(() => this.setState({
-        showAlert: false,
-        alertText: ''
-      }), 3000);
-    } else {
-      this.props.asyncBuyVideo(this.props.data.videoData.tokenId);
-    }
+  sellNow: Function = () => {
+    this.props.asyncSellVideo(this.props.data.videoData.tokenId, this.state.price);
   }
   render() {
     const opts = {
@@ -56,7 +45,7 @@ export default class BuyVideoDialog extends Component {
     };
     return (
       <Modal isOpen={ this.props.data.modalShow } toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Buy Video</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Sell Video</ModalHeader>
         <ModalBody>
         { this.state.showAlert && <Alert color="danger">
           { this.state.alertText }
@@ -72,16 +61,16 @@ export default class BuyVideoDialog extends Component {
               </div>
             </Col>
             <Col xs="12" md="12">
-              You are going to purchase Video: { this.props.data.videoData.youtubeId }
+              You are going to SELL Video: { this.props.data.videoData.videoId }
             </Col>
           </Row> : null }
         </ModalBody>
         <ModalFooter>
           <InputGroup>
             <Input type="number" value={this.state.price} onChange={this.changePrice} />
-            <InputGroupAddon addonType="append">ETH</InputGroupAddon>
+            <InputGroupAddon addonType="append">E</InputGroupAddon>
           </InputGroup>
-          <Button color="primary" onClick={this.bidNow}>BID NOW</Button>
+          <Button color="primary" onClick={this.sellNow}>SELL NOW</Button>
           <Button color="secondary" onClick={this.toggle}>BACK</Button>
         </ModalFooter>
       </Modal>

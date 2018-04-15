@@ -1,6 +1,8 @@
 // DashBoardActions.js
 // SPC 2018-3-28
 import VideoBaseContract from '../../../build/contracts/VideoBase.json';
+import VideoAuctionContract from '../../../build/contracts/VideoAuction.json';
+
 import store from '../../store';
 
 const contract = require('truffle-contract');
@@ -40,8 +42,15 @@ export function asyncLoadVideoList() {
       const videoBase = contract(VideoBaseContract);
       videoBase.setProvider(web3.currentProvider);
 
+      // Using truffle-contract we create the videoAuction object.
+      const videoAuction = contract(VideoAuctionContract);
+      videoAuction.setProvider(web3.currentProvider);
+
       // Declaring this for later so we can chain functions on VideoBase.
       var videoBaseInstance;
+
+      // Declaring this for later so we can chain functions on VideoAuction.
+      var videoAuctionInstance;
 
       // Get current ethereum wallet.
       web3.eth.getCoinbase( async (error, coinbase) => {
@@ -50,18 +59,25 @@ export function asyncLoadVideoList() {
           console.error(error);
         }
         videoBaseInstance = await videoBase.deployed();
+        videoAuctionInstance = await videoAuction.deployed();
         // Attempt to get video list.
-        const _totalSupply = await videoBaseInstance.totalSupply.call();
-        const _myList = await videoBaseInstance.tokensOf.call(coinbase);
-        const myList = await Promise.all(_myList.map( async tokenId => {
-          const _videoId = await videoBaseInstance.getVideoId.call(tokenId);
-          return _videoId;
-        }));
-        const videos = {
-          totalSupply: _totalSupply.toNumber(),
-          myList: myList
+        const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
+        let _videoList = [];
+        for (let index = 0; index < _totalSupply.toNumber(); index ++) {
+          const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
+          const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
+          const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
+          const _price = await videoAuctionInstance.getAuctionPrice.call(_tokenId);
+          const video = {
+            tokenId: _tokenId.toNumber(),
+            videoId: web3.toUtf8(_videoId).slice(5),
+            viewCount: _viewCount.toNumber(),
+            price: web3.fromWei(_price, 'ether').valueOf()
+          }
+          _videoList.push(video);
         }
-        dispatch(loadVideoList(videos));
+        console.log(_videoList);
+        dispatch(loadVideoList(_videoList));
       })
     }
   } else {

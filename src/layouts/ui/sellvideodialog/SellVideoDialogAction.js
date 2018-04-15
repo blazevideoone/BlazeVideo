@@ -1,27 +1,28 @@
-// BuyVideoDialogActions.js
+// SellVideoDialogActions.js
 // SPC 2018-4-7
+
 import VideoAuctionContract from '../../../../build/contracts/VideoAuction.json';
 import store from '../../../store';
 
 const contract = require('truffle-contract');
 
-export const HIDE_BUY_VIDEO_DIALOG = 'HIDE_BUY_VIDEO_DIALOG';
-export const SHOW_BUY_VIDEO_DIALOG = 'SHOW_BUY_VIDEO_DIALOG';
+export const HIDE_SELL_VIDEO_DIALOG = 'HIDE_SELL_VIDEO_DIALOG';
+export const SHOW_SELL_VIDEO_DIALOG = 'SHOW_SELL_VIDEO_DIALOG';
 
-export function showBuyVideoDialog(videoData) {
+export function showSellVideoDialog(videoData) {
   return {
-    type: SHOW_BUY_VIDEO_DIALOG,
+    type: SHOW_SELL_VIDEO_DIALOG,
     payload: videoData
   }
 }
 
-export function hideBuyVideoDialog() {
+export function hideSellVideoDialog() {
   return {
-    type: HIDE_BUY_VIDEO_DIALOG
+    type: HIDE_SELL_VIDEO_DIALOG
   }
 }
 
-export function asyncBuyVideo(tokenId, price) {
+export function asyncSellVideo(tokenId, price) {
   let web3 = store.getState().web3.web3Instance;
 
   // Double-check web3's status.
@@ -44,7 +45,7 @@ export function asyncBuyVideo(tokenId, price) {
         videoAuction.defaults({from: coinbase});
         videoAuctionInstance = await videoAuction.deployed();
         // Attempt to sell video
-        await videoAuctionInstance.bid(web3.toHex(tokenId));
+        await videoAuctionInstance.createAuction(web3.fromAscii(tokenId), price);
       })
     }
   } else {

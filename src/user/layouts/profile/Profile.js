@@ -1,18 +1,28 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Col, Row, Button, Collapse, Alert } from 'reactstrap';
-import { MyVideoComponent } from '../../../layouts/ui/videocomp/MyVideoComponent';
+import { asyncLoadUserVideos } from './ProfileActions';
+
+// UI Component
+import MyVideoComponent from '../../../layouts/ui/videocomp/MyVideoComponent';
 import ProfileForm from '../../ui/profileform/ProfileForm';
+import SellVideoDialog from '../../../layouts/ui/sellvideodialog/SellVideoDialog';
 
 @connect(
     state => ({
-      videos: state.videos.data,
+      videos: state.user.userVideos,
       web3: state.web3.web3Instance,
       name: state.user.data.name
-    }))
+    }),
+    {
+      asyncLoadUserVideos
+    })
 export default class Profile extends Component {
   state: Object = {
     showEdit: false
+  }
+  componentWillMount() {
+    this.props.asyncLoadUserVideos();
   }
   toggleEdit: Function = () => {
     this.setState({
@@ -20,6 +30,7 @@ export default class Profile extends Component {
     })
   }
   render() {
+    console.log(this.props.videos);
     return(
       <Container>
         <Row>
@@ -29,15 +40,15 @@ export default class Profile extends Component {
                 <h2>My Videos</h2>
               </Col>
             </Row>
-            { this.props.videos.myList.length === 0
+            { this.props.videos.length === 0
               ? <Alert color="primary">
-                You don't have any video yet ---- Buy one in the marketplace!
+                You don't have any video yet ---- Buy one in the funplace!
               </Alert> : null
             }
             <Row>
-              { this.props.videos.myList.map((video, index) => {
+              { this.props.videos.map((video, index) => {
                 return (
-                  <Col xs="12" md="6" lg="4" key={video.youtubeId + index }>
+                  <Col xs="12" md="6" lg="4" key={video.videoId + index }>
                     <MyVideoComponent videoData={video} />
                   </Col>
                 )
@@ -65,6 +76,7 @@ export default class Profile extends Component {
             </Row>
           </Col>
         </Row>
+        <SellVideoDialog className="buy-dialog" />
       </Container>
     )
   }
