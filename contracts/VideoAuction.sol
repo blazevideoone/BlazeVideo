@@ -64,7 +64,7 @@ contract VideoAuction
     if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
       uint256 viewCount;
       (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
-      _createAuction(tokenId, viewCount * 1 szabo);
+      _createAuction(tokenId, viewCount * 0.1 szabo);
     }
   }
 

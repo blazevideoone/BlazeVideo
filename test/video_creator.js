@@ -17,9 +17,6 @@ contract('VideoCreator', async (accounts) => {
     let videoBase = await VideoBase.deployed();
     let videoCreator = await VideoCreator.deployed();
 
-    await videoCreator.setVideoBase(videoBase.address);
-    await videoBase.addTrustedContract(videoCreator.address);
-
     await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID);
     await videoCreator.addNewVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
 

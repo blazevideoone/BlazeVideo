@@ -20,6 +20,8 @@ contract MockVideoBase is IVideoBase {
   /// @dev mock videoBaseAccessor for test.
   MockVideoBaseAccessor private _mockVideoBaseAccessor;
 
+  function MockVideoBase() ERC721Token("MOCKVIDEOBASE", "MVB") {
+  }
 
   /// @dev whether it supports this contract, for sanity check.
   function supportsVideoBase() public view returns (bool) {

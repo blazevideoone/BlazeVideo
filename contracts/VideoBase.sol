@@ -24,7 +24,7 @@ contract VideoBase
 
 
   /// @dev Initialize with tokenId 0 video.
-  function VideoBase() public {
+  function VideoBase() ERC721Token("BITVIDEOS", "BTV") public {
     Video memory _invalidVideo = Video({
         tokenId: 0,
         videoId: "INVALID",
@@ -35,7 +35,7 @@ contract VideoBase
     videos.push(_invalidVideo);
 
     _mint(msg.sender, _invalidVideo.tokenId);
-    _burn(_invalidVideo.tokenId);
+    _burn(msg.sender, _invalidVideo.tokenId);
   }
 
   /// @dev throws if the video is not new.
@@ -172,7 +172,8 @@ contract VideoBase
       whenNotPaused
       onlyTrustedContracts
       {
-    clearApprovalAndTransfer(_from, _to, _tokenId);
+    removeTokenFrom(_from, _tokenId);
+    addTokenTo(_to, _tokenId);
   }
 
   /// @dev initialize the view count and viewCountUpdateTime for a video.
