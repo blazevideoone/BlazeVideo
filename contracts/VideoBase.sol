@@ -159,6 +159,23 @@ contract VideoBase
     return newTokenId;
   }
 
+  /// @dev helper function to update a existing video.
+  ///   Only accessible to trusted contracts.
+  /// @param videoId to be proposed as a new video.
+  /// @param viewCount fetched from the video platform.
+  function updateVideoTrusted(
+      bytes32 videoId,
+      uint256 viewCount)
+      public
+      whenNotPaused
+      onlyTrustedContracts
+      onlyExistingVideo(videoId)
+    {
+    Video storage _video = videos[getTokenId(videoId)];
+    _video.viewCount = viewCount;
+    _video.viewCountUpdateTime = uint64(now);
+  }
+
   /// @dev helper function to transfer the ownership of a video's tokenId.
   ///   Only accessible to trusted contracts.
   /// @param _from address which you want to send the token from.
