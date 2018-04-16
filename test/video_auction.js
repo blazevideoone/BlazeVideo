@@ -85,8 +85,8 @@ contract('VideoAuction', async (accounts) => {
 
     let contractOwner = accounts[0];
     let buyer = accounts[2];
-    let sellPrice = web3.toWei(YOUTUBE_VIEW_COUNT2, 'szabo');
-    let bidPrice = web3.toWei(YOUTUBE_VIEW_COUNT2 * 1.5, 'szabo');
+    let sellPrice = web3.toWei(YOUTUBE_VIEW_COUNT2 / 10, 'szabo');
+    let bidPrice = web3.toWei(YOUTUBE_VIEW_COUNT2 * 1.5 / 10, 'szabo');
 
     await videoAuction.setVideoBase(videoBase.address);
     await videoAuction.setOwnerCut(OWNER_CUT * 10000);
