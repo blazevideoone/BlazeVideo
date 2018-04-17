@@ -94,12 +94,6 @@ web3.eth.getAccounts((err, accounts) => {
           console.log(TAG + "YouTube video id " + youtubeVideoId +
                       " viewCount " + stats.viewCount);
           var contractVideoId = youtubeAPI.YOUTUBE_PREFIX + youtubeVideoId;
-          /*
-          let estimatedGas = await videoCreator.updateVideo.estimateGas(
-            web3.fromAscii(contractVideoId),
-            parseInt(stats.viewCount)
-          );
-          */
           await videoCreator.updateVideo(
               web3.fromAscii(contractVideoId),
               parseInt(stats.viewCount),
