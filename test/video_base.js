@@ -6,6 +6,8 @@ contract('VideoBase', async (accounts) => {
 
   const YOUTUBE_PREFIX = "YUTB_";
   const YOUTUBE_VIDEO_ID = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmU");
+  const YOUTUBE_VIDEO_ID_PADDING = web3.fromAscii(
+      YOUTUBE_PREFIX + "HPPj6viIBmU") + "00000000000000000000000000000000";
   const YOUTUBE_VIEW_COUNT = 12345678;
   // VIDEO ID 2 similar to VIDEO ID
   const YOUTUBE_VIDEO_ID2 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6viIBmV");
@@ -14,6 +16,8 @@ contract('VideoBase', async (accounts) => {
   const YOUTUBE_VIEW_COUNT3 = 8765;
 
   const TOKEN_ID_NOT_EXIST = 12345;
+
+  var videoBirthTime;
 
   it("should add video and set video listener correctly", async () => {
     let videoBase = await VideoBase.deployed();
@@ -39,9 +43,19 @@ contract('VideoBase', async (accounts) => {
     await mockVideoListener2.mockSetSupportsVideoListener(true);
     await videoBase.addListener(mockVideoListener2.address);
 
-    await videoBase.addNewVideoTrusted(
+    let _result = await videoBase.addNewVideoTrusted(
         accounts[0], YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
+    videoBirthTime = web3.eth.getBlock(_result.receipt.blockHash).timestamp;
     let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let _videoInfo = await videoBase.getVideoInfo.call(_tokenId);
+    // videoId
+    assert.equal(YOUTUBE_VIDEO_ID_PADDING, _videoInfo[0]);
+    // birthTime
+    assert.equal(videoBirthTime, _videoInfo[1]);
+    // viewCount
+    assert.equal(YOUTUBE_VIEW_COUNT, _videoInfo[2]);
+    // viewCountUpdateTime
+    assert.equal(videoBirthTime, _videoInfo[3]);
     assert.equal(_tokenId.toNumber(),
                  await mockVideoListener1.mockGetLastAddedTokenId.call());
     assert.equal(_tokenId.toNumber(),
@@ -88,6 +102,31 @@ contract('VideoBase', async (accounts) => {
     await videoBase.removeListener(mockVideoListener1.address);
   });
 
+  it("should update video correctly", async () => {
+    let videoBase = await VideoBase.deployed();
+
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    let _result = await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
+                                                     YOUTUBE_VIEW_COUNT + 1);
+
+    let _viewCount = await videoBase.getVideoViewCount.call(YOUTUBE_VIDEO_ID);
+
+    let _viewCountUpdateTime = web3.eth.getBlock(
+        _result.receipt.blockHash).timestamp;
+    let _videoInfo = await videoBase.getVideoInfo.call(_tokenId);
+    // videoId
+    assert.equal(YOUTUBE_VIDEO_ID_PADDING, _videoInfo[0]);
+    // birthTime
+    assert.equal(videoBirthTime, _videoInfo[1]);
+    // viewCount
+    assert.equal(YOUTUBE_VIEW_COUNT + 1, _videoInfo[2]);
+    // viewCountUpdateTime
+    assert.equal(_viewCountUpdateTime, _videoInfo[3]);
+
+    assert.equal(YOUTUBE_VIEW_COUNT + 1, _viewCount.toNumber());
+  });
+
   it("should disallow adding existing videos", async () => {
     let videoBase = await VideoBase.deployed();
 
@@ -100,7 +139,7 @@ contract('VideoBase', async (accounts) => {
     }
   });
 
-  it("should disallow get non-existing videos", async () => {
+  it("should disallow get or update non-existing videos", async () => {
     let videoBase = await VideoBase.deployed();
 
     try {
@@ -115,6 +154,12 @@ contract('VideoBase', async (accounts) => {
     } catch(error) {
       AssertJump(error);
     }
+    try {
+      await videoBase.getVideoInfo.call(YOUTUBE_VIDEO_ID3);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     try {
       await videoBase.getVideoId.call(TOKEN_ID_NOT_EXIST);
@@ -122,9 +167,17 @@ contract('VideoBase', async (accounts) => {
     } catch(error) {
       AssertJump(error);
     }
+
+    try {
+      await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID3,
+                                         YOUTUBE_VIEW_COUNT + 1);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
   });
 
-  it("should disallow adding videos when paused", async () => {
+  it("should disallow adding or updating videos when paused", async () => {
     let videoBase = await VideoBase.deployed();
 
     await videoBase.pause();
@@ -132,6 +185,14 @@ contract('VideoBase', async (accounts) => {
     try {
       await videoBase.addNewVideoTrusted(
           accounts[0], YOUTUBE_VIDEO_ID3, YOUTUBE_VIEW_COUNT3);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    try {
+      await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
+                                         YOUTUBE_VIEW_COUNT + 1);
       assert.fail("should have thrown before");
     } catch(error) {
       AssertJump(error);
@@ -161,6 +222,14 @@ contract('VideoBase', async (accounts) => {
       AssertJump(error);
     }
     try {
+      await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
+                                         YOUTUBE_VIEW_COUNT + 10,
+                                         {from: accountNothing});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+    try {
       await videoBase.getVideoViewCount.call(
           YOUTUBE_VIDEO_ID, {from: accountNothing});
       assert.fail("should have thrown before");
@@ -173,6 +242,9 @@ contract('VideoBase', async (accounts) => {
         YOUTUBE_VIDEO_ID3,
         YOUTUBE_VIEW_COUNT3,
         {from: accountTrustedContract});
+    await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
+                                       YOUTUBE_VIEW_COUNT + 10,
+                                       {from: accountTrustedContract});
 
     let _totalSupply = await videoBase.totalSupply.call();
     let totalSupply = _totalSupply.toNumber();
@@ -184,7 +256,12 @@ contract('VideoBase', async (accounts) => {
 
     assert.equal(YOUTUBE_VIEW_COUNT3, _viewCount3.toNumber());
 
-    let _tokenId3 = await videoBase.getTokenId(YOUTUBE_VIDEO_ID3);
+    let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+    let _videoInfo = await videoBase.getVideoInfo.call(
+        _tokenId, {from: accountNothing});
+    assert.equal(YOUTUBE_VIEW_COUNT + 10, _videoInfo[2]);
+
+    let _tokenId3 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID3);
     let _ownerOf3 = await videoBase.ownerOf.call(_tokenId3);
     assert.equal(accountNothing, _ownerOf3);
   });
