@@ -41,6 +41,12 @@ contract VideoAuction
   /// Default to 10%
   uint256 public ownerCut = 1000;
 
+  /// @dev price per view count for the new video auction.
+  uint256 public newVideoPricePerViewCount = 0.1 szabo;
+
+  /// @dev price per view count for a force sale.
+  uint256 public forceSellPricePerViewCount = 10 szabo;
+
   /// @dev Map from token ID to their corresponding auction.
   mapping (uint256 => Auction) tokenIdToAuction;
 
@@ -64,7 +70,7 @@ contract VideoAuction
     if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
       uint256 viewCount;
       (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
-      _createAuction(tokenId, viewCount * 0.1 szabo);
+      _createAuction(tokenId, viewCount * newVideoPricePerViewCount);
     }
   }
 
@@ -86,6 +92,9 @@ contract VideoAuction
   function _createAuction(uint256 tokenId, uint256 price) private {
     require(price > 0);
     require(tokenIdToAuction[tokenId].startedAt == 0);
+    uint256 viewCount;
+    (,,viewCount,) = videoBase.getVideoInfo(tokenId);
+    require(price <= viewCount * forceSellPricePerViewCount);
     Auction memory auction = Auction({
       price: price,
       startedAt: uint64(now)
@@ -98,11 +107,12 @@ contract VideoAuction
   /// @dev Bid a token with ether. Only the bidding price except the owner cut
   ///   is sent to the seller. The owner get the cut, while the rest is
   ///   returned.
+  ///   Bid price is the auction price or the force sell price if
+  ///   not in auction.
   /// @param tokenId to bid for.
   function bid(uint256 tokenId)
       public
       payable
-      onlyTokenInAuction(tokenId)
       whenVideoBaseNotPaused
       {
     Auction storage auction = tokenIdToAuction[tokenId];
@@ -110,7 +120,14 @@ contract VideoAuction
     uint256 bidAmount = msg.value;
     address buyer = msg.sender;
     address seller = videoBase.ownerOf(tokenId);
-    uint256 price = auction.price;
+    uint256 price;
+    if (auction.startedAt > 0) {
+      price = auction.price;
+    } else {
+      uint256 viewCount;
+      (,,viewCount,) = videoBase.getVideoInfo(tokenId);
+      price = viewCount * forceSellPricePerViewCount;
+    }
 
     require(bidAmount >= auction.price);
     require(seller != buyer);
@@ -150,11 +167,49 @@ contract VideoAuction
     ownerCut = _ownerCut;
   }
 
+  /// @dev get owner cut.
+  function getOwnerCut() public view onlyVideoBaseOwner returns(uint256) {
+    return ownerCut;
+  }
+
+  /// @dev set newVideoPricePerViewCount.
+  /// @param _price new price.
+  function setNewVideoPricePerViewCount(uint256 _price)
+      public onlyVideoBaseOwner {
+    newVideoPricePerViewCount = _price;
+  }
+
+  /// @dev get newVideoPricePerViewCount.
+  function getNewVideoPricePerViewCount() public view returns(uint256) {
+    return newVideoPricePerViewCount;
+  }
+
+  /// @dev set newVideoPricePerViewCount.
+  /// @param _price new price.
+  function setForceSellPricePerViewCount(uint256 _price)
+      public onlyVideoBaseOwner {
+    forceSellPricePerViewCount = _price;
+  }
+
+  /// @dev get newVideoPricePerViewCount.
+  function getForceSellPricePerViewCount() public view returns(uint256) {
+    return forceSellPricePerViewCount;
+  }
+
   /// @dev get auction price for a token.
   /// @param tokenId whose auction price is being retrieved.
   function getAuctionPrice(uint256 tokenId)
       public view onlyTokenInAuction(tokenId)
       returns (uint256) {
     return tokenIdToAuction[tokenId].price;
+  }
+
+  /// @dev get auction info for a token, in (price, startedAt).
+  /// @param tokenId whose auction price is being retrieved.
+  function getAuctionInfo(uint256 tokenId)
+      public view onlyTokenInAuction(tokenId)
+      returns (uint256, uint64) {
+    Auction storage auction = tokenIdToAuction[tokenId];
+    return (auction.price, auction.startedAt);
   }
 }

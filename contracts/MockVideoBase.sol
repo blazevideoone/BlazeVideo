@@ -123,6 +123,16 @@ contract MockVideoBase is IVideoBase {
     revert();
   }
 
+  /// @dev get the view info for a video, returning a tuple of
+  ///   videoId, birthTime, viewCount, viewCountUpdateTime.
+  /// @param tokenId whose view info is being retrieved.
+  function getVideoInfo(uint256 tokenId)
+      public view
+      returns (bytes32, uint64, uint256, uint64) {
+    // Should not called.
+    revert();
+  }
+
   /// @dev set mock VideoBaseAccessor.
   /// @param _address to be set.
   function setMockVideoBaseAccessor(address _address) public {

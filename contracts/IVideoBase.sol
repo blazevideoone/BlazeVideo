@@ -98,4 +98,12 @@ contract IVideoBase
   function getVideoTrusted(uint256 tokenId)
       public view
       returns (uint64, uint256, uint64);
+
+  /// @dev get the view info for a video, returning a tuple of
+  ///   videoId, birthTime, viewCount, viewCountUpdateTime.
+  /// @param tokenId whose view info is being retrieved.
+  function getVideoInfo(uint256 tokenId)
+      public view
+      returns (bytes32, uint64, uint256, uint64);
+
 }
