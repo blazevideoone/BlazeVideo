@@ -31,6 +31,10 @@ contract VideoAuction
       // Time when auction started
       // NOTE: 0 if this auction has been concluded
       uint64 startedAt;
+      // An extra add-up price for force sell which will be increased per sold.
+      uint256 extraForceSellPrice;
+      // Number of solds.
+      uint64 soldCount;
   }
 
   /*** STORAGE ***/
@@ -46,6 +50,12 @@ contract VideoAuction
 
   /// @dev price per view count for a force sale.
   uint256 public forceSellPricePerViewCount = 10 szabo;
+
+  /// @dev extra add-up price ration for force sell, measured in basis points
+  ///   (1/100 of a percent).
+  /// Values 0-10,000 map to 0%-100%
+  /// Default to 10%
+  uint256 public extraForceSellPriceRatio = 1000;
 
   /// @dev Map from token ID to their corresponding auction.
   mapping (uint256 => Auction) tokenIdToAuction;
@@ -95,11 +105,9 @@ contract VideoAuction
     uint256 viewCount;
     (,,viewCount,) = videoBase.getVideoInfo(tokenId);
     require(price <= viewCount * forceSellPricePerViewCount);
-    Auction memory auction = Auction({
-      price: price,
-      startedAt: uint64(now)
-    });
-    tokenIdToAuction[tokenId] = auction;
+    Auction storage auction = tokenIdToAuction[tokenId];
+    auction.price = price;
+    auction.startedAt = uint64(now);
 
     AuctionCreated(tokenId, price);
   }
@@ -126,7 +134,8 @@ contract VideoAuction
     } else {
       uint256 viewCount;
       (,,viewCount,) = videoBase.getVideoInfo(tokenId);
-      price = viewCount * forceSellPricePerViewCount;
+      price = viewCount * forceSellPricePerViewCount +
+          auction.extraForceSellPrice;
     }
 
     require(bidAmount >= auction.price);
@@ -136,7 +145,14 @@ contract VideoAuction
     uint256 sellerProceeds = price - auctioneerCut;
     uint256 bidExcess = bidAmount - price;
 
-    delete tokenIdToAuction[tokenId];
+    // Conclude the auction
+    auction.price = 0;
+    auction.startedAt = 0;
+
+    // Calculate extra price
+    auction.extraForceSellPrice = auction.extraForceSellPrice +
+        price * extraForceSellPriceRatio / 10000;
+    auction.soldCount = auction.soldCount + 1;
 
     videoBase.transferVideoTrusted(seller, buyer, tokenId);
 
@@ -155,7 +171,12 @@ contract VideoAuction
       onlyTokenInAuction(tokenId)
       whenVideoBaseNotPaused
       {
-    delete tokenIdToAuction[tokenId];
+    Auction storage auction = tokenIdToAuction[tokenId];
+
+    // Conclude the auction
+    auction.price = 0;
+    auction.startedAt = 0;
+
     AuctionCancelled(tokenId);
   }
 
@@ -170,6 +191,20 @@ contract VideoAuction
   /// @dev get owner cut.
   function getOwnerCut() public view onlyVideoBaseOwner returns(uint256) {
     return ownerCut;
+  }
+
+  /// @dev set extraForceSellPriceRatio.
+  /// @param _ratio values 0-10,000 map to 0%-100%
+  function setExtraForceSellPriceRatio(uint256 _ratio)
+      public onlyVideoBaseOwner {
+    require(_ratio >= 0 && _ratio <= 10000);
+    extraForceSellPriceRatio = _ratio;
+  }
+
+  /// @dev get extraForceSellPriceRatio.
+  function getExtraForceSellPriceRatio()
+      public view onlyVideoBaseOwner returns(uint256) {
+    return extraForceSellPriceRatio;
   }
 
   /// @dev set newVideoPricePerViewCount.
@@ -204,12 +239,14 @@ contract VideoAuction
     return tokenIdToAuction[tokenId].price;
   }
 
-  /// @dev get auction info for a token, in (price, startedAt).
+  /// @dev get auction info for a token, in (price, startedAt,
+  ///   extraForceSellPrice, soldCount).
   /// @param tokenId whose auction price is being retrieved.
   function getAuctionInfo(uint256 tokenId)
-      public view onlyTokenInAuction(tokenId)
-      returns (uint256, uint64) {
+      public view
+      returns (uint256, uint64, uint256, uint64) {
     Auction storage auction = tokenIdToAuction[tokenId];
-    return (auction.price, auction.startedAt);
+    return (auction.price, auction.startedAt, auction.extraForceSellPrice,
+            auction.soldCount);
   }
 }
