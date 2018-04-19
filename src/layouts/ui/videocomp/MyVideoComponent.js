@@ -38,11 +38,11 @@ export default class VideoComponent extends Component {
         <div className="price-box">
           { this.props.videoData.isForced
             ? <div>
-              <span className="price">EST: { this.props.videoData.price } E</span>
+              <span className="price"><b>EST PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
               <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>TRANSFER</Button>
             </div>
             : <div>
-              <span className="price">PRICE: { this.props.videoData.price } E</span>
+              <span className="price"><b>CURRENT PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
               <Button color='primary' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
             </div> }
         </div>

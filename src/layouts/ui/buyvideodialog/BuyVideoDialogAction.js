@@ -42,9 +42,12 @@ export function asyncBuyVideo(tokenId, price) {
           console.error(error);
         }
         videoAuctionInstance = await videoAuction.deployed();
+        console.log(web3.toWei(price, 'ether'));
+        videoAuction.defaults({from: coinbase, value: web3.toWei(price, 'ether')});
         // Attempt to sell video
-        const result = await videoAuctionInstance.bid(web3.toHex(tokenId), {from: coinbase, value: web3.toWei(price, 'ether')});
-        console.log(result);
+        const result = await videoAuctionInstance.bid(web3.toHex(tokenId));
+        alert(`TX: ${result.tx}`);
+        dispatch(hideBuyVideoDialog());
       })
     }
   } else {

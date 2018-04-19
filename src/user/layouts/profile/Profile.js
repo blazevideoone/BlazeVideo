@@ -48,7 +48,7 @@ export default class Profile extends Component {
             <Row>
               { this.props.videos.map((video, index) => {
                 return (
-                  <Col xs="12" md="6" lg="4" key={video.videoId + index }>
+                  <Col xs="12" md="6" lg="6" key={video.videoId + index }>
                     <MyVideoComponent videoData={video} />
                   </Col>
                 )

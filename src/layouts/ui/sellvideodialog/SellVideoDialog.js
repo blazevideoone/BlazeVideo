@@ -15,7 +15,7 @@ import { hideSellVideoDialog, asyncSellVideo } from './SellVideoDialogAction';
   })
 export default class SellVideoDialog extends Component {
   state: Object = {
-    price: this.props.data.videoData ? this.props.data.videoData.viewCount / 1000000000 : 0.00,
+    price: this.props.data.videoData ? this.props.data.videoData.price : 0.00,
     showAlert: false,
     alertText: ''
   }
@@ -24,7 +24,7 @@ export default class SellVideoDialog extends Component {
   }
   componentWillReceiveProps(props) {
     this.setState({
-      price: props.data.videoData ? props.data.videoData.viewCount / 1000000000 : 0.00,
+      price: props.data.videoData ? props.data.videoData.price : 0.00,
     })
   }
   changePrice: Function = (event) => {
@@ -33,7 +33,11 @@ export default class SellVideoDialog extends Component {
     })
   }
   sellNow: Function = () => {
-    this.props.asyncSellVideo(this.props.data.videoData.tokenId, this.state.price);
+    if (this.state.price > 0) {
+      this.props.asyncSellVideo(this.props.data.videoData.tokenId, this.state.price);
+    } else {
+      alert('The price cannot be 0!');
+    }
   }
   render() {
     const opts = {
@@ -61,16 +65,16 @@ export default class SellVideoDialog extends Component {
               </div>
             </Col>
             <Col xs="12" md="12">
-              You are going to SELL Video: { this.props.data.videoData.videoId }
+              You are going to TRANSFER video: { this.props.data.videoData.videoId }
             </Col>
           </Row> : null }
         </ModalBody>
         <ModalFooter>
           <InputGroup>
             <Input type="number" value={this.state.price} onChange={this.changePrice} />
-            <InputGroupAddon addonType="append">E</InputGroupAddon>
+            <InputGroupAddon addonType="append">&Xi;</InputGroupAddon>
           </InputGroup>
-          <Button color="primary" onClick={this.sellNow}>SELL NOW</Button>
+          <Button color="primary" onClick={this.sellNow}>TRANSFER NOW</Button>
           <Button color="secondary" onClick={this.toggle}>BACK</Button>
         </ModalFooter>
       </Modal>

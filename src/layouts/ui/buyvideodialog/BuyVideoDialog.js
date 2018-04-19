@@ -43,7 +43,7 @@ export default class BuyVideoDialog extends Component {
         alertText: ''
       }), 3000);
     } else {
-      this.props.asyncBuyVideo(this.props.data.videoData.tokenId);
+      this.props.asyncBuyVideo(this.props.data.videoData.tokenId, this.state.price);
     }
   }
   render() {
