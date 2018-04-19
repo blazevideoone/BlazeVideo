@@ -88,6 +88,18 @@ contract MockVideoBase is IVideoBase {
     revert();
   }
 
+  /// @dev helper function to update a existing video.
+  ///   Only accessible to trusted contracts.
+  /// @param videoId to be proposed as a new video.
+  /// @param viewCount fetched from the video platform.
+  function updateVideoTrusted(
+      bytes32 videoId,
+      uint256 viewCount)
+      public {
+    // Should not called.
+    revert();
+  }
+
   /// @dev helper function to transfer the ownership of a video's tokenId.
   ///   Only accessible to trusted contracts.
   /// @param _from address which you want to send the token from.
@@ -107,6 +119,16 @@ contract MockVideoBase is IVideoBase {
   function getVideoTrusted(uint256 tokenId)
       public view
       returns (uint64, uint256, uint64) {
+    // Should not called.
+    revert();
+  }
+
+  /// @dev get the view info for a video, returning a tuple of
+  ///   videoId, birthTime, viewCount, viewCountUpdateTime.
+  /// @param tokenId whose view info is being retrieved.
+  function getVideoInfo(uint256 tokenId)
+      public view
+      returns (bytes32, uint64, uint256, uint64) {
     // Should not called.
     revert();
   }

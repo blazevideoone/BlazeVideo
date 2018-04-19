@@ -31,6 +31,10 @@ contract VideoAuction
       // Time when auction started
       // NOTE: 0 if this auction has been concluded
       uint64 startedAt;
+      // An extra add-up price for force sell which will be increased per sold.
+      uint256 extraForceSellPrice;
+      // Number of solds.
+      uint64 soldCount;
   }
 
   /*** STORAGE ***/
@@ -40,6 +44,18 @@ contract VideoAuction
   /// Values 0-10,000 map to 0%-100%
   /// Default to 10%
   uint256 public ownerCut = 1000;
+
+  /// @dev price per view count for the new video auction.
+  uint256 public newVideoPricePerViewCount = 0.1 szabo;
+
+  /// @dev price per view count for a force sale.
+  uint256 public forceSellPricePerViewCount = 10 szabo;
+
+  /// @dev extra add-up price ration for force sell, measured in basis points
+  ///   (1/100 of a percent).
+  /// Values 0-10,000 map to 0%-100%
+  /// Default to 10%
+  uint256 public extraForceSellPriceRatio = 1000;
 
   /// @dev Map from token ID to their corresponding auction.
   mapping (uint256 => Auction) tokenIdToAuction;
@@ -64,7 +80,7 @@ contract VideoAuction
     if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
       uint256 viewCount;
       (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
-      _createAuction(tokenId, viewCount * 0.1 szabo);
+      _createAuction(tokenId, viewCount * newVideoPricePerViewCount);
     }
   }
 
@@ -86,11 +102,12 @@ contract VideoAuction
   function _createAuction(uint256 tokenId, uint256 price) private {
     require(price > 0);
     require(tokenIdToAuction[tokenId].startedAt == 0);
-    Auction memory auction = Auction({
-      price: price,
-      startedAt: uint64(now)
-    });
-    tokenIdToAuction[tokenId] = auction;
+    uint256 viewCount;
+    (,,viewCount,) = videoBase.getVideoInfo(tokenId);
+    require(price <= viewCount * forceSellPricePerViewCount);
+    Auction storage auction = tokenIdToAuction[tokenId];
+    auction.price = price;
+    auction.startedAt = uint64(now);
 
     AuctionCreated(tokenId, price);
   }
@@ -98,11 +115,12 @@ contract VideoAuction
   /// @dev Bid a token with ether. Only the bidding price except the owner cut
   ///   is sent to the seller. The owner get the cut, while the rest is
   ///   returned.
+  ///   Bid price is the auction price or the force sell price if
+  ///   not in auction.
   /// @param tokenId to bid for.
   function bid(uint256 tokenId)
       public
       payable
-      onlyTokenInAuction(tokenId)
       whenVideoBaseNotPaused
       {
     Auction storage auction = tokenIdToAuction[tokenId];
@@ -110,7 +128,15 @@ contract VideoAuction
     uint256 bidAmount = msg.value;
     address buyer = msg.sender;
     address seller = videoBase.ownerOf(tokenId);
-    uint256 price = auction.price;
+    uint256 price;
+    if (auction.startedAt > 0) {
+      price = auction.price;
+    } else {
+      uint256 viewCount;
+      (,,viewCount,) = videoBase.getVideoInfo(tokenId);
+      price = viewCount * forceSellPricePerViewCount +
+          auction.extraForceSellPrice;
+    }
 
     require(bidAmount >= auction.price);
     require(seller != buyer);
@@ -119,7 +145,14 @@ contract VideoAuction
     uint256 sellerProceeds = price - auctioneerCut;
     uint256 bidExcess = bidAmount - price;
 
-    delete tokenIdToAuction[tokenId];
+    // Conclude the auction
+    auction.price = 0;
+    auction.startedAt = 0;
+
+    // Calculate extra price
+    auction.extraForceSellPrice = auction.extraForceSellPrice +
+        price * extraForceSellPriceRatio / 10000;
+    auction.soldCount = auction.soldCount + 1;
 
     videoBase.transferVideoTrusted(seller, buyer, tokenId);
 
@@ -138,7 +171,12 @@ contract VideoAuction
       onlyTokenInAuction(tokenId)
       whenVideoBaseNotPaused
       {
-    delete tokenIdToAuction[tokenId];
+    Auction storage auction = tokenIdToAuction[tokenId];
+
+    // Conclude the auction
+    auction.price = 0;
+    auction.startedAt = 0;
+
     AuctionCancelled(tokenId);
   }
 
@@ -150,11 +188,65 @@ contract VideoAuction
     ownerCut = _ownerCut;
   }
 
+  /// @dev get owner cut.
+  function getOwnerCut() public view onlyVideoBaseOwner returns(uint256) {
+    return ownerCut;
+  }
+
+  /// @dev set extraForceSellPriceRatio.
+  /// @param _ratio values 0-10,000 map to 0%-100%
+  function setExtraForceSellPriceRatio(uint256 _ratio)
+      public onlyVideoBaseOwner {
+    require(_ratio >= 0 && _ratio <= 10000);
+    extraForceSellPriceRatio = _ratio;
+  }
+
+  /// @dev get extraForceSellPriceRatio.
+  function getExtraForceSellPriceRatio()
+      public view onlyVideoBaseOwner returns(uint256) {
+    return extraForceSellPriceRatio;
+  }
+
+  /// @dev set newVideoPricePerViewCount.
+  /// @param _price new price.
+  function setNewVideoPricePerViewCount(uint256 _price)
+      public onlyVideoBaseOwner {
+    newVideoPricePerViewCount = _price;
+  }
+
+  /// @dev get newVideoPricePerViewCount.
+  function getNewVideoPricePerViewCount() public view returns(uint256) {
+    return newVideoPricePerViewCount;
+  }
+
+  /// @dev set newVideoPricePerViewCount.
+  /// @param _price new price.
+  function setForceSellPricePerViewCount(uint256 _price)
+      public onlyVideoBaseOwner {
+    forceSellPricePerViewCount = _price;
+  }
+
+  /// @dev get newVideoPricePerViewCount.
+  function getForceSellPricePerViewCount() public view returns(uint256) {
+    return forceSellPricePerViewCount;
+  }
+
   /// @dev get auction price for a token.
   /// @param tokenId whose auction price is being retrieved.
   function getAuctionPrice(uint256 tokenId)
       public view onlyTokenInAuction(tokenId)
       returns (uint256) {
     return tokenIdToAuction[tokenId].price;
+  }
+
+  /// @dev get auction info for a token, in (price, startedAt,
+  ///   extraForceSellPrice, soldCount).
+  /// @param tokenId whose auction price is being retrieved.
+  function getAuctionInfo(uint256 tokenId)
+      public view
+      returns (uint256, uint64, uint256, uint64) {
+    Auction storage auction = tokenIdToAuction[tokenId];
+    return (auction.price, auction.startedAt, auction.extraForceSellPrice,
+            auction.soldCount);
   }
 }
