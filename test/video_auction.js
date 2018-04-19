@@ -24,8 +24,9 @@ contract('VideoAuction', async (accounts) => {
   const SELL_PRICE = YOUTUBE_VIEW_COUNT * NEW_VIDEO_PRICE_PER_VIEW_COUNT * 2;
   const HIGH_BID_PRICE = SELL_PRICE * 1.5;
   const LOW_BID_PRICE = SELL_PRICE * 0.9;
-  const HIGH_FORCE_SELL_PRICE =
-      (YOUTUBE_VIEW_COUNT + 1) * FORCE_SELL_PRICE_PER_VIEW_COUNT;
+  const HIGH_FORCE_SELL_PRICE_WITH_EXTRA =
+      (YOUTUBE_VIEW_COUNT + 1) * FORCE_SELL_PRICE_PER_VIEW_COUNT +
+      SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO;
 
   const NEW_SELL_PRICE2 = YOUTUBE_VIEW_COUNT2 * NEW_VIDEO_PRICE_PER_VIEW_COUNT;
   const HIGH_BID_PRICE2 = NEW_SELL_PRICE2 * 1.5;
@@ -70,7 +71,8 @@ contract('VideoAuction', async (accounts) => {
     let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
 
     let _auctionInfoBefore = await videoAuction.getAuctionInfo.call(_tokenId);
-    assert.equal(0, _auctionInfoBefore[0]);
+    assert.equal(YOUTUBE_VIEW_COUNT * FORCE_SELL_PRICE_PER_VIEW_COUNT,
+                 _auctionInfoBefore[0]);
     assert.equal(0, _auctionInfoBefore[1]);
     assert.equal(0, _auctionInfoBefore[2]);
     assert.equal(0, _auctionInfoBefore[3]);
@@ -129,7 +131,9 @@ contract('VideoAuction', async (accounts) => {
       AssertJump(error);
     }
     let _auctionInfoAfter= await videoAuction.getAuctionInfo.call(_tokenId);
-    assert.equal(0, _auctionInfoAfter[0]);
+    assert.equal(YOUTUBE_VIEW_COUNT * FORCE_SELL_PRICE_PER_VIEW_COUNT +
+                 SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO,
+                 _auctionInfoAfter[0]);
     assert.equal(0, _auctionInfoAfter[1]);
     assert.equal(SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO,
                  _auctionInfoAfter[2]);
@@ -244,7 +248,7 @@ contract('VideoAuction', async (accounts) => {
     let _tokenId3 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID3);
 
     let _auctionInfoBefore = await videoAuction.getAuctionInfo.call(_tokenId3);
-    assert.equal(0, _auctionInfoBefore[0]);
+    assert.equal(FORCE_SELL_PRICE_WITH_EXTRA3, _auctionInfoBefore[0]);
     assert.equal(0, _auctionInfoBefore[1]);
     assert.equal(FORCE_SELL_EXTRA3, _auctionInfoBefore[2]);
     assert.equal(1, _auctionInfoBefore[3]);
@@ -296,7 +300,9 @@ contract('VideoAuction', async (accounts) => {
                              BALANCE_ROUND_TO));
 
     let _auction = await videoAuction.getAuctionInfo.call(_tokenId3);
-    assert.equal(0, _auction[0]);
+    assert.equal(FORCE_SELL_PRICE_WITH_EXTRA3 +
+                 FORCE_SELL_PRICE_WITH_EXTRA3 * EXTRA_FORCE_SELL_PRICE_RATIO,
+                 _auction[0]);
     assert.equal(0, _auction[1]);
     assert.equal(
         FORCE_SELL_EXTRA3 +
@@ -426,7 +432,7 @@ contract('VideoAuction', async (accounts) => {
       // Over forceSellPricePerViewCount * viewCount.
       await videoAuction.createAuction(
           _tokenId,
-          HIGH_FORCE_SELL_PRICE,
+          HIGH_FORCE_SELL_PRICE_WITH_EXTRA,
           {from: seller});
       assert.fail("should have thrown before");
     } catch(error) {
