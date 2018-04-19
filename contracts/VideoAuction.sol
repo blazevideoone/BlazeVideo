@@ -104,12 +104,18 @@ contract VideoAuction
     require(tokenIdToAuction[tokenId].startedAt == 0);
     uint256 viewCount;
     (,,viewCount,) = videoBase.getVideoInfo(tokenId);
-    require(price <= viewCount * forceSellPricePerViewCount);
     Auction storage auction = tokenIdToAuction[tokenId];
+    require(price <= _getForceSellPrice(auction, viewCount));
     auction.price = price;
     auction.startedAt = uint64(now);
 
     AuctionCreated(tokenId, price);
+  }
+
+  function _getForceSellPrice(Auction auction, uint256 viewCount)
+      internal view
+      returns(uint256) {
+    return viewCount * forceSellPricePerViewCount + auction.extraForceSellPrice;
   }
 
   /// @dev Bid a token with ether. Only the bidding price except the owner cut
@@ -134,8 +140,7 @@ contract VideoAuction
     } else {
       uint256 viewCount;
       (,,viewCount,) = videoBase.getVideoInfo(tokenId);
-      price = viewCount * forceSellPricePerViewCount +
-          auction.extraForceSellPrice;
+      price = _getForceSellPrice(auction, viewCount);
     }
 
     require(bidAmount >= auction.price);
@@ -219,14 +224,14 @@ contract VideoAuction
     return newVideoPricePerViewCount;
   }
 
-  /// @dev set newVideoPricePerViewCount.
+  /// @dev set forceSellPricePerViewCount.
   /// @param _price new price.
   function setForceSellPricePerViewCount(uint256 _price)
       public onlyVideoBaseOwner {
     forceSellPricePerViewCount = _price;
   }
 
-  /// @dev get newVideoPricePerViewCount.
+  /// @dev get forceSellPricePerViewCount.
   function getForceSellPricePerViewCount() public view returns(uint256) {
     return forceSellPricePerViewCount;
   }
@@ -246,7 +251,13 @@ contract VideoAuction
       public view
       returns (uint256, uint64, uint256, uint64) {
     Auction storage auction = tokenIdToAuction[tokenId];
-    return (auction.price, auction.startedAt, auction.extraForceSellPrice,
+    uint256 price = auction.price;
+    if (auction.startedAt == 0) {
+      uint256 viewCount;
+      (,,viewCount,) = videoBase.getVideoInfo(tokenId);
+      price = _getForceSellPrice(auction, viewCount);
+    }
+    return (price, auction.startedAt, auction.extraForceSellPrice,
             auction.soldCount);
   }
 }
