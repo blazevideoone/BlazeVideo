@@ -10,7 +10,6 @@
   "dependencies": {
     "bootstrap": "^4.0.0",
     "config": "^1.30.0",
-    "ethjs": "^0.3.3",
     "googleapis": "^28.1.0",
     "prop-types": "^15.5.10",
     "react": "^16.2.0",

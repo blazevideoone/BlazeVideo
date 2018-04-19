@@ -27,7 +27,7 @@ export default class VideoComponent extends Component {
     return (
       <div className="video-card">
         <div className="title-box">
-          Youtube Video: {this.props.videoData.videoId}
+          View Count: {this.props.videoData.viewCount}
         </div>
         <div className="video-box">
           <YouTube
@@ -45,9 +45,6 @@ export default class VideoComponent extends Component {
               <span className="price">PRICE: { this.props.videoData.price } E</span>
               <Button color='primary' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
             </div> }
-            <div>
-              <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>UPDATE VIEWCOUNTS</Button>
-            </div>
         </div>
       </div>
     );

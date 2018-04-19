@@ -25,7 +25,7 @@ export default class VideoComponent extends Component {
     return (
       <div className="video-card">
         <div className="title-box">
-          Youtube Video: {this.props.videoData.videoId}
+          View Counts: {this.props.videoData.viewCount}
         </div>
         <div className="video-box">
           <YouTube

@@ -72,16 +72,19 @@ export default class BuyVideoDialog extends Component {
               </div>
             </Col>
             <Col xs="12" md="12">
-              You are going to purchase Video: { this.props.data.videoData.youtubeId }
+              Youtube Id: { this.props.data.videoData.videoId }
             </Col>
           </Row> : null }
+          { (this.props.data.videoData && this.props.data.videoData.isForced) && <Alert color="warning">
+            You are trying to force subscribe this video, the price may higher!
+          </Alert> }
         </ModalBody>
         <ModalFooter>
           <InputGroup>
             <Input type="number" value={this.state.price} onChange={this.changePrice} />
-            <InputGroupAddon addonType="append">ETH</InputGroupAddon>
+            <InputGroupAddon addonType="append">&Xi;</InputGroupAddon>
           </InputGroup>
-          <Button color="primary" onClick={this.bidNow}>BID NOW</Button>
+          <Button color="primary" onClick={this.bidNow}>SUBSCRIBE NOW</Button>
           <Button color="secondary" onClick={this.toggle}>BACK</Button>
         </ModalFooter>
       </Modal>
