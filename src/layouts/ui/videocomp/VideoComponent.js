@@ -16,7 +16,7 @@ export default class VideoComponent extends Component {
   render() {
     const opts = {
       height: '180',
-      width: '240',
+      width: '280',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 0
       }
@@ -34,8 +34,8 @@ export default class VideoComponent extends Component {
           />
         </div>
         <div className="price-box">
-          <span className="price">PRICE: { this.props.videoData.price } E</span>
-          <Button color='primary' className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>BUY</Button>
+          <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
+          <Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>
         </div>
       </div>
     );

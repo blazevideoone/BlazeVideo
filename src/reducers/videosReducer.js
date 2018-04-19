@@ -13,6 +13,22 @@ const videosReducer = (state = initialState, action) => {
       data: { auctionList: { $set: action.payload } }
     })
   }
+  if (action.type === 'SORT_BY_PRICE')
+  {
+    const _mode = action.payload;
+    console.log(_mode);
+    const _list = state.data.auctionList;
+    _list.sort((v1, v2) => {
+      if (v1.price < v2.price) return _mode;
+      if (v1.price > v2.price) return !_mode;
+      return 0
+    });
+    console.log(_list);
+    return update(state, {
+      data: {auctionList: { $set: _list}}
+    })
+  }
+
   return state
 }
 

@@ -3,6 +3,7 @@ import YouTube from 'react-youtube';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { showSellVideoDialog } from '../sellvideodialog/SellVideoDialogAction';
+import { asyncCancelAuction } from './VideoComponentAction';
 
 // Styles
 import './VideoComponent.css';
@@ -10,13 +11,14 @@ import './VideoComponent.css';
 @connect(
     state => ({}),
     {
-      showSellVideoDialog
+      showSellVideoDialog,
+      asyncCancelAuction
     })
 export default class VideoComponent extends Component {
   render() {
     const opts = {
       height: '180',
-      width: '240',
+      width: '280',
       playerVars: { // https://developers.google.com/youtube/player_parameters
         autoplay: 0
       }
@@ -34,8 +36,18 @@ export default class VideoComponent extends Component {
           />
         </div>
         <div className="price-box">
-          <span className="price">EST: { this.props.videoData.viewCount/1000000000 } E</span>
-          <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>SELL</Button>
+          { this.props.videoData.isForced
+            ? <div>
+              <span className="price">EST: { this.props.videoData.price } E</span>
+              <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>TRANSFER</Button>
+            </div>
+            : <div>
+              <span className="price">PRICE: { this.props.videoData.price } E</span>
+              <Button color='primary' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
+            </div> }
+            <div>
+              <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>UPDATE VIEWCOUNTS</Button>
+            </div>
         </div>
       </div>
     );

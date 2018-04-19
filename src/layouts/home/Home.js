@@ -6,7 +6,7 @@ class Home extends Component {
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() =>
       <p>
-        <Link to="/funplace" className="btn btn-primary">Get Started</Link>
+        <Link to="/Fanplace" className="btn btn-primary">Get Started</Link>
       </p>
     )
 

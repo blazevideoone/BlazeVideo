@@ -79,17 +79,6 @@ label {
     opacity: 0.8;
 }
 
-.splash .pure-button {
-  background: #F00;
-  border-radius: 6px;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-}
-
-.splash .pure-button:hover {
-  background: #D00;
-}
-
 /* This is the class used for the footer */
 .footer {
     background: #666;

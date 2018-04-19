@@ -9,7 +9,10 @@ const contract = require('truffle-contract');
 
 export const LOAD_VIDEO_LIST = 'LOAD_VIDEO_LIST';
 export const BUY_VIDEO_DIA = 'BUY_VIDEO_DIA';
+export const SORT_BY_PRICE = 'SORT_BY_PRICE';
+export const SORT_BY_VIEWCOUNT = 'SORT_BY_VIEWCOUNT';
 
+// load video list into reducer
 function loadVideoList(videos) {
   return {
     type: LOAD_VIDEO_LIST,
@@ -17,6 +20,7 @@ function loadVideoList(videos) {
   }
 }
 
+// show buy video dialog
 export function showBuyVideoDia() {
   return {
     type: BUY_VIDEO_DIA,
@@ -24,6 +28,7 @@ export function showBuyVideoDia() {
   }
 }
 
+// hide buy video dialog
 export function hideBuyVideoDia() {
   return {
     type: BUY_VIDEO_DIA,
@@ -31,6 +36,23 @@ export function hideBuyVideoDia() {
   }
 }
 
+// sort video by price
+// params: mode 1 is desc, -1 is asc
+export function sortByPrice(mode) {
+  return {
+    type: SORT_BY_PRICE,
+    payload: mode
+  }
+}
+
+// sort video by video count
+// params: mode 1 is desc, -1 is asc
+export function sortByViewCount(mode) {
+  return {
+    type: SORT_BY_VIEWCOUNT,
+    payload: mode
+  }
+}
 export function asyncLoadVideoList() {
   let web3 = store.getState().web3.web3Instance;
 
@@ -67,13 +89,16 @@ export function asyncLoadVideoList() {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
           const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
           const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
-          const _price = await videoAuctionInstance.getAuctionPrice.call(_tokenId);
+          const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
           const video = {
             tokenId: _tokenId.toNumber(),
             videoId: web3.toUtf8(_videoId).slice(5),
             viewCount: _viewCount.toNumber(),
-            price: web3.fromWei(_price, 'ether').valueOf()
+            isForced: !(_auctionInfo[1].toNumber() > 0),
+            startTime: _auctionInfo[1].toNumber(),
+            price: web3.fromWei(_auctionInfo[0], 'ether').toNumber()
           }
+          console.log(video);
           _videoList.push(video);
         }
         console.log(_videoList);
