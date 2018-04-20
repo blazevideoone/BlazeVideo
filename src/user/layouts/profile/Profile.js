@@ -42,7 +42,7 @@ export default class Profile extends Component {
             </Row>
             { this.props.videos.length === 0
               ? <Alert color="primary">
-                You don't have any video yet ---- Buy one in the Fanplace!
+                You don't have any video yet ---- Subscribe one in the Fanplace!
               </Alert> : null
             }
             <Row>
