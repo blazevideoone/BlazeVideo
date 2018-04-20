@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { NavItem, NavLink } from 'reactstrap';
 import { logoutUser } from './LogoutButtonActions';
 
 @connect(
@@ -14,9 +15,9 @@ export default class LogoutButton extends Component {
   }
   render() {
     return(
-      <li className="pure-menu-item">
-        <a href="#" className="pure-menu-link" onClick={this.onLogoutUserClick}>Logout</a>
-      </li>
+      <NavItem>
+        <NavLink href="#" onClick={this.onLogoutUserClick}>Logout</NavLink>
+      </NavItem>
     )
   }
 }

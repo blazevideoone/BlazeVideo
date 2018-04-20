@@ -1,0 +1,13 @@
+.buy-dialog .video-box {
+  width: 465px;
+  height: 300px;
+  background-color: #DDD;
+}
+
+.fanplace-toolbar {
+  border-bottom: 1px solid #DDD;
+}
+
+.fanplace-dropdown {
+  float: right;
+}

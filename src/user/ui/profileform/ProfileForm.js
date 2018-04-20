@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Form, FormGroup, Label, Input, Button, FormText } from 'reactstrap';
 import { updateUser } from './ProfileFormActions';
 
 @connect(
@@ -33,17 +34,14 @@ export default class ProfileForm extends Component {
 
   render() {
     return(
-      <form className="pure-form pure-form-stacked" onSubmit={this.handleSubmit}>
-        <fieldset>
-          <label htmlFor="name">Name</label>
-          <input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="Name" />
-          <span className="pure-form-message">This is a required field.</span>
-
-          <br />
-
-          <button type="submit" className="pure-button pure-button-primary">Update</button>
-        </fieldset>
-      </form>
+      <Form onSubmit={this.handleSubmit}>
+        <FormGroup>
+          <Label>Name</Label>
+          <Input id="name" type="text" value={this.state.name} onChange={this.onInputChange} placeholder="Name" />
+          <FormText color="muted">This is a required field.</FormText>
+        </FormGroup>
+        <Button color="primary" type="submit">Update</Button>
+      </Form>
     )
   }
 }

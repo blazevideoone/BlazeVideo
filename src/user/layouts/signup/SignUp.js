@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
 import SignUpForm from '../../ui/signupform/SignUpForm';
+import { Container, Col, Row } from 'reactstrap';
+
+// Styles
+import './SignUp.css';
 
 export default class SignUp extends Component {
   render() {
     return(
-      <main className="container">
-        <div className="pure-g">
-          <div className="pure-u-1-1">
-            <h1>Sign Up</h1>
-            <p>We've got your wallet information, simply input your name and your account is made!</p>
+      <Container>
+        <Row>
+          <Col>
+            <h2>Sign Up</h2>
+            <p>We've got your wallet information, simply input your nickname and your account is made!</p>
             <SignUpForm />
-          </div>
-        </div>
-      </main>
+          </Col>
+        </Row>
+      </Container>
     )
   }
 }
