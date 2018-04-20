@@ -143,7 +143,7 @@ contract VideoAuction
       price = _getForceSellPrice(auction, viewCount);
     }
 
-    require(bidAmount >= auction.price);
+    require(bidAmount >= price);
     require(seller != buyer);
 
     uint256 auctioneerCut = price * ownerCut / 10000;
