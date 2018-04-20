@@ -37,6 +37,18 @@ label {
   background-color: #B00 !important;
   border-color: #B00 !important;
 }
+
+.btn-outline-primary {
+  background-color: #FFF !important;
+  border-color: #F00 !important;
+  color: #F00 !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: #F00 !important;
+  border-color: #F00 !important;
+  color: #FFF !important;
+}
 /*
  * -- SPLASH STYLES --
  * This is the blue top section that appears on the page.
@@ -58,6 +70,10 @@ label {
     top: 100px; left: 0; bottom: 0; right: 0;
     text-align: center;
     text-transform: uppercase;
+}
+
+.splash .btn {
+  margin: 30px;
 }
 
 /* This is the main heading that appears on the blue section */

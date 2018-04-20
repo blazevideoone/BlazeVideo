@@ -7,12 +7,14 @@ class Home extends Component {
     const OnlyAuthLinks = VisibleOnlyAuth(() =>
       <p>
         <Link to="/Fanplace" className="btn btn-primary">Get Started</Link>
+        <a href="https://t.me/bitvideo_dapp" className="btn btn-outline-primary">JOIN TELEGRAM GROUP</a>
       </p>
     )
 
     const OnlyGuestLinks = HiddenOnlyAuth(() =>
       <p>
         <Link to="/signup" className="btn btn-primary">Get Started</Link>
+        <a href="https://t.me/bitvideo_dapp" className="btn btn-outline-primary">JOIN TELEGRAM GROUP</a>
       </p>
     )
     return(
