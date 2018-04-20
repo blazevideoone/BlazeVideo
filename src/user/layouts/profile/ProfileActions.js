@@ -48,7 +48,7 @@ export function asyncLoadUserVideos() {
         const _balance = await videoBaseInstance.balanceOf.call(coinbase);
         let _myList = [];
         for (let index = 0; index < _balance.toNumber(); index ++) {
-          const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
+          const _tokenId = await videoBaseInstance.tokenOfOwnerByIndex.call(coinbase, index);
           const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
           const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
           const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
