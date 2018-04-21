@@ -29,7 +29,7 @@ export default class VideoComponent extends Component {
       <div className="video-card">
         <div className="title-box">
           View Count: {this.props.videoData.viewCount}
-          <Button size="sm" color="primary" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
+          <Button size="sm" color="link" className="update-btn" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
         </div>
         <div className="video-box">
           <YouTube
