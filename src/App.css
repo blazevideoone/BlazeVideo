@@ -49,6 +49,14 @@ label {
   border-color: #F00 !important;
   color: #FFF !important;
 }
+
+.force-wrap {
+  word-wrap: break-word
+}
+
+.centered {
+  text-align: center
+}
 /*
  * -- SPLASH STYLES --
  * This is the blue top section that appears on the page.

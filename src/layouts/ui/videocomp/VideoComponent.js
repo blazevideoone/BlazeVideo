@@ -8,7 +8,9 @@ import { connect } from 'react-redux';
 import './VideoComponent.css';
 
 @connect(
-    state => ({}),
+    state => ({
+      user: state.user.data
+    }),
     {
       showBuyVideoDialog
     })
@@ -35,7 +37,9 @@ export default class VideoComponent extends Component {
         </div>
         <div className="price-box">
           <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
-          <Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>
+          { this.props.user.account !== this.props.videoData.owner
+            ? <Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>
+            : <Button color='primary' outline className="buy-button">YOUR VIDEO</Button> }
         </div>
       </div>
     );

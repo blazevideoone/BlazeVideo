@@ -56,7 +56,7 @@ export default class BuyVideoDialog extends Component {
     };
     return (
       <Modal isOpen={ this.props.data.modalShow } toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Buy Video</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Subscribe Exclusively</ModalHeader>
         <ModalBody>
         { this.state.showAlert && <Alert color="danger">
           { this.state.alertText }

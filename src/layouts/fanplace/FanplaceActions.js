@@ -87,12 +87,14 @@ export function asyncLoadVideoList() {
         let _videoList = [];
         for (let index = 0; index < _totalSupply.toNumber(); index ++) {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
+          const _owner = await videoBaseInstance.ownerOf.call(_tokenId);
           const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
           const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
           const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
           const video = {
             tokenId: _tokenId.toNumber(),
             videoId: web3.toUtf8(_videoId).slice(5),
+            owner: _owner,
             viewCount: _viewCount.toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
             startTime: _auctionInfo[1].toNumber(),

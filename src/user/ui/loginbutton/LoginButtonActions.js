@@ -42,7 +42,7 @@ export function loginUser() {
             // If no error, login user.
             var userName = web3.toUtf8(result);
 
-            dispatch(userLoggedIn({"name": userName}));
+            dispatch(userLoggedIn({"name": userName, "account": coinbase}));
 
             // Used a manual redirect here as opposed to a wrapper.
             // This way, once logged in a user can still access the home page.
