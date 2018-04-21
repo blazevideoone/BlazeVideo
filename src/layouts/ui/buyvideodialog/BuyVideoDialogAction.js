@@ -43,7 +43,7 @@ export function asyncBuyVideo(tokenId, price) {
           console.error(error);
         }
         videoAuctionInstance = await videoAuction.deployed();
-        const _price = web3.toWei(price, 'ether');
+        const _price = web3.toWei(price, 'ether') * 2;
         // Attempt to sell video
         const result = await videoAuctionInstance.bid(web3.toHex(tokenId), {from: coinbase, value: _price});
         dispatch(showTXDialog(result));

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
-import { Button } from 'reactstrap';
+import { Button, Badge } from 'reactstrap';
 import { showBuyVideoDialog } from '../buyvideodialog/BuyVideoDialogAction';
 import { connect } from 'react-redux';
 
@@ -15,6 +15,15 @@ import './VideoComponent.css';
       showBuyVideoDialog
     })
 export default class VideoComponent extends Component {
+  getActionButton: Function = () => {
+    if (!this.props.user) {
+      return (<Button color='primary' outline className="buy-button">SIGNUP TO PLAY</Button>);
+    } else if ( this.props.user.account !== this.props.videoData.owner) {
+      return (<Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>);
+    } else {
+      return (<Button color='primary' outline className="buy-button">YOUR VIDEO</Button>);
+    }
+  }
   render() {
     const opts = {
       height: '180',
@@ -36,10 +45,9 @@ export default class VideoComponent extends Component {
           />
         </div>
         <div className="price-box">
-          <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
-          { this.props.user.account !== this.props.videoData.owner
-            ? <Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>
-            : <Button color='primary' outline className="buy-button">YOUR VIDEO</Button> }
+          <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi; </b></span>
+          <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge>
+          {this.getActionButton()}
         </div>
       </div>
     );

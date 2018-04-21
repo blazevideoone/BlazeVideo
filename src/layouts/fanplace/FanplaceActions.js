@@ -2,6 +2,7 @@
 // SPC 2018-3-28
 import VideoBaseContract from '../../../build/contracts/VideoBase.json';
 import VideoAuctionContract from '../../../build/contracts/VideoAuction.json';
+import AuthenticationContract from '../../../build/contracts/Authentication.json';
 
 import store from '../../store';
 
@@ -55,7 +56,9 @@ export function sortByViewCount(mode) {
 }
 export function asyncLoadVideoList() {
   let web3 = store.getState().web3.web3Instance;
-
+  if (!web3) {
+    web3 = window.web3;
+  }
   // Double-check web3's status.
   if (typeof web3 !== 'undefined') {
 
@@ -68,11 +71,18 @@ export function asyncLoadVideoList() {
       const videoAuction = contract(VideoAuctionContract);
       videoAuction.setProvider(web3.currentProvider);
 
+      // Using truffle-contract we create the Authentication object.
+      const authentication = contract(AuthenticationContract);
+      authentication.setProvider(web3.currentProvider);
+
       // Declaring this for later so we can chain functions on VideoBase.
       var videoBaseInstance;
 
       // Declaring this for later so we can chain functions on VideoAuction.
       var videoAuctionInstance;
+
+      // Declaring this for later so we can chain functions on Authentication.
+      var AuthenticationInstance;
 
       // Get current ethereum wallet.
       web3.eth.getCoinbase( async (error, coinbase) => {
@@ -82,12 +92,14 @@ export function asyncLoadVideoList() {
         }
         videoBaseInstance = await videoBase.deployed();
         videoAuctionInstance = await videoAuction.deployed();
+        AuthenticationInstance = await authentication.deployed();
         // Attempt to get video list.
         const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
         let _videoList = [];
         for (let index = 0; index < _totalSupply.toNumber(); index ++) {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
           const _owner = await videoBaseInstance.ownerOf.call(_tokenId);
+          const _ownerName = await AuthenticationInstance.getUserName.call(_owner);
           const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
           const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
           const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
@@ -95,10 +107,11 @@ export function asyncLoadVideoList() {
             tokenId: _tokenId.toNumber(),
             videoId: web3.toUtf8(_videoId).slice(5),
             owner: _owner,
+            ownerName: web3.toUtf8(_ownerName),
             viewCount: _viewCount.toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
             startTime: _auctionInfo[1].toNumber(),
-            price: web3.fromWei(_auctionInfo[0], 'ether').toNumber()
+            price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
           console.log(video);
           _videoList.push(video);

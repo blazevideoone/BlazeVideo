@@ -21,7 +21,7 @@ export default class Profile extends Component {
   state: Object = {
     showEdit: false
   }
-  componentWillMount() {
+  componentDidMount() {
     this.props.asyncLoadUserVideos();
   }
   toggleEdit: Function = () => {

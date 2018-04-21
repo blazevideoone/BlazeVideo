@@ -1,22 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import { HiddenOnlyAuth, VisibleOnlyAuth } from '../../util/wrappers.js';
 
 class Home extends Component {
   render() {
-    const OnlyAuthLinks = VisibleOnlyAuth(() =>
-      <p>
-        <Link to="/Fanplace" className="btn btn-primary">Get Started</Link>
-        <a href="https://t.me/bitvideo_dapp" className="btn btn-outline-primary">JOIN TELEGRAM GROUP</a>
-      </p>
-    )
-
-    const OnlyGuestLinks = HiddenOnlyAuth(() =>
-      <p>
-        <Link to="/signup" className="btn btn-primary">Get Started</Link>
-        <a href="https://t.me/bitvideo_dapp" className="btn btn-outline-primary">JOIN TELEGRAM GROUP</a>
-      </p>
-    )
     return(
       <div className="splash-container">
         <div className="splash">
@@ -24,8 +10,10 @@ class Home extends Component {
           <p className="splash-subhead">
               Collects your faverate Youtube videos on a Blockchain.
           </p>
-          <OnlyAuthLinks />
-          <OnlyGuestLinks />
+          <p>
+            <Link to="/fanplace" className="btn btn-primary">Get Started</Link>
+            <a href="https://t.me/bitvideo_dapp" className="btn btn-outline-primary">JOIN TELEGRAM GROUP</a>
+          </p>
         </div>
       </div>
     )

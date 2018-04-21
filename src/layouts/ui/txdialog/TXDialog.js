@@ -39,12 +39,12 @@ export default class TXDialog extends Component {
               <Col xs="12" md="2">gasUsed:</Col>
               <Col xs="12" md="10" className="force-wrap">{txData.receipt.gasUsed}</Col>
             </Row>
-            <Row>
+            {/* <Row>
               <Col xs="12" md="2">Data:</Col>
               <Col xs="12" md="10" className="force-wrap">
                 {txData.receipt.logsBloom}
               </Col>
-            </Row>
+            </Row> */}
             <Alert color="danger">The TX need few minute to hours to broadcast on the Ethereum. For more TX information, please click the TX number and check on Etherscan.io.</Alert>
           </ModalBody>  : null }
         <ModalFooter>

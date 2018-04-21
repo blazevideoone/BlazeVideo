@@ -17,7 +17,6 @@ export function asyncUpdateViewCount(tokenId) {
       // Using truffle-contract we create the videoAuction object.
       const videoCreator = contract(VideoCreatorContract);
       videoCreator.setProvider(web3.currentProvider);
-
       // Declaring this for later so we can chain functions on VideoAuction.
       var videoCreatorInstance;
 
@@ -27,11 +26,11 @@ export function asyncUpdateViewCount(tokenId) {
         if (error) {
           console.error(error);
         }
-        videoCreatorInstance = await videoCreator.deployed();
-        const estGas = await videoCreatorInstance.requestVideoUpdate.estimateGas(web3.toHex(tokenId));
-        // Attempt to cancelAuction video
         const updateCost = 0.0001;
-        const tx = await videoCreatorInstance.cancelAuction(web3.toHex(tokenId), {from: coinbase, gas: estGas * 2, value: web3.toWei(updateCost, 'ether')});
+        videoCreatorInstance = await videoCreator.deployed();
+        const estGas = await videoCreatorInstance.requestVideoUpdate.estimateGas(web3.toHex(tokenId), {value: web3.toWei(updateCost, 'ether') });
+        // Attempt to cancelAuction video
+        const tx = await videoCreatorInstance.requestVideoUpdate(web3.toHex(tokenId), {from: coinbase, gas: estGas + 10000, value: web3.toWei(updateCost, 'ether')});
         dispatch(showTXDialog(tx));
       })
     }
