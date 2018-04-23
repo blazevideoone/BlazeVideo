@@ -1,5 +1,6 @@
 pragma solidity ^0.4.4;
 
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
 import 'zeppelin-solidity/contracts/ownership/HasNoEther.sol';
 import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
@@ -15,6 +16,11 @@ contract VideoAuction
     IVideoListener,
     VideoBaseAccessor
   {
+
+  using SafeMath for uint256;
+  using SafeMath for uint64;
+  using SafeMath for uint32;
+  using SafeMath for uint16;
 
   /*** EVENTS ***/
 
@@ -80,7 +86,7 @@ contract VideoAuction
     if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
       uint256 viewCount;
       (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
-      _createAuction(tokenId, viewCount * newVideoPricePerViewCount);
+      _createAuction(tokenId, viewCount.mul(newVideoPricePerViewCount));
     }
   }
 
@@ -115,7 +121,8 @@ contract VideoAuction
   function _getForceSellPrice(Auction auction, uint256 viewCount)
       internal view
       returns(uint256) {
-    return viewCount * forceSellPricePerViewCount + auction.extraForceSellPrice;
+    return viewCount.mul(forceSellPricePerViewCount).add(
+        auction.extraForceSellPrice);
   }
 
   /// @dev Bid a token with ether. Only the bidding price except the owner cut
@@ -146,24 +153,26 @@ contract VideoAuction
     require(bidAmount >= price);
     require(seller != buyer);
 
-    uint256 auctioneerCut = price * ownerCut / 10000;
-    uint256 sellerProceeds = price - auctioneerCut;
-    uint256 bidExcess = bidAmount - price;
+    uint256 auctioneerCut = price.mul(ownerCut).div(10000);
+    uint256 sellerProceeds = price.sub(auctioneerCut);
+    uint256 bidExcess = bidAmount.sub(price);
 
     // Conclude the auction
     auction.price = 0;
     auction.startedAt = 0;
 
     // Calculate extra price
-    auction.extraForceSellPrice = auction.extraForceSellPrice +
-        price * extraForceSellPriceRatio / 10000;
-    auction.soldCount = auction.soldCount + 1;
+    auction.extraForceSellPrice = auction.extraForceSellPrice.add(
+        price.mul(extraForceSellPriceRatio).div(10000));
+    auction.soldCount = uint64(auction.soldCount.add(1));
 
     videoBase.transferVideoTrusted(seller, buyer, tokenId);
 
-    seller.transfer(sellerProceeds);
-    buyer.transfer(bidExcess);
-    videoBase.owner().transfer(auctioneerCut);
+    if (bidExcess >= 0) {
+      seller.transfer(sellerProceeds);
+      buyer.transfer(bidExcess);
+      videoBase.owner().transfer(auctioneerCut);
+    }
 
     AuctionSuccessful(tokenId, price, buyer);
   }
