@@ -1,5 +1,6 @@
 pragma solidity ^0.4.4;
 
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './IVideoBase.sol';
 import './VideoBaseAccessor.sol';
 
@@ -8,6 +9,11 @@ contract VideoBreed
     IVideoListener,
     VideoBaseAccessor
   {
+
+  using SafeMath for uint256;
+  using SafeMath for uint64;
+  using SafeMath for uint32;
+  using SafeMath for uint16;
 
   /*** EVENTS ***/
 
@@ -75,7 +81,7 @@ contract VideoBreed
   function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {
     Breeding memory _newBreeding = Breeding({
       // Initial cooldown index is 0.
-      cooldownEndBlock: uint64((cooldowns[0]/secondsPerBlock) + block.number),
+      cooldownEndBlock: uint64(cooldowns[0].div(secondsPerBlock).add(block.number)),
       cooldownIndex: 0,
       generation: 0
     });
@@ -99,8 +105,8 @@ contract VideoBreed
     bytes32 videoId = videoBase.getVideoId(tokenId);
     Breeding storage breeding = tokenIdToBreeding[tokenId];
     require(block.number > breeding.cooldownEndBlock);
-    breeding.cooldownIndex = breeding.cooldownIndex >= 9 ?
-        9 : breeding.cooldownIndex + 1;
+    breeding.cooldownIndex = uint16(breeding.cooldownIndex >= 9 ?
+        9 : breeding.cooldownIndex.add(1));
     breeding.cooldownEndBlock =
         uint64((cooldowns[breeding.cooldownIndex]/secondsPerBlock) +
             block.number);
@@ -124,7 +130,7 @@ contract VideoBreed
         videoOwner, videoId, viewCount);
     Breeding storage parentBreeding = tokenIdToBreeding[parentTokenId];
     Breeding storage breeding = tokenIdToBreeding[tokenId];
-    breeding.generation = parentBreeding.generation + 1;
+    breeding.generation = uint16(parentBreeding.generation.add(1));
   }
 
   /// @dev Any board member can fix how many seconds per blocks are currently

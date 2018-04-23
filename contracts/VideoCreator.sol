@@ -1,5 +1,6 @@
 pragma solidity ^0.4.4;
 
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './IVideoBase.sol';
 import './VideoBaseAccessor.sol';
 
@@ -7,6 +8,8 @@ contract VideoCreator
     is
     VideoBaseAccessor
   {
+
+  using SafeMath for uint256;
 
   /*** STORAGE ***/
 
@@ -61,7 +64,7 @@ contract VideoCreator
       whenVideoBaseNotPaused
       {
     require(msg.value >= videoUpdateCost);
-    uint256 senderRemaining = msg.value - videoUpdateCost;
+    uint256 senderRemaining = msg.value.sub(videoUpdateCost);
     VideoUpdateRequested(videoBase.getVideoId(tokenId));
 
     videoBase.owner().send(videoUpdateCost);
