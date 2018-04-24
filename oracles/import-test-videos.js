@@ -1,8 +1,6 @@
-var oracleUtils = require('./utils/oracle-utils.js');
+var oracleUtils = require('./utils/oracle-utils.js')(web3);
 var youtubeAPI = require('./utils/youtube-api.js');
 var config = require('config');
-
-var web3 = oracleUtils.getWeb3();
 
 const YOUTUBE_VIDEOS_LIST = [
   // Star Wars Kid
@@ -33,42 +31,48 @@ const YOUTUBE_VIDEOS_LIST = [
   {id: "tL2LEXN86xg", viewCount: 22851}
 ];
 
-// Get accounts from web3
-web3.eth.getAccounts((err, accounts) => {
-  var main = async () => {
-    let videoBase = await oracleUtils.getVideoBase();
-    let videoCreator = await oracleUtils.getVideoCreator();
-    let videoAuction = await oracleUtils.getVideoAuction();
-    console.log('VideoBase contract address: ' + videoBase.address);
-    console.log('VideoCreator contract address: ' + videoCreator.address);
-    console.log('VideoAuction contract address: ' + videoAuction.address);
-    for (let item of YOUTUBE_VIDEOS_LIST) {
-        var contractVideoId = youtubeAPI.YOUTUBE_PREFIX + item.id;
-        console.log("Processing: " + contractVideoId);
-        // Disable propose new video
-        // await videoCreator.proposeNewVideo(
-        //     web3.fromAscii(contractVideoId),
-        //     {from: accounts[0]});
-        let estimatedGas = await videoCreator.addNewVideo.estimateGas(
-          web3.fromAscii(contractVideoId),
-          item.viewCount
-        );
-        await videoCreator.addNewVideo(
-            web3.fromAscii(contractVideoId),
-            item.viewCount,
-            {from: accounts[0], gas: estimatedGas * 2});
-        let tokenId = await videoBase.getTokenId.call(
-            web3.fromAscii(contractVideoId));
-        console.log(contractVideoId + " tokenId: " + tokenId);
-        console.log(contractVideoId + " sell price:" +
-            web3.fromWei(await videoAuction.getAuctionPrice(tokenId), "ether") +
-            " ether");
-    }
-    console.log("Total balance of owner: " +
-        (await videoBase.balanceOf.call(accounts[0])).toNumber());
-    console.log("Total supply: " +
-        (await videoBase.totalSupply.call(accounts[0])).toNumber());
-  };
 
-  main();
-})
+module.exports = function(finalCallback) {
+  // Get accounts from web3
+  web3.eth.getAccounts((err, accounts) => {
+    var main = async () => {
+      let videoBase = await oracleUtils.getVideoBase();
+      let videoCreator = await oracleUtils.getVideoCreator();
+      let videoAuction = await oracleUtils.getVideoAuction();
+      console.log('VideoBase contract address: ' + videoBase.address);
+      console.log('VideoCreator contract address: ' + videoCreator.address);
+      console.log('VideoAuction contract address: ' + videoAuction.address);
+      for (let item of YOUTUBE_VIDEOS_LIST) {
+          var contractVideoId = youtubeAPI.YOUTUBE_PREFIX + item.id;
+          console.log("Processing: " + contractVideoId);
+          // Disable propose new video
+          // await videoCreator.proposeNewVideo(
+          //     web3.fromAscii(contractVideoId),
+          //     {from: accounts[0]});
+          // Disable estimateGas since it is error
+          // https://ethereum.stackexchange.com/questions/32123/using-web3-eth-estimategas-cause-gas-required-exceeds-allowance-or-always-faili
+          // let estimatedGas = await videoCreator.addNewVideo.estimateGas(
+          //   web3.fromAscii(contractVideoId),
+          //   item.viewCount
+          // );
+          await videoCreator.addNewVideo(
+              web3.fromAscii(contractVideoId),
+              item.viewCount,
+              {from: accounts[0]/*, gas: estimatedGas */});
+          let tokenId = await videoBase.getTokenId.call(
+              web3.fromAscii(contractVideoId));
+          console.log(contractVideoId + " tokenId: " + tokenId);
+          console.log(contractVideoId + " sell price:" +
+              web3.fromWei(await videoAuction.getAuctionPrice(tokenId), "ether") +
+              " ether");
+      }
+      console.log("Total balance of owner: " +
+          (await videoBase.balanceOf.call(accounts[0])).toNumber());
+      console.log("Total supply: " +
+          (await videoBase.totalSupply.call(accounts[0])).toNumber());
+      finalCallback();
+    };
+
+    main();
+  })
+}

@@ -1,6 +1,5 @@
 {
   "oracle": {
-    "web3_provider": "http://localhost:9545",
     "google_api_key": "YOUR AWESOME GOOGLE API KEY"
   }
 }
