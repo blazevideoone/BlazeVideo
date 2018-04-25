@@ -30,6 +30,7 @@ export function signUpUser(name) {
           authenticationInstance = instance;
 
           // Attempt to sign up user.
+          dispatch(showTXDialog(null));
           authenticationInstance.signup(name, {from: coinbase})
           .then(function(result) {
             // If no error, login user.
