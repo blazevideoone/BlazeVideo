@@ -75,4 +75,12 @@ contract Authentication is Destructible {
         return (users[msg.sender].name);
     }
   }
+
+  function getUserName(address account) public
+  returns (bytes32) {
+    if (users[account].name != 0x0)
+    {
+      return (users[account].name);
+    }
+  }
 }

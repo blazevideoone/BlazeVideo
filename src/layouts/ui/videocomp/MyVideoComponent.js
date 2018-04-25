@@ -3,7 +3,7 @@ import YouTube from 'react-youtube';
 import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import { showSellVideoDialog } from '../sellvideodialog/SellVideoDialogAction';
-import { asyncCancelAuction } from './VideoComponentAction';
+import { asyncCancelAuction, asyncUpdateViewCount } from './VideoComponentAction';
 
 // Styles
 import './VideoComponent.css';
@@ -12,7 +12,8 @@ import './VideoComponent.css';
     state => ({}),
     {
       showSellVideoDialog,
-      asyncCancelAuction
+      asyncCancelAuction,
+      asyncUpdateViewCount
     })
 export default class VideoComponent extends Component {
   render() {
@@ -28,6 +29,7 @@ export default class VideoComponent extends Component {
       <div className="video-card">
         <div className="title-box">
           View Count: {this.props.videoData.viewCount}
+          <Button size="sm" color="link" className="update-btn" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
         </div>
         <div className="video-box">
           <YouTube
@@ -38,12 +40,12 @@ export default class VideoComponent extends Component {
         <div className="price-box">
           { this.props.videoData.isForced
             ? <div>
-              <span className="price"><b>EST PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
+              <span className="price"><b>EST PRICE: </b>{ this.props.videoData.viewCount / 100000000 }<b> &Xi;</b></span>
               <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>TRANSFER</Button>
             </div>
             : <div>
               <span className="price"><b>CURRENT PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
-              <Button color='primary' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
+              <Button color='warning' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
             </div> }
         </div>
       </div>

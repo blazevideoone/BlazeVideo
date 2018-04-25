@@ -49,7 +49,7 @@ export default class SellVideoDialog extends Component {
     };
     return (
       <Modal isOpen={ this.props.data.modalShow } toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Sell Video</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Transfer Video</ModalHeader>
         <ModalBody>
         { this.state.showAlert && <Alert color="danger">
           { this.state.alertText }

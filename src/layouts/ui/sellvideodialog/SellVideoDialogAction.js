@@ -3,6 +3,7 @@
 
 import VideoAuctionContract from '../../../../build/contracts/VideoAuction.json';
 import store from '../../../store';
+import { showTXDialog } from '../txdialog/TXDialogAction';
 
 const contract = require('truffle-contract');
 
@@ -46,8 +47,7 @@ export function asyncSellVideo(tokenId, price) {
         videoAuction.defaults({from: coinbase});
         // Attempt to sell video
         const result = await videoAuctionInstance.createAuction(web3.toHex(tokenId), web3.toWei(price, 'ether'));
-        alert(`TX: ${result.tx}`);
-        dispatch(hideSellVideoDialog());
+        dispatch(showTXDialog(result));
       })
     }
   } else {

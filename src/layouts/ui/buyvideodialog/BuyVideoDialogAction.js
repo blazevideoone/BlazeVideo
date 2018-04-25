@@ -2,6 +2,7 @@
 // SPC 2018-4-7
 import VideoAuctionContract from '../../../../build/contracts/VideoAuction.json';
 import store from '../../../store';
+import { showTXDialog } from '../txdialog/TXDialogAction';
 
 const contract = require('truffle-contract');
 
@@ -42,11 +43,10 @@ export function asyncBuyVideo(tokenId, price) {
           console.error(error);
         }
         videoAuctionInstance = await videoAuction.deployed();
-        const _price = web3.toWei(price, 'ether');
+        const _price = web3.toWei(price, 'ether') * 2;
         // Attempt to sell video
         const result = await videoAuctionInstance.bid(web3.toHex(tokenId), {from: coinbase, value: _price});
-        alert(`TX: ${result.tx}`);
-        dispatch(hideBuyVideoDialog());
+        dispatch(showTXDialog(result));
       })
     }
   } else {
