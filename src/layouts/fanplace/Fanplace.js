@@ -30,7 +30,7 @@ export default class Fanplace extends Component {
       dropdownOpen: false
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     this.props.asyncLoadVideoList();
   }
   onIdChange: Function = (event) => {
@@ -49,7 +49,7 @@ export default class Fanplace extends Component {
       <Container>
         <Row className="fanplace-toolbar">
           <Col xs="12" md="6">
-            <h2>Fanplace</h2>
+            <h2>Fan Place</h2>
           </Col>
           <Col xs="12" md="6">
           <ButtonDropdown className="fanplace-dropdown" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>

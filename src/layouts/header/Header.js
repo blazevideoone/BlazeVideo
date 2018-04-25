@@ -23,7 +23,7 @@ export default class Header extends Component {
     const OnlyAuthLinks = VisibleOnlyAuth(() =>
       <Nav className="ml-auto" navbar>
         <NavItem>
-          <Link className="nav-link" to="/Fanplace">Fanplace</Link>
+          <Link className="nav-link" to="/fanplace">Fan Place</Link>
         </NavItem>
         <NavItem>
           <Link className="nav-link" to="/profile">Profile</Link>

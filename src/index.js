@@ -31,9 +31,9 @@ getWeb3
 ReactDOM.render((
     <Provider store={store}>
       <Router history={history}>
-        <Route path="/" component={App}>
+        <Route path="/" component={App} >
           <IndexRoute component={Home} />
-          <Route path="Fanplace" component={UserIsAuthenticated(Fanplace)} />
+          <Route path="fanplace" component={Fanplace} />
           <Route path="signup" component={UserIsNotAuthenticated(SignUp)} />
           <Route path="profile" component={UserIsAuthenticated(Profile)} />
         </Route>

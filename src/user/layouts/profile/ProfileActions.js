@@ -59,7 +59,7 @@ export function asyncLoadUserVideos() {
             viewCount: _viewCount.toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
             startTime: _auctionInfo[1].toNumber(),
-            price: web3.fromWei(_auctionInfo[0], 'ether').valueOf()
+            price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
           _myList.push(video);
         }

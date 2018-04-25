@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Container, Row, Col } from 'reactstrap';
 // UI Component
 import Header from './layouts/header/Header';
+import TXDialog from './layouts/ui/txdialog/TXDialog';
 
 // Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -13,6 +14,7 @@ export default class App extends Component {
       <div className="App">
         <Header />
         {this.props.children}
+        <TXDialog />
         <div className="footer">
           <Container>
             <Row>

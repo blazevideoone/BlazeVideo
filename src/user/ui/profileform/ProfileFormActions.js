@@ -1,5 +1,6 @@
 import AuthenticationContract from '../../../../build/contracts/Authentication.json';
 import store from '../../../store';
+import { showTXDialog } from '../../../layouts/ui/txdialog/TXDialogAction';
 
 const contract = require('truffle-contract');
 
@@ -41,8 +42,7 @@ export function updateUser(name) {
             // If no error, update user.
 
             dispatch(userUpdated({"name": name}));
-
-            return alert('Name updated!');
+            return dispatch(showTXDialog(result));
           })
           .catch(function(result) {
             // If error...

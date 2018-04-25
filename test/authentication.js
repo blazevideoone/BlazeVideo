@@ -34,6 +34,12 @@ contract('Authentication', async (accounts) => {
     assert.equal(web3.toUtf8(nickName), 'testuser2', "The user nickname was not updated.");
   });
 
+  it("should get the nickname", async () => {
+    let authInstance = await Authentication.deployed();
+    const nickName = await authInstance.getUserName.call(accounts[0]);
+    assert.equal(web3.toUtf8(nickName), 'testuser2', "Cannot get nickname.");
+  });
+
   it("should not signup twice.", async () => {
     let authInstance = await Authentication.deployed();
     try {

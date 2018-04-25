@@ -1,6 +1,7 @@
 import AuthenticationContract from '../../../../build/contracts/Authentication.json';
 import { loginUser } from '../loginbutton/LoginButtonActions';
 import store from '../../../store';
+import { showTXDialog } from '../../../layouts/ui/txdialog/TXDialogAction';
 
 const contract = require('truffle-contract');
 
@@ -32,6 +33,7 @@ export function signUpUser(name) {
           authenticationInstance.signup(name, {from: coinbase})
           .then(function(result) {
             // If no error, login user.
+            dispatch(showTXDialog(result));
             return dispatch(loginUser());
           })
           .catch(function(result) {

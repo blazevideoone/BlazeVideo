@@ -11,6 +11,11 @@
   height: 30px;
   color: #666;
 }
+
+.video-card .title-box .update-btn {
+  float: right;
+}
+
 .video-card .price-box {
   padding: 5px;
   height: 50px;
