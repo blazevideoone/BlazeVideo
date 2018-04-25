@@ -14,6 +14,7 @@ let getWeb3 = new Promise(function(resolve, reject) {
   window.addEventListener('load', function(dispatch) {
     var results;
     var web3 = window.web3;
+    web3.version.getNetwork(function(err,res){console.log('On network ' + res)});
 
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {

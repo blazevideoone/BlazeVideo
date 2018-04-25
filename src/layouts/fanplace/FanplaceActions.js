@@ -91,10 +91,14 @@ export function asyncLoadVideoList() {
           console.error(error);
         }
         videoBaseInstance = await videoBase.deployed();
+        console.log('videoBase is deployed');
         videoAuctionInstance = await videoAuction.deployed();
+        console.log('videoAuction is deployed');
         AuthenticationInstance = await authentication.deployed();
+        console.log('authentication is deployed');
         // Attempt to get video list.
         const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
+        console.log('totalSupply:', _totalSupply);
         let _videoList = [];
         for (let index = 0; index < _totalSupply.toNumber(); index ++) {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
