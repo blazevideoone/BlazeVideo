@@ -61,10 +61,10 @@ export function asyncCancelAuction(tokenId) {
           console.error(error);
         }
         videoAuctionInstance = await videoAuction.deployed();
-        const estGas = await videoAuctionInstance.cancelAuction.estimateGas(web3.toHex(tokenId));
+        // const estGas = await videoAuctionInstance.cancelAuction.estimateGas(web3.toHex(tokenId));
         // Attempt to cancelAuction video
         dispatch(showTXDialog(null));
-        const tx = await videoAuctionInstance.cancelAuction(web3.toHex(tokenId), {from: coinbase, gas: estGas * 2});
+        const tx = await videoAuctionInstance.cancelAuction(web3.toHex(tokenId), {from: coinbase});
         dispatch(showTXDialog(tx));
       })
     }
