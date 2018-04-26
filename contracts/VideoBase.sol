@@ -169,11 +169,19 @@ contract VideoBase
       public
       whenNotPaused
       onlyTrustedContracts
-      onlyExistingVideo(videoId)
-    {
-    Video storage _video = videos[getTokenId(videoId)];
+      onlyExistingVideo(videoId) {
+    uint256 _tokenId = getTokenId(videoId);
+    Video storage _video = videos[_tokenId];
+    uint256 _oldViewCount = _video.viewCount;
     _video.viewCount = viewCount;
     _video.viewCountUpdateTime = uint64(now);
+
+    for (uint i = 0; i < listeners.length; i++) {
+      if (address(listeners[i]) != address(0)) {
+        listeners[i].onVideoUpdated(_oldViewCount, _video.viewCount, _tokenId);
+      }
+    }
+
   }
 
   /// @dev helper function to transfer the ownership of a video's tokenId.
@@ -187,10 +195,15 @@ contract VideoBase
       uint256 _tokenId)
       public
       whenNotPaused
-      onlyTrustedContracts
-      {
+      onlyTrustedContracts {
     removeTokenFrom(_from, _tokenId);
     addTokenTo(_to, _tokenId);
+
+    for (uint i = 0; i < listeners.length; i++) {
+      if (address(listeners[i]) != address(0)) {
+        listeners[i].onVideoTransferred(_from, _to, _tokenId);
+      }
+    }
   }
 
   /// @dev initialize the view count and viewCountUpdateTime for a video.

@@ -1,5 +1,6 @@
 const VideoBase = artifacts.require("./VideoBase.sol");
 const VideoAuction = artifacts.require("./VideoAuction.sol");
+const MockVideoListener = artifacts.require("./MockVideoListener.sol");
 const AssertJump = require("./assert_jump.js");
 
 contract('VideoAuction', async (accounts) => {
@@ -36,6 +37,9 @@ contract('VideoAuction', async (accounts) => {
   const FORCE_SELL_EXTRA3 = FORCE_SELL_PRICE3 * EXTRA_FORCE_SELL_PRICE_RATIO;
   const FORCE_SELL_PRICE_WITH_EXTRA3 = FORCE_SELL_PRICE3 + FORCE_SELL_EXTRA3;
 
+  var mockVideoListener1;
+  var mockVideoListener2;
+
   it("should set property correctly", async() => {
     let videoAuction = await VideoAuction.deployed();
 
@@ -65,6 +69,16 @@ contract('VideoAuction', async (accounts) => {
     let contractOwner = accounts[0];
     let seller = accounts[1];
     let buyer = accounts[2];
+
+    mockVideoListener1 = await MockVideoListener.new();
+    mockVideoListener2 = await MockVideoListener.new();
+    await mockVideoListener1.mockSetSupportsVideoListener(true);
+    await mockVideoListener2.mockSetSupportsVideoListener(true);
+
+    await videoBase.addListener(mockVideoListener1.address);
+    await videoBase.addListener(mockVideoListener2.address);
+    await mockVideoListener1.mockResetOnVideoTransferredCalled();
+    await mockVideoListener2.mockResetOnVideoTransferredCalled();
 
     await videoBase.addNewVideoTrusted(
         seller, YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT);
@@ -138,11 +152,31 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO,
                  _auctionInfoAfter[2]);
     assert.equal(1, _auctionInfoAfter[3]);
+
+    let _videoListener1TransferredInfo =
+        await mockVideoListener1.mockGetLastVideoTransferredInfo();
+    // _from
+    assert.equal(seller, _videoListener1TransferredInfo[0]);
+    // _to
+    assert.equal(buyer, _videoListener1TransferredInfo[1]);
+    assert.equal(_tokenId.toNumber(), _videoListener1TransferredInfo[2]);
+
+    let _videoListener2TransferredInfo =
+        await mockVideoListener2.mockGetLastVideoTransferredInfo();
+    // _from
+    assert.equal(seller, _videoListener2TransferredInfo[0]);
+    // _to
+    assert.equal(buyer, _videoListener2TransferredInfo[1]);
+    assert.equal(_tokenId.toNumber(), _videoListener2TransferredInfo[2]);
   });
 
   it("should create auction for owner's new video", async () => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
+
+    await videoBase.removeListener(mockVideoListener1.address);
+    mockVideoListener1.mockResetOnVideoTransferredCalled();
+    mockVideoListener2.mockResetOnVideoTransferredCalled();
 
     let contractOwner = accounts[0];
     let buyer = accounts[2];
@@ -184,6 +218,24 @@ contract('VideoAuction', async (accounts) => {
     } catch(error) {
       AssertJump(error);
     }
+
+    let _videoListener1TransferredInfo =
+        await mockVideoListener1.mockGetLastVideoTransferredInfo();
+    // _from
+    assert.equal(0, _videoListener1TransferredInfo[0]);
+    // _to
+    assert.equal(0, _videoListener1TransferredInfo[1]);
+    assert.equal(0, _videoListener1TransferredInfo[2]);
+
+    let _videoListener2TransferredInfo =
+        await mockVideoListener2.mockGetLastVideoTransferredInfo();
+    // _from
+    assert.equal(contractOwner, _videoListener2TransferredInfo[0]);
+    // _to
+    assert.equal(buyer, _videoListener2TransferredInfo[1]);
+    assert.equal(_tokenId2.toNumber(), _videoListener2TransferredInfo[2]);
+
+    videoBase.removeListener(mockVideoListener2.address);
   });
 
   it("should do auction for force sell price correctly", async () => {

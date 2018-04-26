@@ -8,8 +8,28 @@ interface IVideoListener {
   function supportsVideoListener() public view returns (bool);
 
   /// @dev listener when a new video is added.
-  /// @param tokenId whose the new video is associated to.
-  function onVideoAdded(uint256 tokenId) public;
+  /// @param _tokenId whose the new video is associated to.
+  function onVideoAdded(uint256 _tokenId) public;
+
+  /// @dev listener when a video is updated.
+  /// @param _oldViewCount old view count.
+  /// @param _newViewCount new view count.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoUpdated(
+      uint256 _oldViewCount,
+      uint256 _newViewCount,
+      uint256 _tokenId)
+      public;
+
+  /// @dev listener when a video is transferred.
+  /// @param _from sender.
+  /// @param _to receiver.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoTransferred(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public;
 }
 
 contract IVideoBase
