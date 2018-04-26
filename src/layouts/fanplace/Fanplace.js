@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Container, Row, Col, ButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu, Alert } from 'reactstrap';
+import { Container, Row, Col, ButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap';
 import { asyncLoadVideoList, asyncAddNewVideoTrusted, sortByPrice, sortByViewCount } from './FanplaceActions';
-
+import Spinner from '../ui/spinner/Spinner';
 // CSS
 import './Fanplace.css';
 // UI component
@@ -75,9 +75,7 @@ export default class Fanplace extends Component {
           })}
         </Row>
         { this.props.videos.length === 0
-          ? <Row><Alert color="primary">
-            Loading videos ...
-          </Alert></Row> : null
+          ? <Row><Spinner /></Row> : null
         }
         <BuyVideoDialog className="buy-dialog" />
       </Container>

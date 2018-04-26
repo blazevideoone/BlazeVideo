@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
 import { Button, Badge } from 'reactstrap';
+import { browserHistory } from 'react-router';
 import { showBuyVideoDialog } from '../buyvideodialog/BuyVideoDialogAction';
 import { connect } from 'react-redux';
 
@@ -15,9 +16,12 @@ import './VideoComponent.css';
       showBuyVideoDialog
     })
 export default class VideoComponent extends Component {
+  signUp: Function = () => {
+    browserHistory.push('/signup');
+  }
   getActionButton: Function = () => {
     if (!this.props.user) {
-      return (<Button color='primary' outline className="buy-button">SIGNUP TO PLAY</Button>);
+      return (<Button color='primary' outline className="buy-button" onClick={this.signUp}>SIGNUP TO PLAY</Button>);
     } else if ( this.props.user.account !== this.props.videoData.owner) {
       return (<Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>);
     } else {
@@ -46,7 +50,7 @@ export default class VideoComponent extends Component {
         </div>
         <div className="price-box">
           <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi; </b></span>
-          { this.props.videoData.owner !== '0x627306090abaB3A6e1400e9345bC60c78a8BEf57' ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="alert" pill>New!</Badge> }
+          { this.props.videoData.owner !== '0x627306090abab3a6e1400e9345bc60c78a8bef57' ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="danger" pill>New!</Badge> }
           {this.getActionButton()}
         </div>
       </div>

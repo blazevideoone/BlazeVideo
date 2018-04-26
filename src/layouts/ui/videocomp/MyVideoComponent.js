@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
-import { Button } from 'reactstrap';
+import { Button, UncontrolledTooltip } from 'reactstrap';
 import { connect } from 'react-redux';
 import { showSellVideoDialog } from '../sellvideodialog/SellVideoDialogAction';
 import { asyncCancelAuction, asyncUpdateViewCount } from './VideoComponentAction';
@@ -29,7 +29,10 @@ export default class VideoComponent extends Component {
       <div className="video-card">
         <div className="title-box">
           View Count: {this.props.videoData.viewCount}
-          <Button size="sm" color="link" className="update-btn" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
+          <Button size="sm" color="link" className="update-btn" id="update-button" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
+          <UncontrolledTooltip placement="right" target="update-button">
+            update view count could increase the price of your video(cost 0.0001 ether).
+          </UncontrolledTooltip>
         </div>
         <div className="video-box">
           <YouTube

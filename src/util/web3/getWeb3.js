@@ -1,6 +1,6 @@
 import store from '../../store';
 import Web3 from 'web3';
-
+import { browserHistory } from 'react-router';
 export const WEB3_INITIALIZED = 'WEB3_INITIALIZED';
 function web3Initialized(results) {
   return {
@@ -15,7 +15,9 @@ let getWeb3 = new Promise(function(resolve, reject) {
     var results;
     var web3 = window.web3;
     web3.version.getNetwork(function(err,res){console.log('On network ' + res)});
-
+    if (web3.eth.defaultAccount === undefined) {
+      browserHistory.push('/accountlocked');
+    }
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {
       // Use Mist/MetaMask's provider.

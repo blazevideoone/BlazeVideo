@@ -99,8 +99,7 @@ export function asyncLoadVideoList() {
         // Attempt to get video list.
         const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
         console.log('totalSupply:', _totalSupply);
-        let _videoList = [];
-        for (let index = 0; index < _totalSupply.toNumber(); index ++) {
+        const loadData = async index => {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
           const _owner = await videoBaseInstance.ownerOf.call(_tokenId);
           const _ownerName = await AuthenticationInstance.getUserName.call(_owner);
@@ -117,10 +116,14 @@ export function asyncLoadVideoList() {
             price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
           console.log(video);
-          _videoList.push(video);
+          return video;
         }
-        console.log(_videoList);
-        dispatch(loadVideoList(_videoList));
+        const promiseList = [];
+        for (let index = 0; index < _totalSupply.toNumber(); index ++) {
+          promiseList.push(loadData(index));
+        }
+        const _videoList = await Promise.all(promiseList);
+        return dispatch(loadVideoList(_videoList));
       })
     }
   } else {
