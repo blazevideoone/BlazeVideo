@@ -25,6 +25,7 @@ contract('VideoBaseAccessor', function(accounts) {
     }
 
     await mockVideoBase.mockSetSupportsVideoBase(true);
+
     await mockVideoBaseAccessor.setVideoBase(mockVideoBase.address);
     assert.equal(mockVideoBase.address,
                  await mockVideoBaseAccessor.getVideoBase.call());
@@ -74,6 +75,33 @@ contract('VideoBaseAccessor', function(accounts) {
 
     await mockVideoBase.transferOwnership(accounts[0],
                                           {from: accountContractOwner});
+  });
+
+  it("should not set VideoBase when current is not empty", async () => {
+    let accountContractOwner = accounts[0];
+
+    await mockVideoBaseAccessor.setVideoBase(mockVideoBase.address,
+                                             {from: accountContractOwner});
+
+    assert.equal(mockVideoBase.address,
+                 await mockVideoBaseAccessor.getVideoBase.call(
+                    {from: accountContractOwner}));
+
+    let mockVideoBase2 = await MockVideoBase.new();
+    await mockVideoBase2.mockSetSupportsVideoBase(true);
+
+    try {
+      await mockVideoBaseAccessor.setVideoBase(mockVideoBase2.address);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    assert.equal(mockVideoBase.address,
+                 await mockVideoBaseAccessor.getVideoBase.call(
+                    {from: accountContractOwner}));
+
+    await mockVideoBaseAccessor.resetVideoBase({from: accountContractOwner});
   });
 
   it("should test modifiers when videoBase is set", async () => {
