@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import './VideoTrusted.sol';
 import './IVideoBase.sol';
@@ -20,7 +20,7 @@ contract VideoBase
   mapping (bytes32 => uint256) internal videoIdToTokenId;
 
   /// @dev An array of listener contracts.
-  IVideoListener[] internal listeners;
+  address[] internal listeners;
 
 
   /// @dev Initialize with tokenId 0 video.
@@ -76,7 +76,7 @@ contract VideoBase
 
     IVideoListener _listener = IVideoListener(listener);
     require(_listener.supportsVideoListener());
-    listeners.push(_listener);
+    listeners.push(listener);
   }
 
   /// @dev remove a listener
@@ -89,6 +89,11 @@ contract VideoBase
       }
     }
     revert();
+  }
+
+  /// @dev Return a list of current listeners
+  function getListeners() public view onlyOwner returns (address[]) {
+    return listeners;
   }
 
   /// @dev retrieve tokenId from videoId for convenience.
@@ -151,8 +156,8 @@ contract VideoBase
     _initVideo(newTokenId, viewCount);
 
     for (uint i = 0; i < listeners.length; i++) {
-      if (address(listeners[i]) != address(0)) {
-        listeners[i].onVideoAdded(newTokenId);
+      if (listeners[i] != address(0)) {
+        (IVideoListener(listeners[i])).onVideoAdded(newTokenId);
       }
     }
 
@@ -169,11 +174,20 @@ contract VideoBase
       public
       whenNotPaused
       onlyTrustedContracts
-      onlyExistingVideo(videoId)
-    {
-    Video storage _video = videos[getTokenId(videoId)];
+      onlyExistingVideo(videoId) {
+    uint256 _tokenId = getTokenId(videoId);
+    Video storage _video = videos[_tokenId];
+    uint256 _oldViewCount = _video.viewCount;
     _video.viewCount = viewCount;
     _video.viewCountUpdateTime = uint64(now);
+
+    for (uint i = 0; i < listeners.length; i++) {
+      if (listeners[i] != address(0)) {
+        (IVideoListener(listeners[i])).onVideoUpdated(
+              _oldViewCount, _video.viewCount, _tokenId);
+      }
+    }
+
   }
 
   /// @dev helper function to transfer the ownership of a video's tokenId.
@@ -187,10 +201,15 @@ contract VideoBase
       uint256 _tokenId)
       public
       whenNotPaused
-      onlyTrustedContracts
-      {
+      onlyTrustedContracts {
     removeTokenFrom(_from, _tokenId);
     addTokenTo(_to, _tokenId);
+
+    for (uint i = 0; i < listeners.length; i++) {
+      if (listeners[i] != address(0)) {
+        (IVideoListener(listeners[i])).onVideoTransferred(_from, _to, _tokenId);
+      }
+    }
   }
 
   /// @dev initialize the view count and viewCountUpdateTime for a video.

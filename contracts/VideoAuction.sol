@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
@@ -49,10 +49,10 @@ contract VideoAuction
   uint256 public ownerCut = 1000;
 
   /// @dev price per view count for the new video auction.
-  uint256 public newVideoPricePerViewCount = 0.1 szabo;
+  uint256 public newVideoPricePerViewCount = 0.001 szabo;
 
   /// @dev price per view count for a force sale.
-  uint256 public forceSellPricePerViewCount = 10 szabo;
+  uint256 public forceSellPricePerViewCount = 0.05 szabo;
 
   /// @dev extra add-up price ration for force sell, measured in basis points
   ///   (1/100 of a percent).
@@ -78,13 +78,37 @@ contract VideoAuction
 
   /// @dev listen to onVideoAdded, initiialize auction for video added by
   ///   videoBase's owner.
-  /// @param tokenId whose video id is associated to.
-  function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {
-    if (videoBase.ownerOf(tokenId) == videoBase.owner()) {
+  /// @param _tokenId whose video id is associated to.
+  function onVideoAdded(uint256 _tokenId) public onlyFromVideoBase {
+    if (videoBase.ownerOf(_tokenId) == videoBase.owner()) {
       uint256 viewCount;
-      (, viewCount, ) = videoBase.getVideoTrusted(tokenId);
-      _createAuction(tokenId, viewCount.mul(newVideoPricePerViewCount));
+      (, viewCount, ) = videoBase.getVideoTrusted(_tokenId);
+      _createAuction(_tokenId, viewCount.mul(newVideoPricePerViewCount));
     }
+  }
+
+  /// @dev listener when a video is updated.
+  /// @param _oldViewCount old view count.
+  /// @param _newViewCount new view count.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoUpdated(
+      uint256 _oldViewCount,
+      uint256 _newViewCount,
+      uint256 _tokenId)
+      public onlyFromVideoBase {
+    // Do nothing
+  }
+
+  /// @dev listener when a video is transferred.
+  /// @param _from sender.
+  /// @param _to receiver.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoTransferred(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public onlyFromVideoBase {
+    // Do nothing
   }
 
   /// @dev Create an auction for a token with lowest bidding price.

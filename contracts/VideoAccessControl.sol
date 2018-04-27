@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
@@ -46,10 +46,9 @@ contract VideoAccessControl is
   /// @param _newBoardMember the new address to be added. If it is already a
   //    board member, do nothing.
   function addBoardMember(address _newBoardMember) public onlyOwner {
-    if (findBoardMember(_newBoardMember) < 0) {
-      boardMembers.push(_newBoardMember);
-      BoardMemberAdded(_newBoardMember);
-    }
+    require(findBoardMember(_newBoardMember) < 0);
+    boardMembers.push(_newBoardMember);
+    BoardMemberAdded(_newBoardMember);
   }
 
   /// @dev Remove an old board member address from the board.
@@ -57,14 +56,13 @@ contract VideoAccessControl is
   //    board member, do nothing.
   function removeBoardMember(address _oldBoardMember) public onlyOwner {
     int i = findBoardMember(_oldBoardMember);
-    if (i >= 0) {
-      delete boardMembers[uint(i)];
-      BoardMemberAdded(_oldBoardMember);
-    }
+    require(i >= 0);
+    delete boardMembers[uint(i)];
+    BoardMemberAdded(_oldBoardMember);
   }
 
   /// @dev Return a list of current board members.
-  function getBoardMembers() public view onlyBoardMembers returns (address[]) {
+  function getBoardMembers() external view onlyBoardMembers returns (address[]) {
     return boardMembers;
   }
 

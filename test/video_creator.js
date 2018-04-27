@@ -186,7 +186,8 @@ contract('VideoCreator', async (accounts) => {
 
     await videoCreator.updateVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT + 10,
                                    {from: accountSystem});
-    await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID3);
+    await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID3,
+                                       {from: accountBoardMember});
     await videoCreator.addNewVideo(
         YOUTUBE_VIDEO_ID3, YOUTUBE_VIEW_COUNT3, {from: accountSystem});
 

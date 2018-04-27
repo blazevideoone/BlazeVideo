@@ -54,7 +54,7 @@ contract('VideoBase', async (accounts) => {
     assert.equal(videoBirthTime, _videoInfo[1]);
     // viewCount
     assert.equal(YOUTUBE_VIEW_COUNT, _videoInfo[2]);
-    // viewCountUpdateTime
+    // viewCountUpdateTim
     assert.equal(videoBirthTime, _videoInfo[3]);
     assert.equal(_tokenId.toNumber(),
                  await mockVideoListener1.mockGetLastAddedTokenId.call());
@@ -104,8 +104,17 @@ contract('VideoBase', async (accounts) => {
 
   it("should update video correctly", async () => {
     let videoBase = await VideoBase.deployed();
+    let mockVideoListener1 = await MockVideoListener.new();
+    let mockVideoListener2 = await MockVideoListener.new();
 
     let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
+
+    await mockVideoListener1.mockSetSupportsVideoListener(true);
+    await videoBase.addListener(mockVideoListener1.address);
+    await mockVideoListener2.mockSetSupportsVideoListener(true);
+    await videoBase.addListener(mockVideoListener2.address);
+    await mockVideoListener1.mockResetOnVideoUpdatedCalled();
+    await mockVideoListener2.mockResetOnVideoUpdatedCalled();
 
     let _result = await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
                                                      YOUTUBE_VIEW_COUNT + 1);
@@ -125,6 +134,48 @@ contract('VideoBase', async (accounts) => {
     assert.equal(_viewCountUpdateTime, _videoInfo[3]);
 
     assert.equal(YOUTUBE_VIEW_COUNT + 1, _viewCount.toNumber());
+
+    let _videoListener1UpdateInfo =
+        await mockVideoListener1.mockGetLastUpdatedInfo();
+    // _oldViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT, _videoListener1UpdateInfo[0]);
+    // _newViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT + 1, _videoListener1UpdateInfo[1]);
+    assert.equal(_tokenId.toNumber(), _videoListener1UpdateInfo[2]);
+
+    let _videoListener2UpdateInfo =
+        await mockVideoListener2.mockGetLastUpdatedInfo();
+    // _oldViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT, _videoListener2UpdateInfo[0]);
+    // _newViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT + 1, _videoListener2UpdateInfo[1]);
+    assert.equal(_tokenId.toNumber(), _videoListener2UpdateInfo[2]);
+
+    await videoBase.removeListener(mockVideoListener1.address);
+    await mockVideoListener1.mockResetOnVideoUpdatedCalled();
+    await mockVideoListener2.mockResetOnVideoUpdatedCalled();
+
+    await videoBase.updateVideoTrusted(YOUTUBE_VIDEO_ID,
+                                       YOUTUBE_VIEW_COUNT + 2);
+
+    _videoListener1UpdateInfo =
+        await mockVideoListener1.mockGetLastUpdatedInfo();
+    // _oldViewCount
+    assert.equal(0, _videoListener1UpdateInfo[0]);
+    // _newViewCount
+    assert.equal(0, _videoListener1UpdateInfo[1]);
+    assert.equal(0, _videoListener1UpdateInfo[2]);
+
+    _videoListener2UpdateInfo =
+        await mockVideoListener2.mockGetLastUpdatedInfo();
+    // _oldViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT + 1, _videoListener2UpdateInfo[0]);
+    // _newViewCount
+    assert.equal(YOUTUBE_VIEW_COUNT + 2, _videoListener2UpdateInfo[1]);
+    assert.equal(_tokenId.toNumber(), _videoListener2UpdateInfo[2]);
+
+    // Remove all listeners to test the case when listeners are empty.
+    await videoBase.removeListener(mockVideoListener2.address);
   });
 
   it("should disallow adding existing videos", async () => {

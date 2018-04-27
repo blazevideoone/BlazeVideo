@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import './IVideoBase.sol';
 
@@ -86,11 +86,13 @@ contract VideoBaseAccessor {
     _;
   }
 
-  /// @dev set IVideoBase contract.
+  /// @dev set IVideoBase contract. Only when videoBase is empty and
+  ///   the sender is the owner of _videoBase.
   /// @param _videoBase to be set.
   function setVideoBase(address _videoBase)
       public
       onlyVideoBaseOwnerOf(_videoBase) {
+    require(address(videoBase) == address(0));
     IVideoBase myVideoBase = IVideoBase(_videoBase);
     require(myVideoBase.supportsVideoBase());
     videoBase = myVideoBase;

@@ -23,7 +23,12 @@ contract('VideoTrusted', async (accounts) => {
   it("should not add an existing trusted contract", async () => {
     var account_two = accounts[1];
 
-    await videoTrustedInstance.addTrustedContract(account_two);
+    try {
+      await videoTrustedInstance.addTrustedContract(account_two);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
 
@@ -96,7 +101,12 @@ contract('VideoTrusted', async (accounts) => {
   it("should not remove a non-existing trusted contract", async () => {
     var account_four = accounts[3];
 
-    await videoTrustedInstance.removeTrustedContract(account_four);
+    try {
+      await videoTrustedInstance.removeTrustedContract(account_four);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let trustedContracts = await videoTrustedInstance.getTrustedContracts.call();
 

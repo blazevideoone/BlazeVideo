@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './IVideoBase.sol';
@@ -77,15 +77,39 @@ contract VideoBreed
   }
 
   /// @dev listen to onVideoAdded, initiialize gen0 video.
-  /// @param tokenId whose video id is associated to.
-  function onVideoAdded(uint256 tokenId) public onlyFromVideoBase {
+  /// @param _tokenId whose video id is associated to.
+  function onVideoAdded(uint256 _tokenId) public onlyFromVideoBase {
     Breeding memory _newBreeding = Breeding({
       // Initial cooldown index is 0.
       cooldownEndBlock: uint64(cooldowns[0].div(secondsPerBlock).add(block.number)),
       cooldownIndex: 0,
       generation: 0
     });
-    tokenIdToBreeding[tokenId] = _newBreeding;
+    tokenIdToBreeding[_tokenId] = _newBreeding;
+  }
+
+  /// @dev listener when a video is updated.
+  /// @param _oldViewCount old view count.
+  /// @param _newViewCount new view count.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoUpdated(
+      uint256 _oldViewCount,
+      uint256 _newViewCount,
+      uint256 _tokenId)
+      public onlyFromVideoBase {
+    // Do nothing
+  }
+
+  /// @dev listener when a video is transferred.
+  /// @param _from sender.
+  /// @param _to receiver.
+  /// @param _tokenId whose the video is associated to.
+  function onVideoTransferred(
+      address _from,
+      address _to,
+      uint256 _tokenId)
+      public onlyFromVideoBase {
+    // Do nothing
   }
 
   /// @dev start breeding a new video from a given token id of an existing
