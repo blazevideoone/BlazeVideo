@@ -23,7 +23,12 @@ contract('VideoAccessControl', async (accounts) => {
   it("should not add an existing board member", async () => {
     var account_two = accounts[1];
 
-    await videoAccessControlInstance.addBoardMember(account_two);
+    try {
+      await videoAccessControlInstance.addBoardMember(account_two);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let boardMembers = await videoAccessControlInstance.getBoardMembers.call();
 
@@ -126,7 +131,12 @@ contract('VideoAccessControl', async (accounts) => {
   it("should not remove a non-existing board member", async () => {
     var account_four = accounts[3];
 
-    await videoAccessControlInstance.removeBoardMember(account_four);
+    try {
+      await videoAccessControlInstance.removeBoardMember(account_four);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let boardMembers = await videoAccessControlInstance.getBoardMembers.call();
 

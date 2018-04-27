@@ -23,7 +23,12 @@ contract('VideoSystemAccess', async (accounts) => {
   it("should not add an existing system account", async () => {
     var account_two = accounts[1];
 
-    await videoSystemAccessInstance.addSystemAccount(account_two);
+    try {
+      await videoSystemAccessInstance.addSystemAccount(account_two);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let systemAccounts = await videoSystemAccessInstance.getSystemAccounts.call();
 
@@ -85,7 +90,12 @@ contract('VideoSystemAccess', async (accounts) => {
   it("should not remove a non-existing system account", async () => {
     var account_four = accounts[3];
 
-    await videoSystemAccessInstance.removeSystemAccount(account_four);
+    try {
+      await videoSystemAccessInstance.removeSystemAccount(account_four);
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
 
     let systemAccounts = await videoSystemAccessInstance.getSystemAccounts.call();
 

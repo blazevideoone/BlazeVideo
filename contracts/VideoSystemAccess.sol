@@ -39,10 +39,9 @@ contract VideoSystemAccess is VideoAccessControl {
   /// @param _newSystemAccount the new address to be added. If it is already a
   //    system account, do nothing.
   function addSystemAccount(address _newSystemAccount) public onlyOwner {
-    if (findSystemAccount(_newSystemAccount) < 0) {
-      systemAccounts.push(_newSystemAccount);
-      SystemAccountAdded(_newSystemAccount);
-    }
+    require(findSystemAccount(_newSystemAccount) < 0);
+    systemAccounts.push(_newSystemAccount);
+    SystemAccountAdded(_newSystemAccount);
   }
 
   /// @dev Remove an old system account address from the board.
@@ -50,10 +49,9 @@ contract VideoSystemAccess is VideoAccessControl {
   //    system account, do nothing.
   function removeSystemAccount(address _oldSystemAccount) public onlyOwner {
     int i = findSystemAccount(_oldSystemAccount);
-    if (i >= 0) {
-      delete systemAccounts[uint(i)];
-      SystemAccountAdded(_oldSystemAccount);
-    }
+    require(i >= 0);
+    delete systemAccounts[uint(i)];
+    SystemAccountAdded(_oldSystemAccount);
   }
 
   /// @dev Return a list of current system accounts.

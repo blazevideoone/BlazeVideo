@@ -40,10 +40,9 @@ contract VideoTrusted is
   /// @param _newTrustedContract the new address to be added. If it is already a
   //    trusted contract, do nothing.
   function addTrustedContract(address _newTrustedContract) public onlyOwner {
-    if (findTrustedContract(_newTrustedContract) < 0) {
-      trustedContracts.push(_newTrustedContract);
-      TrustedContractAdded(_newTrustedContract);
-    }
+    require(findTrustedContract(_newTrustedContract) < 0);
+    trustedContracts.push(_newTrustedContract);
+    TrustedContractAdded(_newTrustedContract);
   }
 
   /// @dev Remove an old trusted contract address from the board.
@@ -51,10 +50,9 @@ contract VideoTrusted is
   //    trusted contract, do nothing.
   function removeTrustedContract(address _oldTrustedContract) public onlyOwner {
     int i = findTrustedContract(_oldTrustedContract);
-    if (i >= 0) {
-      delete trustedContracts[uint(i)];
-      TrustedContractAdded(_oldTrustedContract);
-    }
+    require(i >= 0);
+    delete trustedContracts[uint(i)];
+    TrustedContractAdded(_oldTrustedContract);
   }
 
   /// @dev Return a list of current trusted contracts.
