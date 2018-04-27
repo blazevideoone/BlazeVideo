@@ -40,6 +40,10 @@ export function loginUser() {
           authenticationInstance.login({from: coinbase})
           .then(function(result) {
             // If no error, login user.
+            console.log(result);
+            if(result === '0x') {
+              return browserHistory.push('/signup');
+            }
             var userName = web3.toUtf8(result);
 
             dispatch(userLoggedIn({"name": userName, "account": coinbase}));
@@ -54,6 +58,56 @@ export function loginUser() {
             }
 
             return browserHistory.push('/fanplace');
+          })
+          .catch(function(result) {
+            // If error, go to signup page.
+            console.error('Wallet ' + coinbase + ' does not have an account!');
+
+            return browserHistory.push('/signup');
+          })
+        })
+      })
+    }
+  } else {
+    console.error('Web3 is not initialized.');
+  }
+}
+
+export function autoLoginUser() {
+  let web3 = store.getState().web3.web3Instance;
+  if (!web3 && window.web3) {
+    web3 = window.web3;
+  }
+  // Double-check web3's status.
+  if (typeof web3 !== 'undefined') {
+
+    return function(dispatch) {
+      // Using truffle-contract we create the authentication object.
+      const authentication = contract(AuthenticationContract);
+      authentication.setProvider(web3.currentProvider);
+
+      // Declaring this for later so we can chain functions on Authentication.
+      var authenticationInstance;
+
+      // Get current ethereum wallet.
+      web3.eth.getCoinbase((error, coinbase) => {
+        // Log errors, if any.
+        if (error) {
+          console.error(error);
+        }
+
+        authentication.deployed().then(function(instance) {
+          authenticationInstance = instance;
+
+          // Attempt to login user.
+          authenticationInstance.login({from: coinbase})
+          .then(function(result) {
+            // If no error, login user.
+            console.log(result);
+            if(result !== '0x') {
+              var userName = web3.toUtf8(result);
+              dispatch(userLoggedIn({"name": userName, "account": coinbase}));
+            }
           })
           .catch(function(result) {
             // If error, go to signup page.

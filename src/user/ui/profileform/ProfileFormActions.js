@@ -37,6 +37,7 @@ export function updateUser(name) {
           authenticationInstance = instance;
 
           // Attempt to login user.
+          dispatch(showTXDialog(null));
           authenticationInstance.update(name, {from: coinbase})
           .then(function(result) {
             // If no error, update user.

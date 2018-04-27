@@ -46,7 +46,10 @@ export default class TXDialog extends Component {
               </Col>
             </Row> */}
             <Alert color="danger">The TX need few minute to hours to broadcast on the Ethereum. For more TX information, please click the TX number and check on Etherscan.io.</Alert>
-          </ModalBody>  : null }
+          </ModalBody>
+          : <ModalBody>
+              <Alert color="danger">Waiting for MetaMask return the TX data. You could close this window.</Alert>
+          </ModalBody> }
         <ModalFooter>
           <Button color="secondary" onClick={this.toggle}>CLOSE</Button>
         </ModalFooter>

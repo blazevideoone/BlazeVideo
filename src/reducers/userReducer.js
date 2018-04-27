@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
 const initialState = {
   data: null,
-  userVideos: []
+  userVideos: null
 }
 
 const userReducer = (state = initialState, action) => {

@@ -99,29 +99,31 @@ export function asyncLoadVideoList() {
         // Attempt to get video list.
         const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
         console.log('totalSupply:', _totalSupply);
-        let _videoList = [];
-        for (let index = 0; index < _totalSupply.toNumber(); index ++) {
+        const loadData = async index => {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
           const _owner = await videoBaseInstance.ownerOf.call(_tokenId);
           const _ownerName = await AuthenticationInstance.getUserName.call(_owner);
-          const _videoId = await videoBaseInstance.getVideoId.call(_tokenId);
-          const _viewCount = await videoBaseInstance.getVideoViewCount.call(_videoId);
+          const _videoInfo = await videoBaseInstance.getVideoInfo.call(_tokenId);
           const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
           const video = {
             tokenId: _tokenId.toNumber(),
-            videoId: web3.toUtf8(_videoId).slice(5),
+            videoId: web3.toUtf8(_videoInfo[0]).slice(5),
             owner: _owner,
             ownerName: web3.toUtf8(_ownerName),
-            viewCount: _viewCount.toNumber(),
+            viewCount: _videoInfo[2].toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
             startTime: _auctionInfo[1].toNumber(),
             price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
           console.log(video);
-          _videoList.push(video);
+          return video;
         }
-        console.log(_videoList);
-        dispatch(loadVideoList(_videoList));
+        const promiseList = [];
+        for (let index = 0; index < _totalSupply.toNumber(); index ++) {
+          promiseList.push(loadData(index));
+        }
+        const _videoList = await Promise.all(promiseList);
+        return dispatch(loadVideoList(_videoList));
       })
     }
   } else {

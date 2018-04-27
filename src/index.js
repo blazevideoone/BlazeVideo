@@ -12,6 +12,7 @@ import Home from './layouts/home/Home';
 import Fanplace from './layouts/fanplace/Fanplace';
 import SignUp from './user/layouts/signup/SignUp';
 import Profile from './user/layouts/profile/Profile';
+import AccountLocked from './layouts/accountlocked/AccountLocked';
 
 // Redux Store
 import store from './store';
@@ -33,6 +34,7 @@ ReactDOM.render((
       <Router history={history}>
         <Route path="/" component={App} >
           <IndexRoute component={Home} />
+          <Route path="accountlocked" component={AccountLocked} />
           <Route path="fanplace" component={Fanplace} />
           <Route path="signup" component={UserIsNotAuthenticated(SignUp)} />
           <Route path="profile" component={UserIsAuthenticated(Profile)} />

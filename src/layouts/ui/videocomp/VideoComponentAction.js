@@ -28,9 +28,10 @@ export function asyncUpdateViewCount(tokenId) {
         }
         const updateCost = 0.0001;
         videoCreatorInstance = await videoCreator.deployed();
-        const estGas = await videoCreatorInstance.requestVideoUpdate.estimateGas(web3.toHex(tokenId), {value: web3.toWei(updateCost, 'ether') });
-        // Attempt to cancelAuction video
-        const tx = await videoCreatorInstance.requestVideoUpdate(web3.toHex(tokenId), {from: coinbase, gas: estGas + 10000, value: web3.toWei(updateCost, 'ether')});
+        // const estGas = await videoCreatorInstance.requestVideoUpdate.estimateGas(web3.toHex(tokenId), {value: web3.toWei(updateCost, 'ether') });
+        // Attempt to request Video Update
+        dispatch(showTXDialog(null));
+        const tx = await videoCreatorInstance.requestVideoUpdate(web3.toHex(tokenId), {from: coinbase, value: web3.toWei(updateCost, 'ether')});
         dispatch(showTXDialog(tx));
       })
     }
@@ -60,9 +61,10 @@ export function asyncCancelAuction(tokenId) {
           console.error(error);
         }
         videoAuctionInstance = await videoAuction.deployed();
-        const estGas = await videoAuctionInstance.cancelAuction.estimateGas(web3.toHex(tokenId));
+        // const estGas = await videoAuctionInstance.cancelAuction.estimateGas(web3.toHex(tokenId));
         // Attempt to cancelAuction video
-        const tx = await videoAuctionInstance.cancelAuction(web3.toHex(tokenId), {from: coinbase, gas: estGas * 2});
+        dispatch(showTXDialog(null));
+        const tx = await videoAuctionInstance.cancelAuction(web3.toHex(tokenId), {from: coinbase});
         dispatch(showTXDialog(tx));
       })
     }
