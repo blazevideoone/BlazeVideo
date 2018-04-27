@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { NavItem, NavLink } from 'reactstrap';
-import { loginUser } from './LoginButtonActions';
+import { loginUser, autoLoginUser } from './LoginButtonActions';
 
 @connect(
     state => ({}),
     {
-        loginUser
+        loginUser,
+        autoLoginUser
     })
 export default class LoginButton extends Component {
+  componentDidMount() {
+    this.props.autoLoginUser();
+  }
   onLoginUserClick: Function = (event) => {
     event.preventDefault();
     this.props.loginUser();

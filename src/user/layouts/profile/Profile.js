@@ -7,6 +7,7 @@ import { asyncLoadUserVideos } from './ProfileActions';
 import MyVideoComponent from '../../../layouts/ui/videocomp/MyVideoComponent';
 import ProfileForm from '../../ui/profileform/ProfileForm';
 import SellVideoDialog from '../../../layouts/ui/sellvideodialog/SellVideoDialog';
+import Spinner from '../../../layouts/ui/spinner/Spinner';
 
 @connect(
     state => ({
@@ -34,7 +35,8 @@ export default class Profile extends Component {
     return(
       <Container>
         <Row>
-          <Col xs="12" md="10" lg="10">
+          { this.props.videos
+            ? <Col xs="12" md="10" lg="10">
             <Row>
               <Col>
                 <h2>My Videos</h2>
@@ -55,6 +57,7 @@ export default class Profile extends Component {
               })}
             </Row>
           </Col>
+          : <Spinner /> }
           <Col xs="12" md="2" lg="2">
             <Row>
               <Col xs="12" md="12">

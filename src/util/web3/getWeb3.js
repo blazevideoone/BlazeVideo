@@ -14,7 +14,6 @@ let getWeb3 = new Promise(function(resolve, reject) {
   window.addEventListener('load', function(dispatch) {
     var results;
     var web3 = window.web3;
-    web3.version.getNetwork(function(err,res){console.log('On network ' + res)});
     if (web3.eth.defaultAccount === undefined) {
       browserHistory.push('/accountlocked');
     }
