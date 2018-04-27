@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './IVideoBase.sol';
@@ -29,19 +29,20 @@ contract VideoCreator
   event VideoUpdateRequested(bytes32 videoId);
 
   /// @dev propose to add a video, must be a new video. Emitting NewVideoProposed event
-  ///   for the oracle to add a new video. Only the owner is allowed to propose.
+  ///   for the oracle to add a new video. Only the owner and board members is
+  ///   allowed to propose.
   /// @param videoId to be proposed as a new video.
   function proposeNewVideo(bytes32 videoId)
       public
-      onlyVideoBaseOwner
+      onlyVideoBaseBoardMembers
       whenVideoBaseNotPaused
       onlyVideoBaseNewVideo(videoId)
       {
     NewVideoProposed(videoId);
   }
 
-  /// @dev actually add a new video, usually proposed by the owner and added by
-  ///   a system account.
+  /// @dev actually add a new video, usually proposed by the owner/board member
+  ///   and added by a system account.
   /// @param videoId to be proposed as a new video.
   /// @param viewCount fetched from the video platform.
   function addNewVideo(bytes32 videoId, uint256 viewCount)
