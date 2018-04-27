@@ -1,5 +1,5 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
-var mnemonic = require(process.env.MNEMOICJS || "./truffle-dev-mnemonic.js");
+var mnemonic = require(process.env.MNEMONICJS || "./truffle-dev-mnemonic.js");
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
