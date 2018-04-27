@@ -41,7 +41,6 @@ contract Authentication is Destructible {
 
   function signup(bytes32 name)
   public
-  payable
   onlyNonExistingUser
   onlyValidName(name)
   returns (bytes32) {
@@ -62,7 +61,6 @@ contract Authentication is Destructible {
 
   function update(bytes32 name)
   public
-  payable
   onlyValidName(name)
   onlyExistingUser
   returns (bytes32) {
@@ -76,7 +74,7 @@ contract Authentication is Destructible {
     }
   }
 
-  function getUserName(address account) public
+  function getUserName(address account) public view
   returns (bytes32) {
     if (users[account].name != 0x0)
     {

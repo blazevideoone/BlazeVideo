@@ -2,7 +2,6 @@ pragma solidity ^0.4.4;
 
 import 'zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 import './VideoSystemAccess.sol';
-import './VideoTrusted.sol';
 
 interface IVideoListener {
   /// @dev whether it supports this interface, for sanity check.
@@ -16,7 +15,6 @@ interface IVideoListener {
 contract IVideoBase
     is
     VideoSystemAccess,
-    VideoTrusted,
     ERC721Token
   {
 

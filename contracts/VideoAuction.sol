@@ -10,9 +10,6 @@ import './VideoBaseAccessor.sol';
 
 contract VideoAuction
     is
-    Ownable,
-    Pausable,
-    Destructible,
     IVideoListener,
     VideoBaseAccessor
   {
