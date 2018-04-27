@@ -55,7 +55,7 @@ contract VideoSystemAccess is VideoAccessControl {
   }
 
   /// @dev Return a list of current system accounts.
-  function getSystemAccounts() public view onlySystemAccounts returns (address[]) {
+  function getSystemAccounts() external view onlySystemAccounts returns (address[]) {
     return systemAccounts;
   }
 

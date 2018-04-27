@@ -56,7 +56,7 @@ contract VideoTrusted is
   }
 
   /// @dev Return a list of current trusted contracts.
-  function getTrustedContracts() public view onlyTrustedContracts returns (address[]) {
+  function getTrustedContracts() external view onlyTrustedContracts returns (address[]) {
     return trustedContracts;
   }
 

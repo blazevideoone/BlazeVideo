@@ -49,10 +49,10 @@ contract VideoAuction
   uint256 public ownerCut = 1000;
 
   /// @dev price per view count for the new video auction.
-  uint256 public newVideoPricePerViewCount = 0.1 szabo;
+  uint256 public newVideoPricePerViewCount = 0.001 szabo;
 
   /// @dev price per view count for a force sale.
-  uint256 public forceSellPricePerViewCount = 10 szabo;
+  uint256 public forceSellPricePerViewCount = 0.05 szabo;
 
   /// @dev extra add-up price ration for force sell, measured in basis points
   ///   (1/100 of a percent).

@@ -14,7 +14,7 @@ contract VideoCreator
   /*** STORAGE ***/
 
   /// @dev  Cost in weis for update a video.
-  uint256 internal videoUpdateCost = 0.0001 ether;
+  uint256 public videoUpdateCost = 0.0001 ether;
 
   /*** EVENTS ***/
 

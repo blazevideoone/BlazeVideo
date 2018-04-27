@@ -62,7 +62,7 @@ contract VideoAccessControl is
   }
 
   /// @dev Return a list of current board members.
-  function getBoardMembers() public view onlyBoardMembers returns (address[]) {
+  function getBoardMembers() external view onlyBoardMembers returns (address[]) {
     return boardMembers;
   }
 
