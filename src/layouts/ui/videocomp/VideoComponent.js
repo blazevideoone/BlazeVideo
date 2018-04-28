@@ -54,7 +54,7 @@ export default class VideoComponent extends Component {
         </div>
         <div className="price-box">
           <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi; </b></span>
-          { this.props.videoData.owner !== '0x82ef52d04f1f5508562dee2b06d67423809c5920' ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="danger" pill>New!</Badge> }
+          { !this.props.videoData.isNew ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="danger" pill>New!</Badge> }
           {this.getActionButton()}
         </div>
       </div>
