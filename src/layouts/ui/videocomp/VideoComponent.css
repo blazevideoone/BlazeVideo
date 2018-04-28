@@ -16,6 +16,10 @@
   float: right;
 }
 
+.video-card .title-box .watch-btn {
+  float: right;
+}
+
 .video-card .price-box {
   padding: 5px;
   height: 50px;

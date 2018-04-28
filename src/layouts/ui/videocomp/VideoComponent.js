@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import YouTube from 'react-youtube';
-import { Button, Badge } from 'reactstrap';
+import { Button, Badge, UncontrolledTooltip } from 'reactstrap';
 import { browserHistory } from 'react-router';
 import { showBuyVideoDialog } from '../buyvideodialog/BuyVideoDialogAction';
 import { connect } from 'react-redux';
@@ -41,6 +41,10 @@ export default class VideoComponent extends Component {
       <div className="video-card">
         <div className="title-box">
           View Counts: {this.props.videoData.viewCount}
+          <a href={`https://www.youtube.com/watch?v=${this.props.videoData.videoId}`} target="blank" className="watch-btn" id="watch-button">Watch</a>
+          <UncontrolledTooltip placement="right" target="watch-button">
+            Watch this video on Youtube.com
+          </UncontrolledTooltip>
         </div>
         <div className="video-box">
           <YouTube
@@ -50,7 +54,7 @@ export default class VideoComponent extends Component {
         </div>
         <div className="price-box">
           <span className="price"><b>PRICE: </b>{ this.props.videoData.price }<b> &Xi; </b></span>
-          { this.props.videoData.owner !== '0x627306090abab3a6e1400e9345bc60c78a8bef57' ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="danger" pill>New!</Badge> }
+          { this.props.videoData.owner !== '0x82ef52d04f1f5508562dee2b06d67423809c5920' ? <Badge color="info" pill>{ this.props.videoData.ownerName }</Badge> : <Badge color="danger" pill>New!</Badge> }
           {this.getActionButton()}
         </div>
       </div>
