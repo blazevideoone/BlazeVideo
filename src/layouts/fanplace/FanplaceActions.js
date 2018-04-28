@@ -96,6 +96,7 @@ export function asyncLoadVideoList() {
         console.log('videoAuction is deployed');
         AuthenticationInstance = await authentication.deployed();
         console.log('authentication is deployed');
+        const _videoBaseOwner = await videoBaseInstance.owner.call();
         // Attempt to get video list.
         const _totalSupply = await videoBaseInstance.totalSupply.call(coinbase);
         console.log('totalSupply:', _totalSupply);
@@ -112,6 +113,7 @@ export function asyncLoadVideoList() {
             ownerName: web3.toUtf8(_ownerName),
             viewCount: _videoInfo[2].toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
+            isNew: _owner == _videoBaseOwner,
             startTime: _auctionInfo[1].toNumber(),
             price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
