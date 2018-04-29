@@ -16,6 +16,13 @@ module.exports = {
       provider: function() {
         return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/qpTujEnIBcuxR25bsCGW");
       }
+    },
+    live:  {
+      network_id: 1,
+      gasPrice: 5 * 1000 * 1000 * 1000, // 5 GWei
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "https://mainnet.infura.io/qpTujEnIBcuxR25bsCGW");
+      }
     }
   }
 };
