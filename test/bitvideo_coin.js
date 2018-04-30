@@ -1,4 +1,4 @@
-const T1898Token = artifacts.require("./BitVideoCoin.sol");
+const BitVideoCoin = artifacts.require("./BitVideoCoin.sol");
 const AssertJump = require("./assert_jump.js");
 
 contract('BitVideoCoin', async (accounts) => {
@@ -9,7 +9,7 @@ contract('BitVideoCoin', async (accounts) => {
   const DECIMALS = 6;
 
   it("should token deployed correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     // totalSupply
     const _totalSupply = await _token.totalSupply.call();
     assert.equal(TOTAL_SUPPLY, _totalSupply);
@@ -29,7 +29,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("transfer function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
     const _receiver = accounts[1];
     const _balanceS = await _token.balanceOf.call(_sender);
@@ -50,7 +50,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("approve function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
     const _spender = accounts[2];
     const _result = await _token.approve(_spender, web3.toHex(10000), { from: _sender });
@@ -61,7 +61,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("transfer from function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
     const _receiver = accounts[1];
     const _spender = accounts[2];
@@ -84,7 +84,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("transfer owner function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _owner = accounts[0];
     const _newOwner = accounts[1];
     try {
@@ -102,7 +102,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("increase and decrease allowance function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
     const _spender = accounts[2];
     // init allowance is 10000
@@ -128,7 +128,7 @@ contract('BitVideoCoin', async (accounts) => {
   });
 
   it("freeze account function work correctly", async () => {
-    const _token = await T1898Token.deployed();
+    const _token = await BitVideoCoin.deployed();
     const _owner = accounts[0];
     const _receiver = accounts[1];
     const _spender = accounts[2];
