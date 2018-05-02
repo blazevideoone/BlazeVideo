@@ -126,41 +126,4 @@ contract('BitVideoCoin', async (accounts) => {
     _allowance = await _token.allowance.call(_sender, _spender);
     assert.equal(_allowance, 0);
   });
-
-  it("freeze account function work correctly", async () => {
-    const _token = await BitVideoCoin.deployed();
-    const _owner = accounts[0];
-    const _receiver = accounts[1];
-    const _spender = accounts[2];
-    try {
-      await _token.freezeAccount(_owner, web3.toHex(10000), {from: _receiver});
-      assert.fail("only owner could freeze account");
-    } catch (error) {
-      AssertJump(error);
-    }
-    // freeze all balance
-    const _balance = await _token.balanceOf.call(_receiver);
-    const _result = await _token.freezeAccount(_receiver, _balance, { from: _owner });
-    const _event = _result.logs[0].event;
-    const _frozen = await _token.frozenOf.call(_receiver);
-    assert.equal('Frozen', _event);
-    assert.equal(_balance.toNumber(), _frozen.toNumber());
-    try {
-      await _token.transfer(_spender, web3.toHex(1), {from: _receiver});
-      assert.fail("account is frezzed");
-    } catch (error) {
-      AssertJump(error);
-    }
-    // freeze account with _balance - 1000
-    await _token.freezeAccount(_receiver, _balance - 1000, { from: _owner });
-    try {
-      await _token.transfer(_spender, web3.toHex(2000), {from: _receiver});
-      assert.fail("account is frezzed");
-    } catch (error) {
-      AssertJump(error);
-    }
-    await _token.transfer(_spender, web3.toHex(1000), { from: _receiver});
-    const _newBalance = await _token.balanceOf.call(_receiver);
-    assert.equal(_newBalance, _balance - 1000);
-  });
 });
