@@ -38,6 +38,8 @@ contract VideoAuction
       uint256 extraForceSellPrice;
       // Number of solds.
       uint64 soldCount;
+      // Time when last sold happened
+      uint64 lastSoldAt;
   }
 
   /*** STORAGE ***/
@@ -175,6 +177,7 @@ contract VideoAuction
     require(seller != buyer);
 
     uint256 auctioneerCut = price.mul(ownerCut).div(10000);
+    uint256 payeeSplit = getPayeeSplit(auctioneerCut);
     uint256 sellerProceeds = price.sub(auctioneerCut);
     uint256 bidExcess = bidAmount.sub(price);
 
@@ -186,13 +189,17 @@ contract VideoAuction
     auction.extraForceSellPrice = auction.extraForceSellPrice.add(
         price.mul(extraForceSellPriceRatio).div(10000));
     auction.soldCount = uint64(auction.soldCount.add(1));
+    auction.lastSoldAt = uint64(now);
 
     videoBase.transferVideoTrusted(seller, buyer, tokenId);
 
     if (bidExcess >= 0) {
       seller.transfer(sellerProceeds);
       buyer.transfer(bidExcess);
-      videoBase.owner().transfer(auctioneerCut);
+      if (payeeSplit > 0) {
+        payee.transfer(payeeSplit);
+      }
+      videoBase.owner().transfer(auctioneerCut - payeeSplit);
     }
 
     AuctionSuccessful(tokenId, price, buyer);
@@ -275,11 +282,11 @@ contract VideoAuction
   }
 
   /// @dev get auction info for a token, in (price, startedAt,
-  ///   extraForceSellPrice, soldCount).
+  ///   extraForceSellPrice, soldCount, lastSoldAt).
   /// @param tokenId whose auction price is being retrieved.
   function getAuctionInfo(uint256 tokenId)
       public view
-      returns (uint256, uint64, uint256, uint64) {
+      returns (uint256, uint64, uint256, uint64, uint64) {
     Auction storage auction = tokenIdToAuction[tokenId];
     uint256 price = auction.price;
     if (auction.startedAt == 0) {
@@ -288,6 +295,6 @@ contract VideoAuction
       price = _getForceSellPrice(auction, viewCount);
     }
     return (price, auction.startedAt, auction.extraForceSellPrice,
-            auction.soldCount);
+            auction.soldCount, auction.lastSoldAt);
   }
 }
