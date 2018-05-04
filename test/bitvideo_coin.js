@@ -146,8 +146,8 @@ contract('BitVideoCoin', async (accounts) => {
     const _event = _result.logs[0].event;
     const _newBalance = await _token.balanceOf.call(_receiver);
     const _newTotalSupply = await _token.totalSupply.call();
-    assert.equal(_newBalance, _balance + 10000);
-    assert.equal(_newTotalSupply, _totalSupply + 10000);
+    assert.equal(10000, _newBalance - _balance);
+    assert.equal(10000, _newTotalSupply - _totalSupply);
     assert.equal('Mint', _event);
     // over burn
     try {
@@ -167,17 +167,24 @@ contract('BitVideoCoin', async (accounts) => {
     const _balance1 = await _token.balanceOf.call(_acc1);
     const _balance2 = await _token.balanceOf.call(_acc2);
     // normal burn
-    const _result = await _token.burn(10000, {from: _acc1});
+    const _result = await _token.burn(_acc1, 10000, {from: _acc1});
     const _event = _result.logs[0].event;
     const _newBalance1 = await _token.balanceOf.call(_acc1);
     const _newTotalSupply = await _token.totalSupply.call();
-    assert.equal(_newBalance1, _balance1 - 10000);
-    assert.equal(_newTotalSupply, _totalSupply - 10000);
+    assert.equal(10000, _balance1 - _newBalance1);
+    assert.equal(10000, _totalSupply - _newTotalSupply);
     assert.equal('Burn', _event);
     // over burn
     try {
-      await _token.burn(_balance2 + 10000, {from: _acc2});
-      assert.fail("should not burn more than balance");
+      await _token.burn(_acc2, _balance2 + 10000, {from: _acc1});
+      assert.fail("should not burn more than balance.");
+    } catch (error) {
+      AssertJump(error);
+    }
+    // over burn
+    try {
+      await _token.burn(_acc2, _balance2, {from: _acc2});
+      assert.fail("only trusted account can burn.");
     } catch (error) {
       AssertJump(error);
     }
