@@ -8,6 +8,7 @@ contract('BitVideoCoin', async (accounts) => {
   const TOTAL_SUPPLY = 1000000000;
   const DECIMALS = 6;
 
+  // test contract deploying
   it("should token deployed correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     // totalSupply
@@ -28,6 +29,7 @@ contract('BitVideoCoin', async (accounts) => {
     assert.equal(_creator, _owner);
   });
 
+  // test transfer function
   it("transfer function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
@@ -49,6 +51,7 @@ contract('BitVideoCoin', async (accounts) => {
     }
   });
 
+  // test approve function
   it("approve function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
@@ -60,6 +63,7 @@ contract('BitVideoCoin', async (accounts) => {
     assert.equal(10000, _allowance);
   });
 
+  // test transferFrom function
   it("transfer from function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
@@ -83,6 +87,7 @@ contract('BitVideoCoin', async (accounts) => {
     }
   });
 
+  // test transfer ownership
   it("transfer owner function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     const _owner = accounts[0];
@@ -101,6 +106,7 @@ contract('BitVideoCoin', async (accounts) => {
     await _token.transferOwnership(_owner, {from: _newOwner});
   });
 
+  // test increase and decrease allownance
   it("increase and decrease allowance function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
     const _sender = accounts[0];
@@ -125,5 +131,55 @@ contract('BitVideoCoin', async (accounts) => {
     assert.equal('Approval', _event);
     _allowance = await _token.allowance.call(_sender, _spender);
     assert.equal(_allowance, 0);
+  });
+
+  // test mint
+  it("mint function work correctly", async () => {
+    const _token = await BitVideoCoin.deployed();
+    const _issuer = accounts[0];
+    const _fakeIssuer = accounts[1];
+    const _receiver = accounts[2];
+    const _totalSupply = await _token.totalSupply.call();
+    const _balance = await _token.balanceOf.call(_receiver);
+    // normal burn
+    const _result = await _token.mint(_receiver, 10000, {from: _issuer});
+    const _event = _result.logs[0].event;
+    const _newBalance = await _token.balanceOf.call(_receiver);
+    const _newTotalSupply = await _token.totalSupply.call();
+    assert.equal(_newBalance, _balance + 10000);
+    assert.equal(_newTotalSupply, _totalSupply + 10000);
+    assert.equal('Mint', _event);
+    // over burn
+    try {
+      await _token.mint(_receiver, 10000, {from: _fakeIssuer});
+      assert.fail("only trusted account can mint");
+    } catch (error) {
+      AssertJump(error);
+    }
+  });
+
+  // test burn
+  it("burn function work correctly", async () => {
+    const _token = await BitVideoCoin.deployed();
+    const _acc1 = accounts[0];
+    const _acc2 = accounts[1];
+    const _totalSupply = await _token.totalSupply.call();
+    const _balance1 = await _token.balanceOf.call(_acc1);
+    const _balance2 = await _token.balanceOf.call(_acc2);
+    // normal burn
+    const _result = await _token.burn(10000, {from: _acc1});
+    const _event = _result.logs[0].event;
+    const _newBalance1 = await _token.balanceOf.call(_acc1);
+    const _newTotalSupply = await _token.totalSupply.call();
+    assert.equal(_newBalance1, _balance1 - 10000);
+    assert.equal(_newTotalSupply, _totalSupply - 10000);
+    assert.equal('Burn', _event);
+    // over burn
+    try {
+      await _token.burn(_balance2 + 10000, {from: _acc2});
+      assert.fail("should not burn more than balance");
+    } catch (error) {
+      AssertJump(error);
+    }
   });
 });
