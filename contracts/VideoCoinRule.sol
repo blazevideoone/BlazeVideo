@@ -69,7 +69,7 @@ contract VideoCoinRule
     uint256 amount = coinPerMilliViewCount.
                           mul(_newViewCount.sub(_oldViewCount)).
                           div(1000000);
-    assert(bitVideoCoin.mint(videoBase.ownerOf(_tokenId), amount));
+    assert(bitVideoCoin.mintTrusted(videoBase.ownerOf(_tokenId), amount));
   }
 
   /// @dev listener when a video is transferred.
@@ -97,7 +97,7 @@ contract VideoCoinRule
                               mul(amount).div(bitVideoCoin.totalSupply());
     require(payoutValue <= contractBalance);
 
-    bitVideoCoin.burn(msg.sender, amount);
+    bitVideoCoin.burnTrusted(msg.sender, amount);
     msg.sender.send(payoutValue);
 
     Payout(msg.sender, amount, payoutValue);

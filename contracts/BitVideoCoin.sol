@@ -34,10 +34,12 @@ contract BitVideoCoin is DetailedERC20, StandardToken, VideoTrusted {
    * @param _amount The amount of tokens to mint.
    * @return A boolean that indicates if the operation was successful.
    */
-  function mint(address _to, uint256 _amount)
+  function mintTrusted(address _to, uint256 _amount)
       public
       onlyTrustedContracts
       returns (bool) {
+    // Do not allow owner to mint manually
+    require(msg.sender != owner);
     totalSupply_ = totalSupply_.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     Mint(_to, _amount);
@@ -53,8 +55,10 @@ contract BitVideoCoin is DetailedERC20, StandardToken, VideoTrusted {
    * @param _who The address that amount of token is burned.
    * @param _value The amount of token to be burned.
    */
-  function burn(address _who, uint256 _value) public onlyTrustedContracts {
+  function burnTrusted(address _who, uint256 _value) public onlyTrustedContracts {
     require(_value <= balances[_who]);
+    // Do not allow owner to burn manually
+    require(msg.sender != owner);
     // no need to require value <= totalSupply, since that would imply the
     // sender's balance is greater than the totalSupply, which *should* be an assertion failure
 

@@ -1,5 +1,8 @@
 const BitVideoCoin = artifacts.require("./BitVideoCoin.sol");
+const MockBitVideoCoinTrusted =
+    artifacts.require("./MockBitVideoCoinTrusted.sol");
 const AssertJump = require("./assert_jump.js");
+const AllSolidityEvents = require('web3/lib/web3/allevents');
 
 contract('BitVideoCoin', async (accounts) => {
 
@@ -136,23 +139,41 @@ contract('BitVideoCoin', async (accounts) => {
   // test mint
   it("mint function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
+    // To prevent bug, filter abi without _name
+    const _allSolidityEvents = new AllSolidityEvents(web3,
+                                                     _token.abi
+                                                         .filter(j => !!j.name),
+                                                     _token.address);
+    const _mockCoinTrusted = await MockBitVideoCoinTrusted.new(_token.address);
     const _issuer = accounts[0];
-    const _fakeIssuer = accounts[1];
     const _receiver = accounts[2];
     const _totalSupply = await _token.totalSupply.call();
     const _balance = await _token.balanceOf.call(_receiver);
-    // normal burn
-    const _result = await _token.mint(_receiver, 10000, {from: _issuer});
-    const _event = _result.logs[0].event;
+    await _token.addTrustedContract(_mockCoinTrusted.address, {from: _issuer});
+    // normal mint
+    const _result = await _mockCoinTrusted.mint(_receiver, 10000);
+    const _logs = _result.receipt.logs
+                    .filter(l => l.address == _token.address)
+                    .map(l => _allSolidityEvents.decode(l));
+    const _event = _logs[0].event;
     const _newBalance = await _token.balanceOf.call(_receiver);
     const _newTotalSupply = await _token.totalSupply.call();
     assert.equal(10000, _newBalance - _balance);
     assert.equal(10000, _newTotalSupply - _totalSupply);
     assert.equal('Mint', _event);
-    // over burn
+    // normal address cannot mint, even owner
     try {
-      await _token.mint(_receiver, 10000, {from: _fakeIssuer});
-      assert.fail("only trusted account can mint");
+      await _token.mintTrusted(_receiver, 10000, {from: _issuer});
+      assert.fail("only trusted contract address can burn.");
+    } catch (error) {
+      AssertJump(error);
+    }
+    // not trusted
+    await _token.removeTrustedContract(_mockCoinTrusted.address,
+                                       {from: _issuer});
+    try {
+      await _mockCoinTrusted.mint(_receiver, 10000);
+      assert.fail("only trusted contract address can burn");
     } catch (error) {
       AssertJump(error);
     }
@@ -161,14 +182,24 @@ contract('BitVideoCoin', async (accounts) => {
   // test burn
   it("burn function work correctly", async () => {
     const _token = await BitVideoCoin.deployed();
+    // To prevent bug, filter abi without _name
+    const _allSolidityEvents = new AllSolidityEvents(web3,
+                                                     _token.abi
+                                                         .filter(j => !!j.name),
+                                                     _token.address);
+    const _mockCoinTrusted = await MockBitVideoCoinTrusted.new(_token.address);
     const _acc1 = accounts[0];
     const _acc2 = accounts[1];
     const _totalSupply = await _token.totalSupply.call();
     const _balance1 = await _token.balanceOf.call(_acc1);
     const _balance2 = await _token.balanceOf.call(_acc2);
+    await _token.addTrustedContract(_mockCoinTrusted.address, {from: _acc1});
     // normal burn
-    const _result = await _token.burn(_acc1, 10000, {from: _acc1});
-    const _event = _result.logs[0].event;
+    const _result = await _mockCoinTrusted.burn(_acc1, 10000);
+    const _logs = _result.receipt.logs
+                    .filter(l => l.address == _token.address)
+                    .map(l => _allSolidityEvents.decode(l));
+    const _event = _logs[0].event;
     const _newBalance1 = await _token.balanceOf.call(_acc1);
     const _newTotalSupply = await _token.totalSupply.call();
     assert.equal(10000, _balance1 - _newBalance1);
@@ -176,15 +207,23 @@ contract('BitVideoCoin', async (accounts) => {
     assert.equal('Burn', _event);
     // over burn
     try {
-      await _token.burn(_acc2, _balance2 + 10000, {from: _acc1});
+      await _mockCoinTrusted.burn(_acc2, _balance2 + 10000);
       assert.fail("should not burn more than balance.");
     } catch (error) {
       AssertJump(error);
     }
-    // over burn
+    // normal address cannot burn, even owner
     try {
-      await _token.burn(_acc2, _balance2, {from: _acc2});
-      assert.fail("only trusted account can burn.");
+      await _token.burnTrusted(_acc2, _balance2, {from: _acc1});
+      assert.fail("only trusted contract address can burn.");
+    } catch (error) {
+      AssertJump(error);
+    }
+    // not trusted
+    await _token.removeTrustedContract(_mockCoinTrusted.address, {from: _acc1});
+    try {
+      await _mockCoinTrusted.burn(_acc2, _balance2);
+      assert.fail("only trusted contract address can burn");
     } catch (error) {
       AssertJump(error);
     }
