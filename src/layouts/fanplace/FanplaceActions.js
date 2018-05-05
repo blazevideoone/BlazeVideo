@@ -12,6 +12,8 @@ export const LOAD_VIDEO_LIST = 'LOAD_VIDEO_LIST';
 export const BUY_VIDEO_DIA = 'BUY_VIDEO_DIA';
 export const SORT_BY_PRICE = 'SORT_BY_PRICE';
 export const SORT_BY_VIEWCOUNT = 'SORT_BY_VIEWCOUNT';
+export const SORT_BY_UPDATETIME = 'SORT_BY_UPDATETIME';
+export const SORT_BY_LASTSOLD = 'SORT_BY_LASTSOLD';
 
 // load video list into reducer
 function loadVideoList(videos) {
@@ -54,6 +56,25 @@ export function sortByViewCount(mode) {
     payload: mode
   }
 }
+
+// sort video by last update time
+// params: mode 1 is desc, -1 is asc
+export function sortByUpdateTime(mode) {
+  return {
+    type: SORT_BY_UPDATETIME,
+    payload: mode
+  }
+}
+
+// sort video by last update time
+// params: mode 1 is desc, -1 is asc
+export function sortByLastSold(mode) {
+  return {
+    type: SORT_BY_LASTSOLD,
+    payload: mode
+  }
+}
+
 export function asyncLoadVideoList() {
   let web3 = store.getState().web3.web3Instance;
   if (!web3) {
@@ -112,8 +133,10 @@ export function asyncLoadVideoList() {
             owner: _owner,
             ownerName: web3.toUtf8(_ownerName),
             viewCount: _videoInfo[2].toNumber(),
+            lastUpdated: _videoInfo[3].toNumber(),
+            lastSold: _auctionInfo[4].toNumber(),
             isForced: !(_auctionInfo[1].toNumber() > 0),
-            isNew: _owner == _videoBaseOwner,
+            isNew: _owner === _videoBaseOwner,
             startTime: _auctionInfo[1].toNumber(),
             price: web3.fromWei(_auctionInfo[0], 'ether').toPrecision(4, 0)
           }
@@ -127,47 +150,6 @@ export function asyncLoadVideoList() {
         const _videoList = await Promise.all(promiseList);
         return dispatch(loadVideoList(_videoList));
       })
-    }
-  } else {
-    console.error('Web3 is not initialized.');
-  }
-}
-
-
-export function asyncAddNewVideoTrusted(id, count) {
-  let web3 = store.getState().web3.web3Instance;
-  // Double-check web3's status.
-  if (typeof web3 !== 'undefined') {
-    return (dispatch) => {
-      const videoBase = contract(VideoBaseContract);
-      videoBase.setProvider(web3.currentProvider);
-
-      // Declaring this for later so we can chain functions on VideoBase.
-      var videoBaseInstance;
-
-      // Get current ethereum wallet.
-      web3.eth.getCoinbase( async (error, coinbase) => {
-        // Log errors, if any.
-        if (error) {
-          console.error(error);
-        }
-        videoBase.defaults({from: coinbase, gas: 5000000});
-        videoBaseInstance = await videoBase.deployed();
-        console.log(coinbase,id,count);
-        await videoBaseInstance.addNewVideoTrusted(coinbase, id, count);
-        // Attempt to get video list.
-        const _totalSupply = await videoBaseInstance.totalSupply.call();
-        const _myList = await videoBaseInstance.tokensOf.call(coinbase);
-        const myList = await Promise.all(_myList.map( async tokenId => {
-          const _videoId = await videoBaseInstance.getVideoId.call(tokenId);
-          return _videoId;
-        }));
-        const videos = {
-          totalSupply: _totalSupply.toNumber(),
-          myList: myList
-        }
-        dispatch(loadVideoList(videos));
-      } );
     }
   } else {
     console.error('Web3 is not initialized.');
