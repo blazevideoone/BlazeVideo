@@ -177,6 +177,11 @@ contract VideoAuction
     require(seller != buyer);
 
     uint256 auctioneerCut = price.mul(ownerCut).div(10000);
+    if (seller == videoBase.owner()) {
+      // If seller is onwer, i.e., new video sale, auctioneerCut is 100%
+      // to owner.
+      auctioneerCut = price;
+    }
     uint256 payeeSplit = getPayeeSplit(auctioneerCut);
     uint256 sellerProceeds = price.sub(auctioneerCut);
     uint256 bidExcess = bidAmount.sub(price);
