@@ -40,6 +40,34 @@ const videosReducer = (state = initialState, action) => {
     })
   }
 
+  if (action.type === 'SORT_BY_LASTSOLD')
+  {
+    const _mode = action.payload;
+    const _list = state.data.auctionList;
+    _list.sort((v1, v2) => {
+      if (v1.lastSold < v2.lastSold) return _mode;
+      if (v1.lastSold > v2.lastSold) return -_mode;
+      return 0
+    });
+    return update(state, {
+      data: {auctionList: { $set: _list}}
+    })
+  }
+
+  if (action.type === 'SORT_BY_UPDATETIME')
+  {
+    const _mode = action.payload;
+    const _list = state.data.auctionList;
+    _list.sort((v1, v2) => {
+      if (v1.lastUpdated < v2.lastUpdated) return _mode;
+      if (v1.lastUpdated > v2.lastUpdated) return -_mode;
+      return 0
+    });
+    return update(state, {
+      data: {auctionList: { $set: _list}}
+    })
+  }
+
   return state
 }
 

@@ -13,7 +13,7 @@ import Spinner from '../../../layouts/ui/spinner/Spinner';
     state => ({
       videos: state.user.userVideos,
       web3: state.web3.web3Instance,
-      name: state.user.data.name
+      user: state.user.data
     }),
     {
       asyncLoadUserVideos
@@ -31,7 +31,7 @@ export default class Profile extends Component {
     })
   }
   render() {
-    console.log(this.props.videos);
+    console.log(this.props.user);
     return(
       <Container>
         <Row>
@@ -61,7 +61,12 @@ export default class Profile extends Component {
           <Col xs="12" md="2" lg="2">
             <Row>
               <Col xs="12" md="12">
-                <h4>Hello, {this.props.name}</h4>
+                <b>Nick:</b> {this.props.user.name}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12" md="12">
+                <b>BTVC:</b> {this.props.user.BTVCBalance}
               </Col>
             </Row>
             <Row>
