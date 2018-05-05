@@ -21,7 +21,7 @@ contract BitVideoCoin is DetailedERC20, StandardToken, VideoTrusted {
   * @dev constructor of the token
   */
   function BitVideoCoin() DetailedERC20('BitVideo Coin', 'BTVC', 6) public {
-    totalSupply_ = 1000000000;
+    totalSupply_ = 100000000;
     balances[msg.sender] = totalSupply_;
   }
 

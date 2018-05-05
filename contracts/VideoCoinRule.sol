@@ -28,16 +28,19 @@ contract VideoCoinRule
   /// @dev bitVideoCoin contract
   BitVideoCoin bitVideoCoin;
 
-  /// @dev Ratio on the total balance of owner in each payout, measured in
-  ///   basis points (1/100 of a percent).
-  /// Values 0-10,000 map to 0%-100%
-  /// Default to 70%
-  uint256 public payoutRatio = 7000;
-
   /// @dev Number of coins per million 10^6 view count.
-  /// Default to 1M, i.e., 1 coin per view count.
+  /// Default to 1M, i.e., 1 coin per view count,
+  ///   or 1 BTVC per 1M view count.
   uint256 public coinPerMilliViewCount = 1000000;
 
+  /// @dev Minimum amount of coins allowed for a payout.
+  /// Default to 10,000, or 0.01 BTVC for 6 decimals.
+  uint256 public minimumPayoutAmount = 10000;
+
+
+  function VideoCoinRule() public payable {}
+
+  function () external payable {}
 
   /// @dev whether it supports this interface, for sanity check.
   function supportsVideoListener() public view returns (bool) {
@@ -91,9 +94,10 @@ contract VideoCoinRule
       whenVideoBaseNotPaused
       {
     require(amount <= bitVideoCoin.totalSupply());
+    require(amount >= minimumPayoutAmount);
     uint256 contractBalance = this.balance;
-    uint256 payoutValue = contractBalance.mul(payoutRatio).div(10000).
-                              mul(amount).div(bitVideoCoin.totalSupply());
+    uint256 payoutValue = contractBalance.mul(amount).
+                              div(bitVideoCoin.totalSupply());
     require(payoutValue <= contractBalance);
 
     bitVideoCoin.burnTrusted(msg.sender, amount);
@@ -104,9 +108,20 @@ contract VideoCoinRule
 
   /// @dev Set bitVideoCoin, only by videoBase owner
   /// @param _coinAddress address of coin contract
-  function setBitVideoCoin(address _coinAddress) onlyVideoBaseOwner {
+  function setBitVideoCoin(address _coinAddress) public onlyVideoBaseOwner {
     require(_coinAddress != address(0));
     bitVideoCoin = BitVideoCoin(_coinAddress);
   }
 
+  /// @dev Set coinPerMilliViewCount, only by videoBase owner
+  /// @param _cpm new value
+  function setCoinPerMilliViewCount(uint256 _cpm) public onlyVideoBaseOwner {
+    coinPerMilliViewCount = _cpm;
+  }
+
+  /// @dev Set minimumPayoutAmount, only by videoBase owner
+  /// @param _amount new value
+  function setMinimumPayoutAmount(uint256 _amount) public onlyVideoBaseOwner {
+    minimumPayoutAmount = _amount;
+  }
 }
