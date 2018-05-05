@@ -51,14 +51,14 @@ module.exports = function(finalCallback) {
           //     {from: accounts[0]});
           // Disable estimateGas since it is error
           // https://ethereum.stackexchange.com/questions/32123/using-web3-eth-estimategas-cause-gas-required-exceeds-allowance-or-always-faili
-          // let estimatedGas = await videoCreator.addNewVideo.estimateGas(
-          //   web3.fromAscii(contractVideoId),
-          //   item.viewCount
-          // );
+          let estimatedGas = await videoCreator.addNewVideo.estimateGas(
+            web3.fromAscii(contractVideoId),
+            item.viewCount
+          );
           await videoCreator.addNewVideo(
               web3.fromAscii(contractVideoId),
               item.viewCount,
-              {from: accounts[0]/*, gas: estimatedGas */});
+              {from: accounts[0] , gas: estimatedGas * 2});
           let tokenId = await videoBase.getTokenId.call(
               web3.fromAscii(contractVideoId));
           console.log(contractVideoId + " tokenId: " + tokenId);
