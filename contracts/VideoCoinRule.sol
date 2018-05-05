@@ -2,8 +2,6 @@ pragma solidity ^0.4.18;
 
 import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import 'zeppelin-solidity/contracts/lifecycle/Destructible.sol';
-import 'zeppelin-solidity/contracts/ownership/HasNoEther.sol';
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
 import './IVideoBase.sol';
 import './VideoBaseAccessor.sol';
 import './BitVideoCoin.sol';
@@ -12,7 +10,8 @@ import './BitVideoCoin.sol';
 contract VideoCoinRule
     is
     IVideoListener,
-    VideoBaseAccessor
+    VideoBaseAccessor,
+    Destructible
   {
 
   using SafeMath for uint256;
@@ -102,4 +101,12 @@ contract VideoCoinRule
 
     Payout(msg.sender, amount, payoutValue);
   }
+
+  /// @dev Set bitVideoCoin, only by videoBase owner
+  /// @param _coinAddress address of coin contract
+  function setBitVideoCoin(address _coinAddress) onlyVideoBaseOwner {
+    require(_coinAddress != address(0));
+    bitVideoCoin = BitVideoCoin(_coinAddress);
+  }
+
 }
