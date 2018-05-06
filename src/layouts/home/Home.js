@@ -9,6 +9,7 @@ class Home extends Component {
           <h1 className="splash-head">Bit Video.One</h1>
           <p className="splash-subhead">
               Collects your faverate Youtube videos on a Blockchain.
+              Mining BTVC token and cashout when viewcounts UP!
           </p>
           <p>
             <Link to="/fanplace" className="btn btn-primary">Get Started</Link>
