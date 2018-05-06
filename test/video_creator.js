@@ -14,6 +14,14 @@ contract('VideoCreator', async (accounts) => {
   const YOUTUBE_VIEW_COUNT2 = 87654321;
   const YOUTUBE_VIDEO_ID3 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6v123mV");
   const YOUTUBE_VIEW_COUNT3 = 8765;
+  const YOUTUBE_VIDEO_ID4 = web3.fromAscii(YOUTUBE_PREFIX + "HPPj6v223mV");
+  const YOUTUBE_VIEW_COUNT4 = 18765;
+
+  const NEW_VIDEO_COST = web3.toBigNumber(web3.toWei(0.23, "ether"));
+  const HIGHER_NEW_VIDEO_COST = web3.toBigNumber(web3.toWei(0.5, "ether"));
+  const LOWER_NEW_VIDEO_COST = web3.toBigNumber(web3.toWei(0.22, "ether"));
+
+  const PAYEE_SPLIT_RATIO = web3.toBigNumber(0.55);
 
   it("should add video correctly", async () => {
     let videoBase = await VideoBase.deployed();
@@ -73,16 +81,46 @@ contract('VideoCreator', async (accounts) => {
     let videoBase = await VideoBase.deployed();
     let videoCreator = await VideoCreator.deployed();
 
-    let cost = web3.toWei(1, "ether");
+    let accountOwner = accounts[0];
+    let accountPayee = accounts[4];
+
+    let cost = web3.toBigNumber(web3.toWei(1, "ether"));
+    let higherCost = web3.toBigNumber(web3.toWei(1.2, "ether"));
     videoCreator.setVideoUpdateCost(cost);
 
     let _tokenId = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID);
 
-    // TODO: test ether transfer
-    let _result = await videoCreator.requestVideoUpdate(_tokenId, {value: cost});
+    // owner and payee
+    await videoCreator.setPayee(accountPayee);
+    await videoCreator.setPayeeRatio(PAYEE_SPLIT_RATIO * 10000);
+    let ownerInitialBalance = web3.eth.getBalance(accountOwner);
+    let payeeInitialBalance = web3.eth.getBalance(accountPayee);
+    let _result = await videoCreator.requestVideoUpdate(_tokenId,
+                                                        {value: higherCost});
+    let ownerBalance = web3.eth.getBalance(accountOwner);
+    let payeeBalance = web3.eth.getBalance(accountPayee);
     let _log = _result.logs[0];
     assert.equal("VideoUpdateRequested", _log.event);
     assert.equal(YOUTUBE_VIDEO_ID_PADDING, _log.args.videoId);
+    assert.equal(cost.times(PAYEE_SPLIT_RATIO),
+                 payeeBalance - payeeInitialBalance);
+    // only payee split plus tx gas is deduct
+    assert.isAbove(web3.toBigNumber(web3.toWei(0.01, "ether")).toNumber(),
+                   ownerInitialBalance.minus(ownerBalance)
+                       .minus(cost.times(PAYEE_SPLIT_RATIO)));
+
+    // only owner
+    await videoCreator.setPayee(0x0);
+    ownerInitialBalance = web3.eth.getBalance(accountOwner);
+    _result = await videoCreator.requestVideoUpdate(_tokenId,
+                                                    {value: higherCost});
+    ownerBalance = web3.eth.getBalance(accountOwner);
+    _log = _result.logs[0];
+    assert.equal("VideoUpdateRequested", _log.event);
+    assert.equal(YOUTUBE_VIDEO_ID_PADDING, _log.args.videoId);
+    // only tx gas is deduct
+    assert.isAbove(web3.toBigNumber(web3.toWei(0.01, "ether")).toNumber(),
+                   ownerInitialBalance.minus(ownerBalance));
 
     await videoCreator.updateVideo(YOUTUBE_VIDEO_ID, YOUTUBE_VIEW_COUNT + 1);
 
@@ -209,4 +247,58 @@ contract('VideoCreator', async (accounts) => {
     assert.equal(accountOwner, _ownerOf3);
   });
 
+  it("should add video correctly for normal user with a fee", async () => {
+    let videoBase = await VideoBase.deployed();
+    let videoCreator = await VideoCreator.deployed();
+
+    await videoCreator.setNewVideoCost(NEW_VIDEO_COST);
+
+    var accountOwner = accounts[0];
+    var accountNothing = accounts[3];
+    var accountPayee = accounts[4];
+
+    // Not enough ether
+    try {
+      await videoCreator.proposeNewVideo(YOUTUBE_VIDEO_ID4,
+                                         {from: accountNothing,
+                                          value: LOWER_NEW_VIDEO_COST});
+      assert.fail("should have thrown before");
+    } catch(error) {
+      AssertJump(error);
+    }
+
+    // Owner and payee
+    await videoCreator.setPayee(accountPayee);
+    await videoCreator.setPayeeRatio(PAYEE_SPLIT_RATIO * 10000);
+    let ownerInitialBalance = web3.eth.getBalance(accountOwner);
+    let payeeInitialBalance = web3.eth.getBalance(accountPayee);
+    let _result = await videoCreator.proposeNewVideo(
+          YOUTUBE_VIDEO_ID4,
+          {
+            from: accountNothing,
+            value: HIGHER_NEW_VIDEO_COST
+          });
+    let ownerBalance = web3.eth.getBalance(accountOwner);
+    assert.equal(NEW_VIDEO_COST.minus(NEW_VIDEO_COST.times(PAYEE_SPLIT_RATIO)),
+                 ownerBalance - ownerInitialBalance);
+    let payeeBalance = web3.eth.getBalance(accountPayee);
+    assert.equal(NEW_VIDEO_COST.times(PAYEE_SPLIT_RATIO),
+                 payeeBalance - payeeInitialBalance);
+    let _log = _result.logs[0];
+    assert.equal("NewVideoProposed", _log.event);
+
+    // Only owner, not payee
+    await videoCreator.setPayee(0x0);
+    ownerInitialBalance = web3.eth.getBalance(accountOwner);
+    _result = await videoCreator.proposeNewVideo(
+          YOUTUBE_VIDEO_ID4,
+          {
+            from: accountNothing,
+            value: HIGHER_NEW_VIDEO_COST
+          });
+    ownerBalance = web3.eth.getBalance(accountOwner);
+    assert.equal(NEW_VIDEO_COST, ownerBalance - ownerInitialBalance);
+    _log = _result.logs[0];
+    assert.equal("NewVideoProposed", _log.event);
+  });
 });

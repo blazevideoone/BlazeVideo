@@ -1,14 +1,24 @@
 pragma solidity ^0.4.18;
 
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './IVideoBase.sol';
 
 contract VideoBaseAccessor {
+
+  using SafeMath for uint256;
 
   /*** STORAGE ***/
 
   /// @dev VideoBase contract.
   IVideoBase videoBase;
 
+  /// @dev Payee who receive partial value in a payable transaction.
+  address payee;
+
+  /// @dev Ratio of the payee, measured in basis points (1/100 of a percent).
+  /// Values 0-10,000 map to 0%-100%
+  /// Default to 70%
+  uint256 public payeeRatio = 7000;
 
   /// @dev check if the owner of the given token in videoBase is the sender.
   /// @param tokenId to be checked
@@ -113,6 +123,35 @@ contract VideoBaseAccessor {
       onlyVideoBaseOwner
       returns(address) {
     return address(videoBase);
+  }
+
+  /// @dev set payee.
+  /// @param _payee to be set, can be empty address if there is no payee.
+  function setPayee(address _payee)
+      public
+      onlyVideoBaseOwner {
+    payee = _payee;
+  }
+
+  /// @dev set payee ratio.
+  /// @param _ratio values 0-10,000 map to 0%-100%
+  function setPayeeRatio(uint256 _ratio)
+      public
+      onlyVideoBaseOwner {
+    require(_ratio >= 0 && _ratio <= 10000);
+    payeeRatio = _ratio;
+  }
+
+  /// @dev get split of payee, if payee is 0x0, returns 0.
+  /// @param _value to be split.
+  function getPayeeSplit(uint256 _value)
+      internal
+      view
+      returns (uint256) {
+    if (payee == address(0)) {
+      return 0;
+    }
+    return _value.mul(payeeRatio).div(10000);
   }
 
 }

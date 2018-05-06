@@ -90,6 +90,7 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(0, _auctionInfoBefore[1]);
     assert.equal(0, _auctionInfoBefore[2]);
     assert.equal(0, _auctionInfoBefore[3]);
+    assert.equal(0, _auctionInfoBefore[4]);
 
     // There should not be an auction for _tokenId.
     try {
@@ -107,6 +108,7 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(_blockTime, _auctionInfo[1]);
     assert.equal(0, _auctionInfo[2]);
     assert.equal(0, _auctionInfo[3]);
+    assert.equal(0, _auctionInfo[4]);
     assert.equal(SELL_PRICE, await videoAuction.getAuctionPrice.call(_tokenId));
 
     let ownerInitialBalance = web3.eth.getBalance(contractOwner);
@@ -144,6 +146,7 @@ contract('VideoAuction', async (accounts) => {
     } catch(error) {
       AssertJump(error);
     }
+    _blockTime = web3.eth.getBlock(_txReceipt.receipt.blockHash).timestamp;
     let _auctionInfoAfter= await videoAuction.getAuctionInfo.call(_tokenId);
     assert.equal(YOUTUBE_VIEW_COUNT * FORCE_SELL_PRICE_PER_VIEW_COUNT +
                  SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO,
@@ -152,6 +155,7 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(SELL_PRICE * EXTRA_FORCE_SELL_PRICE_RATIO,
                  _auctionInfoAfter[2]);
     assert.equal(1, _auctionInfoAfter[3]);
+    assert.equal(_blockTime, _auctionInfoAfter[4]);
 
     let _videoListener1TransferredInfo =
         await mockVideoListener1.mockGetLastVideoTransferredInfo();
@@ -170,7 +174,7 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(_tokenId.toNumber(), _videoListener2TransferredInfo[2]);
   });
 
-  it("should create auction for owner's new video", async () => {
+  it("should create auction for owner's new video with payee", async () => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
 
@@ -180,6 +184,11 @@ contract('VideoAuction', async (accounts) => {
 
     let contractOwner = accounts[0];
     let buyer = accounts[2];
+    let payee = accounts[6];
+
+    const PAYEE_SPLIT_RATIO = 0.55;
+    await videoAuction.setPayee(payee);
+    await videoAuction.setPayeeRatio(PAYEE_SPLIT_RATIO * 10000);
 
     await videoBase.addNewVideoTrusted(
         contractOwner, YOUTUBE_VIDEO_ID2, YOUTUBE_VIEW_COUNT2);
@@ -191,6 +200,7 @@ contract('VideoAuction', async (accounts) => {
 
     let ownerInitialBalance = web3.eth.getBalance(contractOwner);
     let buyerInitialBalance = web3.eth.getBalance(buyer);
+    let payeeInitialBalance = web3.eth.getBalance(payee);
 
     let _txReceipt = await videoAuction.bid(_tokenId2,
                                             {from: buyer,
@@ -199,9 +209,16 @@ contract('VideoAuction', async (accounts) => {
 
     let ownerBalance = web3.eth.getBalance(contractOwner);
     let buyerBalance = web3.eth.getBalance(buyer);
+    let payeeBalance = web3.eth.getBalance(payee);
 
     assert.equal(buyer, await videoBase.ownerOf(_tokenId2));
-    assert.equal(Math.round(NEW_SELL_PRICE2 / BALANCE_ROUND_TO),
+    assert.equal(Math.round(NEW_SELL_PRICE2 * PAYEE_SPLIT_RATIO /
+                             BALANCE_ROUND_TO),
+                 Math.round((payeeBalance.toNumber() -
+                             payeeInitialBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
+    assert.equal(Math.round(NEW_SELL_PRICE2 * (1 - PAYEE_SPLIT_RATIO) /
+                             BALANCE_ROUND_TO),
                  Math.round((ownerBalance.toNumber() -
                              ownerInitialBalance.toNumber()) /
                              BALANCE_ROUND_TO));
@@ -235,7 +252,8 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(buyer, _videoListener2TransferredInfo[1]);
     assert.equal(_tokenId2.toNumber(), _videoListener2TransferredInfo[2]);
 
-    videoBase.removeListener(mockVideoListener2.address);
+    await videoBase.removeListener(mockVideoListener2.address);
+    await videoAuction.setPayee(0x0);
   });
 
   it("should do auction for force sell price correctly", async () => {
@@ -289,13 +307,19 @@ contract('VideoAuction', async (accounts) => {
     }
   });
 
-  it("should do auction with extra force sell price correctly", async () => {
+  it("should do auction with extra force sell price and payee", async () => {
     let videoBase = await VideoBase.deployed();
     let videoAuction = await VideoAuction.deployed();
 
     let contractOwner = accounts[0];
     let seller = accounts[2];
     let buyer = accounts[3];
+    let payee = accounts[6];
+
+    const PAYEE_SPLIT_RATIO = 0.55;
+    await videoAuction.setPayee(payee);
+    await videoAuction.setPayeeRatio(PAYEE_SPLIT_RATIO * 10000);
+
     // Already force sold to accounts[2]
     let _tokenId3 = await videoBase.getTokenId.call(YOUTUBE_VIDEO_ID3);
 
@@ -304,6 +328,7 @@ contract('VideoAuction', async (accounts) => {
     assert.equal(0, _auctionInfoBefore[1]);
     assert.equal(FORCE_SELL_EXTRA3, _auctionInfoBefore[2]);
     assert.equal(1, _auctionInfoBefore[3]);
+    assert.isBelow(0, _auctionInfoBefore[4]);
 
     // Not enough force sell bid without extra
     try {
@@ -318,6 +343,7 @@ contract('VideoAuction', async (accounts) => {
     let ownerInitialBalance = web3.eth.getBalance(contractOwner);
     let sellerInitialBalance = web3.eth.getBalance(seller);
     let buyerInitialBalance = web3.eth.getBalance(buyer);
+    let payeeInitialBalance = web3.eth.getBalance(payee);
 
     let _txReceipt = await videoAuction.bid(
         _tokenId3,
@@ -330,10 +356,16 @@ contract('VideoAuction', async (accounts) => {
     let ownerBalance = web3.eth.getBalance(contractOwner);
     let sellerBalance = web3.eth.getBalance(seller);
     let buyerBalance = web3.eth.getBalance(buyer);
+    let payeeBalance = web3.eth.getBalance(payee);
 
     assert.equal(buyer, await videoBase.ownerOf(_tokenId3));
     assert.equal(Math.round(FORCE_SELL_PRICE_WITH_EXTRA3 * OWNER_CUT
-                                / BALANCE_ROUND_TO),
+                                * PAYEE_SPLIT_RATIO / BALANCE_ROUND_TO),
+                 Math.round((payeeBalance.toNumber() -
+                             payeeInitialBalance.toNumber()) /
+                             BALANCE_ROUND_TO));
+    assert.equal(Math.round(FORCE_SELL_PRICE_WITH_EXTRA3 * OWNER_CUT
+                                * (1 - PAYEE_SPLIT_RATIO)/ BALANCE_ROUND_TO),
                  Math.round((ownerBalance.toNumber() -
                              ownerInitialBalance.toNumber()) /
                              BALANCE_ROUND_TO));
@@ -351,6 +383,7 @@ contract('VideoAuction', async (accounts) => {
                              buyerBalance.toNumber()) /
                              BALANCE_ROUND_TO));
 
+    let _blockTime = web3.eth.getBlock(_txReceipt.receipt.blockHash).timestamp;
     let _auction = await videoAuction.getAuctionInfo.call(_tokenId3);
     assert.equal(FORCE_SELL_PRICE_WITH_EXTRA3 +
                  FORCE_SELL_PRICE_WITH_EXTRA3 * EXTRA_FORCE_SELL_PRICE_RATIO,
@@ -361,6 +394,9 @@ contract('VideoAuction', async (accounts) => {
             FORCE_SELL_PRICE_WITH_EXTRA3 * EXTRA_FORCE_SELL_PRICE_RATIO,
         _auction[2]);
     assert.equal(2, _auction[3]);
+    assert.equal(_blockTime, _auction[4]);
+
+    await videoAuction.setPayee(0x0);
   });
 
   it("should cancel auction correctly", async () => {

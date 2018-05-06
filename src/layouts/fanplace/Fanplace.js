@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Row, Col, ButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap';
-import { asyncLoadVideoList, asyncAddNewVideoTrusted, sortByPrice, sortByViewCount } from './FanplaceActions';
+import { asyncLoadVideoList, asyncAddNewVideoTrusted, sortByPrice, sortByViewCount, sortByUpdateTime, sortByLastSold } from './FanplaceActions';
 import Spinner from '../ui/spinner/Spinner';
 // CSS
 import './Fanplace.css';
@@ -19,6 +19,8 @@ import BuyVideoDialog from '../ui/buyvideodialog/BuyVideoDialog';
         asyncAddNewVideoTrusted,
         sortByPrice,
         sortByViewCount,
+        sortByUpdateTime,
+        sortByLastSold
     })
 export default class Fanplace extends Component {
   constructor(props, { authData }) {
@@ -59,8 +61,12 @@ export default class Fanplace extends Component {
             <DropdownMenu right>
               <DropdownItem onClick={() => this.props.sortByPrice(1)}>Price DESC</DropdownItem>
               <DropdownItem onClick={() => this.props.sortByPrice(-1)}>Price ASC </DropdownItem>
-              <DropdownItem onClick={() => this.props.sortByViewCount(1)}>Viewcounts DESC</DropdownItem>
+              <DropdownItem onClick={() => this.props.sortByViewCount(1)}>ViewCounts DESC</DropdownItem>
               <DropdownItem onClick={() => this.props.sortByViewCount(-1)}>ViewCounts ASC</DropdownItem>
+              <DropdownItem onClick={() => this.props.sortByLastSold(1)}>LastSold DESC</DropdownItem>
+              <DropdownItem onClick={() => this.props.sortByLastSold(-1)}>LastSold ASC </DropdownItem>
+              <DropdownItem onClick={() => this.props.sortByUpdateTime(1)}>LastUpdate DESC</DropdownItem>
+              <DropdownItem onClick={() => this.props.sortByUpdateTime(-1)}>LastUpdate ASC</DropdownItem>
             </DropdownMenu>
           </ButtonDropdown>
           </Col>
