@@ -1,6 +1,5 @@
 // buy video dialog file
 import React, { Component } from 'react';
-import YouTube from 'react-youtube';
 import { Modal, ModalBody, ModalHeader, ModalFooter, Row, Col, Button, Input, InputGroup, InputGroupAddon, Alert } from 'reactstrap';
 import { connect } from 'react-redux';
 import { hidePayoutDialog, asyncPayout } from './PayoutDialogAction';
