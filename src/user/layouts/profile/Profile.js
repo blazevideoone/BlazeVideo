@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Col, Row, Button, Collapse, Alert } from 'reactstrap';
 import { asyncLoadUserVideos } from './ProfileActions';
+import { showPayoutDialog } from '../../../layouts/ui/payoutdialog/PayoutDialogAction';
 
 // UI Component
 import MyVideoComponent from '../../../layouts/ui/videocomp/MyVideoComponent';
 import ProfileForm from '../../ui/profileform/ProfileForm';
 import SellVideoDialog from '../../../layouts/ui/sellvideodialog/SellVideoDialog';
+import PayoutDialog from '../../../layouts/ui/payoutdialog/PayoutDialog';
 import Spinner from '../../../layouts/ui/spinner/Spinner';
 
 @connect(
@@ -16,7 +18,8 @@ import Spinner from '../../../layouts/ui/spinner/Spinner';
       user: state.user.data
     }),
     {
-      asyncLoadUserVideos
+      asyncLoadUserVideos,
+      showPayoutDialog
     })
 export default class Profile extends Component {
   state: Object = {
@@ -66,12 +69,17 @@ export default class Profile extends Component {
             </Row>
             <Row>
               <Col xs="12" md="12">
-                <b>BTVC:</b> {this.props.user.BTVCBalance}
+                <Button color="primary" size="sm" outline onClick={this.toggleEdit}>Edit</Button>
               </Col>
             </Row>
             <Row>
               <Col xs="12" md="12">
-                <Button color="primary" size="sm" outline onClick={this.toggleEdit}>{ this.state.showEdit ? 'Hide' : 'Edit' }</Button>
+                <b>BTVC:</b> {this.props.user.BTVCBalance} ({this.props.user.BTVCBalance/this.props.user.BTVCTotalSupply*100}%)
+              </Col>
+            </Row>
+            <Row>
+              <Col xs="12" md="12">
+                <Button color="primary" size="sm" outline onClick={this.props.showPayoutDialog}>Payout</Button>
               </Col>
             </Row>
             <Row>
@@ -82,9 +90,15 @@ export default class Profile extends Component {
                 </Collapse>
               </Col>
             </Row>
+            <Row>
+              <Col xs="12" md="12">
+
+              </Col>
+            </Row>
           </Col>
         </Row>
         <SellVideoDialog className="buy-dialog" />
+        <PayoutDialog className="buy-dialog" />
       </Container>
     )
   }

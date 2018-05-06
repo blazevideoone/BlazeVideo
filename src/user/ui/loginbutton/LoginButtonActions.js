@@ -45,7 +45,13 @@ export function loginUser() {
           }
           const userName = web3.toUtf8(result);
           const BTVCBalance = await BTVCInstance.BalanceOf.call(coinbase);
-          dispatch(userLoggedIn({"name": userName, "account": coinbase, "BTVCBalance": BTVCBalance.toNumber()}));
+          const BTVCTotalSupply = await BTVCInstance.totalSupply.call();
+          dispatch(userLoggedIn({
+            "name": userName,
+            "account": coinbase,
+            "BTVCBalance": BTVCBalance.toNumber()/1000000,
+            "BTVCTotalSupply": BTVCTotalSupply.toNumber()/1000000
+          }));
           // Used a manual redirect here as opposed to a wrapper.
           // This way, once logged in a user can still access the home page.
           var currentLocation = browserHistory.getCurrentLocation();
@@ -97,7 +103,13 @@ export function autoLoginUser() {
         if(result !== '0x') {
           const userName = web3.toUtf8(result);
           const BTVCBalance = await BTVCInstance.balanceOf.call(coinbase);
-          dispatch(userLoggedIn({"name": userName, "account": coinbase, "BTVCBalance": BTVCBalance.toNumber()}));
+          const BTVCTotalSupply = await BTVCInstance.totalSupply.call();
+          dispatch(userLoggedIn({
+            "name": userName,
+            "account": coinbase,
+            "BTVCBalance": BTVCBalance.toNumber()/1000000,
+            "BTVCTotalSupply": BTVCTotalSupply.toNumber()/1000000
+          }));
           // Used a manual redirect here as opposed to a wrapper.
           // This way, once logged in a user can still access the home page.
         } else {

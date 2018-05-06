@@ -8,6 +8,9 @@ const initialState = {
     modalShow: false,
     videoData: null
   },
+  payout: {
+    modalShow: false
+  },
   TX: {
     modalShow: false,
     txData: null
@@ -35,6 +38,9 @@ const dialogReducer = (state = initialState, action) => {
       },
       TX: {
         modalShow: { $set: false }
+      },
+      payout: {
+        modalShow: { $set: false }
       }
     })
   }
@@ -58,6 +64,9 @@ const dialogReducer = (state = initialState, action) => {
       },
       TX: {
         modalShow: { $set: false }
+      },
+      payout: {
+        modalShow: { $set: false }
       }
     })
   }
@@ -75,6 +84,34 @@ const dialogReducer = (state = initialState, action) => {
       TX: {
         modalShow: { $set: true },
         txData: { $set: action.payload }
+      },
+      sellVideo: {
+        modalShow: { $set: false }
+      },
+      buyVideo: {
+        modalShow: { $set: false }
+      },
+      payout: {
+        modalShow: { $set: false }
+      }
+    })
+  }
+  if (action.type === 'HIDE_PAYOUT_DIALOG')
+  {
+    return update(state, {
+      payout: {
+        modalShow: { $set: false }
+      }
+    })
+  }
+  if (action.type === 'SHOW_PAYOUT_DIALOG')
+  {
+    return update(state, {
+      payout: {
+        modalShow: { $set: true }
+      },
+      TX: {
+        modalShow: { $set: false }
       },
       sellVideo: {
         modalShow: { $set: false }
