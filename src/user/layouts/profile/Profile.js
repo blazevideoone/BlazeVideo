@@ -7,6 +7,7 @@ import { showPayoutDialog } from '../../../layouts/ui/payoutdialog/PayoutDialogA
 // UI Component
 import MyVideoComponent from '../../../layouts/ui/videocomp/MyVideoComponent';
 import ProfileForm from '../../ui/profileform/ProfileForm';
+import ProposeForm from '../../ui/proposeform/ProposeForm';
 import SellVideoDialog from '../../../layouts/ui/sellvideodialog/SellVideoDialog';
 import PayoutDialog from '../../../layouts/ui/payoutdialog/PayoutDialog';
 import Spinner from '../../../layouts/ui/spinner/Spinner';
@@ -23,10 +24,16 @@ import Spinner from '../../../layouts/ui/spinner/Spinner';
     })
 export default class Profile extends Component {
   state: Object = {
-    showEdit: false
+    showEdit: false,
+    showPropse: false
   }
   componentDidMount() {
     this.props.asyncLoadUserVideos();
+  }
+  togglePropose: Function = () => {
+    this.setState({
+      showPropose: !this.state.showPropose
+    })
   }
   toggleEdit: Function = () => {
     this.setState({
@@ -34,15 +41,21 @@ export default class Profile extends Component {
     })
   }
   render() {
-    console.log(this.props.user);
     return(
       <Container>
         <Row>
           { this.props.videos
-            ? <Col xs="12" md="10" lg="10">
+            ? <Col xs="12" md="9" lg="9">
             <Row>
               <Col>
-                <h2>My Videos</h2>
+                <h2>My Videos <Button color="primary" size="sm" outline onClick={this.togglePropose}>{this.state.showPropose ? 'Hide' : 'Propose New Video'}</Button></h2>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Collapse isOpen={this.state.showPropose}>
+                  <ProposeForm />
+                </Collapse>
               </Col>
             </Row>
             { this.props.videos.length === 0
@@ -61,7 +74,7 @@ export default class Profile extends Component {
             </Row>
           </Col>
           : <Spinner /> }
-          <Col xs="12" md="2" lg="2">
+          <Col xs="12" md="3" lg="3">
             <Row>
               <Col xs="12" md="12">
                 <b>Nick:</b> {this.props.user.name}
