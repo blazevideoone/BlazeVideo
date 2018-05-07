@@ -17,10 +17,14 @@ module.exports = function(finalCallback) {
       let videoCreator = await oracleUtils.getVideoCreator();
       let videoAuction = await oracleUtils.getVideoAuction();
       let videoBreed = await oracleUtils.getVideoBreed();
+      let bitVideoCoin = await oracleUtils.getBitVideoCoin();
+      let videoCoinRule = await oracleUtils.getVideoCoinRule();
       console.log('VideoBase contract address: ' + videoBase.address);
       console.log('VideoCreator contract address: ' + videoCreator.address);
       console.log('VideoAuction contract address: ' + videoAuction.address);
       console.log('VideoBreed contract address: ' + videoBreed.address);
+      console.log('BitVideoCoin contract address: ' + bitVideoCoin.address);
+      console.log('VideoCoinRule contract address: ' + videoCoinRule.address);
       console.log();
 
       function parseVal(s, type) {
@@ -64,6 +68,13 @@ module.exports = function(finalCallback) {
         , 'removeListener':
             {val: 'contractAddress',                          isCall: false, cmd: videoBase.removeListener}
 
+        , 'getTrustedContractsForBitVideoCoin':
+            {val: null,                                       isCall: true,  cmd: bitVideoCoin.getTrustedContracts}
+        , 'addTrustedContractForBitVideoCoin':
+            {val: 'contractAddress',                          isCall: false, cmd: bitVideoCoin.addTrustedContract}
+        , 'removeTrustedContractForBitVideoCoin':
+            {val: 'contractAddress',                          isCall: false, cmd: bitVideoCoin.removeTrustedContract}
+
         , 'getVideoBaseForCreator':
             {val: null,                                       isCall: true,  cmd: videoCreator.getVideoBase}
         , 'setVideoBaseForCreator':
@@ -82,6 +93,16 @@ module.exports = function(finalCallback) {
             {val: 'contractAddress',                          isCall: false, cmd: videoBreed.setVideoBase}
         , 'resetVideoBaseForBreed':
             {val: null,                                       isCall: false, cmd: videoBreed.resetVideoBase}
+        , 'getVideoBaseForVideoCoinRule':
+            {val: null,                                       isCall: true,  cmd: videoCoinRule.getVideoBase}
+        , 'setVideoBaseForVideoCoinRule':
+            {val: 'contractAddress',                          isCall: false, cmd: videoCoinRule.setVideoBase}
+        , 'resetVideoBaseForVideoCoinRule':
+            {val: null,                                       isCall: false, cmd: videoCoinRule.resetVideoBase}
+        , 'getBitVideoCoinForVideoCoinRule':
+            {val: null,                                       isCall: true,  cmd: videoCoinRule.bitVideoCoin}
+        , 'setBitVideoCoinForVideoCoinRule':
+            {val: 'contractAddress',                          isCall: false, cmd: videoCoinRule.setBitVideoCoin}
 
         , 'videoUpdateCost':
             {val: null,                                       isCall: true,  cmd: videoCreator.videoUpdateCost}
@@ -113,9 +134,12 @@ module.exports = function(finalCallback) {
         , 'getTrustedContracts', 'addTrustedContract', 'removeTrustedContract'
         , 'getListeners', 'addListener', 'removeListener'
 
+        , 'getTrustedContractsForBitVideoCoin', 'addTrustedContractForBitVideoCoin', 'removeTrustedContractForBitVideoCoin',
+
         , 'getVideoBaseForCreator', 'setVideoBaseForCreator', 'resetVideoBaseForCreator'
         , 'getVideoBaseForBreed', 'setVideoBaseForBreed', 'resetVideoBaseForBreed'
         , 'getVideoBaseForAuction', 'setVideoBaseForAuction', 'resetVideoBaseForAuction'
+        , 'getVideoBaseForVideoCoinRule', 'setVideoBaseForVideoCoinRule', 'resetVideoBaseForVideoCoinRule', 'getBitVideoCoinForVideoCoinRule', 'setBitVideoCoinForVideoCoinRule',
 
         , 'videoUpdateCost', 'setVideoUpdateCost'
 

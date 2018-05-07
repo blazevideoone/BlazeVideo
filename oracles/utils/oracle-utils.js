@@ -2,6 +2,8 @@ var VideoBaseContract = require('../../build/contracts/VideoBase.json');
 var VideoCreatorContract = require('../../build/contracts/VideoCreator.json');
 var VideoAuctionContract = require('../../build/contracts/VideoAuction.json');
 var VideoBreedContract = require('../../build/contracts/VideoBreed.json');
+var BitVideoCoinContract = require('../../build/contracts/BitVideoCoin.json');
+var VideoCoinRuleContract = require('../../build/contracts/VideoCoinRule.json');
 var contract = require('truffle-contract');
 
 module.exports = function(web3) {
@@ -16,8 +18,13 @@ module.exports = function(web3) {
   videoAuctionContract.setProvider(web3.currentProvider);
   var videoBreedContract = contract(VideoBreedContract);
   videoBreedContract.setProvider(web3.currentProvider);
+  var bitVideoCoinContract = contract(BitVideoCoinContract);
+  bitVideoCoinContract.setProvider(web3.currentProvider);
+  var videoCoinRuleContract = contract(VideoCoinRuleContract);
+  videoCoinRuleContract.setProvider(web3.currentProvider);
 
-  var videoBase, videoCreator, videoAuction, videoBreed;
+  var videoBase, videoCreator, videoAuction, videoBreed,
+      bitVideoCoin, videoCoinRule;
 
   return {
     getVideoBase: async() => {
@@ -43,6 +50,18 @@ module.exports = function(web3) {
         videoBreed = await videoBreedContract.deployed();
       }
       return videoBreed;
+    },
+    getBitVideoCoin: async() => {
+      if (bitVideoCoin == null) {
+        bitVideoCoin = await bitVideoCoinContract.deployed();
+      }
+      return bitVideoCoin;
+    },
+    getVideoCoinRule: async() => {
+      if (videoCoinRule == null) {
+        videoCoinRule = await videoCoinRuleContract.deployed();
+      }
+      return videoCoinRule;
     }
   };
 }
