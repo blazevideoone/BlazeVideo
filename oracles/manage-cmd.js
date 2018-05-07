@@ -108,6 +108,10 @@ module.exports = function(finalCallback) {
             {val: null,                                       isCall: true,  cmd: videoCreator.videoUpdateCost}
         , 'setVideoUpdateCost':
             {val: 'costInEther', type: "ether",               isCall: false, cmd: videoCreator.setVideoUpdateCost}
+        , 'newVideoCost':
+            {val: null,                                       isCall: true,  cmd: videoCreator.newVideoCost}
+        , 'setNewVideoCost':
+            {val: 'costInEther', type: "ether",               isCall: false, cmd: videoCreator.setNewVideoCost}
 
         , 'getOwnerCut':
             {val: null,                                       isCall: true,  cmd: videoAuction.getOwnerCut}
