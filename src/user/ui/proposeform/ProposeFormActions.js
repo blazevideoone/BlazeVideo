@@ -31,7 +31,7 @@ export function proposeVideo(videoId) {
           // Attempt to propose new video.
           dispatch(showTXDialog(null));
           const _id = 'YUTB_' + videoId;
-          videoCreatorInstance.proposeNewVideo(web3.fromAscii(_id), {from: coinbase, value: web3.toWei(0.0001, 'ether')})
+          videoCreatorInstance.proposeNewVideo(web3.fromAscii(_id), {from: coinbase, value: web3.toWei(0.01, 'ether')})
           .then(function(result) {
             // If no error, return
             return dispatch(showTXDialog(result));
