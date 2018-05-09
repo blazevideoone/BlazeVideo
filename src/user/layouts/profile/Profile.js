@@ -48,7 +48,7 @@ export default class Profile extends Component {
             ? <Col xs="12" md="9" lg="9">
             <Row>
               <Col>
-                <h2>My Videos <Button color="primary" size="sm" outline onClick={this.togglePropose}>{this.state.showPropose ? 'Hide' : 'Propose New Video'}</Button></h2>
+                <h2>My V+ List <Button color="primary" size="sm" outline onClick={this.togglePropose}>{this.state.showPropose ? 'Hide' : 'Propose New V+'}</Button></h2>
               </Col>
             </Row>
             <Row>
@@ -60,7 +60,7 @@ export default class Profile extends Component {
             </Row>
             { this.props.videos.length === 0
               ? <Alert color="primary">
-                You don't have any video yet ---- Subscribe one in the Fanplace!
+                You don't have any V+ yet ---- Buy one in the Fanplace!
               </Alert> : null
             }
             <Row>

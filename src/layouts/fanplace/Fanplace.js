@@ -56,7 +56,7 @@ export default class Fanplace extends Component {
           <Col xs="12" md="6">
           <ButtonDropdown className="fanplace-dropdown" isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
             <DropdownToggle color="light" caret>
-              Sort Videos
+              Sort V+
             </DropdownToggle>
             <DropdownMenu right>
               <DropdownItem onClick={() => this.props.sortByPrice(1)}>Price DESC</DropdownItem>

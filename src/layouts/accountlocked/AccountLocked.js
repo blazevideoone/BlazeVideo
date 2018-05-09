@@ -7,7 +7,7 @@ export default class AccountLocked extends Component {
       <Container>
         <Row>
           <Col>
-            <h3 style={{textAlign: 'center', color: '#FF0000'}}>The MetaMask is not installed or locked.</h3>
+            <h3 style={{textAlign: 'center'}}>The MetaMask is not installed or locked. Please install or unlock MetaMask and go Back.</h3>
           </Col>
         </Row>
       </Container>

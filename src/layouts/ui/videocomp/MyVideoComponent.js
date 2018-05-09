@@ -29,9 +29,9 @@ export default class VideoComponent extends Component {
       <div className="video-card">
         <div className="title-box">
           View Count: {this.props.videoData.viewCount}
-          <Button size="sm" color="link" className="update-btn" id="update-button" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Update</Button>
+          <Button size="sm" color="link" className="update-btn" id="update-button" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Earn BTVC</Button>
           <UncontrolledTooltip placement="right" target="update-button">
-            update view count could increase the price of your video(cost 0.0001 ether).
+            Earn BTVC by update the viewcount of this V+ (cost 0.0001 ether). 1 BTVC per 1M viewcounts.
           </UncontrolledTooltip>
         </div>
         <div className="video-box">
@@ -44,11 +44,11 @@ export default class VideoComponent extends Component {
           { this.props.videoData.isForced
             ? <div>
               <span className="price"><b>EST PRICE: </b>{ this.props.videoData.viewCount / 100000000 }<b> &Xi;</b></span>
-              <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>TRANSFER</Button>
+              <Button color='primary' className="buy-button" onClick={() => this.props.showSellVideoDialog(this.props.videoData)}>SELL V+</Button>
             </div>
             : <div>
               <span className="price"><b>CURRENT PRICE: </b>{ this.props.videoData.price }<b> &Xi;</b></span>
-              <Button color='warning' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL</Button>
+              <Button color='warning' className="buy-button" onClick={() => this.props.asyncCancelAuction(this.props.videoData.tokenId)}>CANCEL SELL</Button>
             </div> }
         </div>
       </div>

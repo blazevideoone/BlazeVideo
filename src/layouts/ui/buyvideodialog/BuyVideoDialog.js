@@ -36,7 +36,7 @@ export default class BuyVideoDialog extends Component {
     if (this.state.price < this.props.data.videoData.price) {
       this.setState({
         showAlert: true,
-        alertText: `WARNING: Your price ${this.state.price} ETH is lower than the reserved price ${this.props.data.videoData.price} ETH of this video`
+        alertText: `WARNING: Your price ${this.state.price} ETH is lower than the reserved price ${this.props.data.videoData.price} ETH of this V+`
       });
       setTimeout(() => this.setState({
         showAlert: false,
@@ -76,7 +76,7 @@ export default class BuyVideoDialog extends Component {
             </Col>
           </Row> : null }
           { (this.props.data.videoData && this.props.data.videoData.isForced) && <Alert color="warning">
-            You are trying to force subscribe this video, the price may higher!
+            You are trying to force buy this V+, the price may higher!
           </Alert> }
         </ModalBody>
         <ModalFooter>
@@ -84,7 +84,7 @@ export default class BuyVideoDialog extends Component {
             <Input type="number" value={this.state.price} onChange={this.changePrice} />
             <InputGroupAddon addonType="append">&Xi;</InputGroupAddon>
           </InputGroup>
-          <Button color="primary" onClick={this.bidNow}>SUBSCRIBE NOW</Button>
+          <Button color="primary" onClick={this.bidNow}>BUY V+ NOW</Button>
           <Button color="secondary" onClick={this.toggle}>BACK</Button>
         </ModalFooter>
       </Modal>

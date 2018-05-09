@@ -23,9 +23,9 @@ export default class VideoComponent extends Component {
     if (!this.props.user) {
       return (<Button color='primary' outline className="buy-button" onClick={this.signUp}>SIGNUP TO PLAY</Button>);
     } else if ( this.props.user.account !== this.props.videoData.owner) {
-      return (<Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE SUBSCRIBE' : 'SUBSCRIBE'}</Button>);
+      return (<Button color={this.props.videoData.isForced ? 'warning' : 'primary'} className="buy-button" onClick={() => this.props.showBuyVideoDialog(this.props.videoData)}>{this.props.videoData.isForced ? 'FORCE BUY V+' : 'BUY V+'}</Button>);
     } else {
-      return (<Button color='primary' outline className="buy-button">YOUR VIDEO</Button>);
+      return (<Button color='primary' outline className="buy-button">YOUR V+</Button>);
     }
   }
   render() {
@@ -43,7 +43,7 @@ export default class VideoComponent extends Component {
           View Counts: {this.props.videoData.viewCount}
           <a href={`https://www.youtube.com/watch?v=${this.props.videoData.videoId}`} target="blank" className="watch-btn" id="watch-button">Watch</a>
           <UncontrolledTooltip placement="right" target="watch-button">
-            Watch this video on Youtube.com
+            checkout this video on Youtube.com
           </UncontrolledTooltip>
         </div>
         <div className="video-box">

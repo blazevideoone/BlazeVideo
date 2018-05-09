@@ -35,7 +35,7 @@ export default class ProposeForm extends Component {
         <FormGroup>
           <Label>Youtube video ID:</Label>
           <Input id="youtubeId" type="text" value={this.state.youtubeId} onChange={this.onInputChange} placeholder="Youtube Id" />
-          <FormText color="muted">Propose a new video will cost 0.01 Ether.</FormText>
+          <FormText color="muted">Propose a new V+ will cost 0.01 Ether.</FormText>
         </FormGroup>
         <Button color="primary" type="submit">Propose</Button>
       </Form>

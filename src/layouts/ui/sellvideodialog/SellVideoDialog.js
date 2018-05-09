@@ -49,7 +49,7 @@ export default class SellVideoDialog extends Component {
     };
     return (
       <Modal isOpen={ this.props.data.modalShow } toggle={this.toggle} className={this.props.className}>
-        <ModalHeader toggle={this.toggle}>Transfer Video</ModalHeader>
+        <ModalHeader toggle={this.toggle}>Sell V+</ModalHeader>
         <ModalBody>
         { this.state.showAlert && <Alert color="danger">
           { this.state.alertText }
@@ -65,7 +65,7 @@ export default class SellVideoDialog extends Component {
               </div>
             </Col>
             <Col xs="12" md="12">
-              You are going to TRANSFER video: { this.props.data.videoData.videoId }
+              You are going to SELL V+: { this.props.data.videoData.videoId }
             </Col>
           </Row> : null }
         </ModalBody>
@@ -74,7 +74,7 @@ export default class SellVideoDialog extends Component {
             <Input type="number" value={this.state.price} onChange={this.changePrice} />
             <InputGroupAddon addonType="append">&Xi;</InputGroupAddon>
           </InputGroup>
-          <Button color="primary" onClick={this.sellNow}>TRANSFER NOW</Button>
+          <Button color="primary" onClick={this.sellNow}>SELL V+ NOW</Button>
           <Button color="secondary" onClick={this.toggle}>BACK</Button>
         </ModalFooter>
       </Modal>
