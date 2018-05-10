@@ -124,6 +124,13 @@ export function asyncLoadVideoList() {
         const loadData = async index => {
           const _tokenId = await videoBaseInstance.tokenByIndex.call(index);
           const _owner = await videoBaseInstance.ownerOf.call(_tokenId);
+          console.log(_owner);
+          if (_owner === '0x') {
+            return {
+              tokenId: _tokenId.toNumber(),
+              owner: _owner
+            };
+          }
           const _ownerName = await AuthenticationInstance.getUserName.call(_owner);
           const _videoInfo = await videoBaseInstance.getVideoInfo.call(_tokenId);
           const _auctionInfo = await videoAuctionInstance.getAuctionInfo.call(_tokenId);
@@ -148,7 +155,7 @@ export function asyncLoadVideoList() {
           promiseList.push(loadData(index));
         }
         const _videoList = await Promise.all(promiseList);
-        return dispatch(loadVideoList(_videoList));
+        return dispatch(loadVideoList(_videoList.filter(_v => _v.owner !== '0x')));
       })
     }
   } else {

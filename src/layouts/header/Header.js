@@ -43,16 +43,18 @@ export default class Header extends Component {
 
     return (
       <div className="header">
-        <Navbar color="light" light expand="md">
-          <Link className="nav-brand" to="/">
-            <img role="presentation" className="home-image" src="/img/logo.png" />
-          </Link>
-          <NavbarToggler onClick={this.toggleNav} />
-            <Collapse isOpen={this.state.isOpen} navbar>
-              <OnlyAuthLinks />
-              <OnlyGuestLinks />
-            </Collapse>
-        </Navbar>
+        <div className="container">
+          <Navbar color="light" light expand="md">
+            <Link className="nav-brand" to="/">
+              <img role="presentation" className="home-image" src="/img/logo.png" />
+            </Link>
+            <NavbarToggler onClick={this.toggleNav} />
+              <Collapse isOpen={this.state.isOpen} navbar>
+                <OnlyAuthLinks />
+                <OnlyGuestLinks />
+              </Collapse>
+          </Navbar>
+        </div>
       </div>)
   }
 }

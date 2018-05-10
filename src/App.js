@@ -19,7 +19,7 @@ export default class App extends Component {
           <Container>
             <Row>
               <Col className="text-center">
-                View our project on Github. Made with love by BitVideos fundation. 2018
+                View our project on <a href="https://github.com/blazevideoone/BlazeVideo" target="blank">Github</a>. Made with love by BitVideo foundation. 2018
               </Col>
             </Row>
           </Container>
