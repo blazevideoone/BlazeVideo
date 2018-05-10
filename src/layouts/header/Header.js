@@ -43,7 +43,7 @@ export default class Header extends Component {
 
     return (
       <div className="header">
-        <div className="container">
+        <div className="header-container">
           <Navbar color="light" light expand="md">
             <Link className="nav-brand" to="/">
               <img role="presentation" className="home-image" src="/img/logo.png" />

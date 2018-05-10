@@ -31,7 +31,7 @@ export default class VideoComponent extends Component {
           View Count: {this.props.videoData.viewCount}
           <Button size="sm" color="link" className="update-btn" id="update-button" onClick={() => this.props.asyncUpdateViewCount(this.props.videoData.tokenId)}>Earn BTVC</Button>
           <UncontrolledTooltip placement="right" target="update-button">
-            Earn BTVC by update the viewcount of this V+ (cost 0.0001 ether). 1 BTVC per 1M viewcounts.
+            Earn BTVC by update the viewcount of this V+ (cost 0.0001 ether). 100 BTVC per 1M viewcounts.
           </UncontrolledTooltip>
         </div>
         <div className="video-box">

@@ -87,7 +87,7 @@ export default class Profile extends Component {
             </Row>
             <Row>
               <Col xs="12" md="12">
-                <b>BTVC:</b> {this.props.user.BTVCBalance} ({this.props.user.BTVCBalance/this.props.user.BTVCTotalSupply*100}%)
+                <b>BTVC:</b> {this.props.user.BTVCBalance} ({Number(this.props.user.BTVCBalance/this.props.user.BTVCTotalSupply*100).toFixed(2)}%)
               </Col>
             </Row>
             <Row>
